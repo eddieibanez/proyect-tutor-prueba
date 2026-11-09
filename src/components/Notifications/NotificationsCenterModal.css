@@ -1,0 +1,173 @@
+﻿.notif-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.notif-modal-card {
+  background: var(--cards);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  width: 100%;
+  max-width: 680px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--card-shadow);
+  overflow: hidden;
+}
+
+.notif-modal-header {
+  padding: 1.2rem 1.5rem;
+  background: var(--dark);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.notif-modal-header h3 {
+  margin: 0;
+  color: var(--primary);
+  font-size: 1.25rem;
+}
+
+.notif-modal-header p {
+  margin: 4px 0 0 0;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+
+.notif-modal-body {
+  padding: 1.5rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.notif-section h4 {
+  margin: 0 0 0.8rem 0;
+  color: var(--text-light);
+  font-size: 0.95rem;
+}
+
+.empty-notif-text {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-style: italic;
+}
+
+.notif-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.notif-card {
+  display: flex;
+  gap: 0.9rem;
+  background: var(--dark);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.9rem 1.1rem;
+  transition: all 0.2s;
+}
+
+.notif-card.danger {
+  border-left: 4px solid var(--error);
+  background: rgba(198, 40, 40, 0.08);
+}
+
+.notif-card.urgent {
+  border-left: 4px solid var(--warning);
+  background: rgba(230, 81, 0, 0.1);
+}
+
+.notif-card.warning {
+  border-left: 4px solid #FFB300;
+  background: rgba(255, 179, 0, 0.08);
+}
+
+.notif-card.lesson {
+  border-left: 4px solid var(--primary);
+}
+
+.notif-card.content {
+  border-left: 4px solid var(--secondary);
+}
+
+.notif-icon {
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+.notif-content {
+  flex: 1;
+}
+
+.notif-title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.3rem;
+  flex-wrap: wrap;
+}
+
+.notif-title-row strong {
+  font-size: 0.9rem;
+  color: var(--text-light);
+}
+
+.course-code-tag {
+  background: var(--primary);
+  color: #FFFFFF;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.already-submitted-tag {
+  background: rgba(46, 125, 50, 0.2);
+  color: var(--success);
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.notif-content p {
+  margin: 0 0 0.4rem 0;
+  font-size: 0.85rem;
+  color: var(--text-light);
+  line-height: 1.4;
+}
+
+.notif-meta {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.btn-continue-lesson-notif {
+  background: var(--primary);
+  color: #FFFFFF;
+  border: none;
+  padding: 0.35rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 0.3rem;
+  transition: all 0.2s;
+}
+
+.btn-continue-lesson-notif:hover {
+  filter: brightness(1.15);
+}

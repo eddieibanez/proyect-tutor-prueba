@@ -1,4 +1,4 @@
-.navbar {
+﻿.navbar {
   background-color: var(--nav-bg);
   backdrop-filter: blur(10px);
   height: 64px;
@@ -59,66 +59,70 @@
   font-size: 14px;
   font-weight: 500;
   border-radius: 6px;
-  transition: all 0.2s ease;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
 }
 
-.nav-links:hover {
-  background-color: rgba(0, 188, 212, 0.08);
+.nav-links:hover, .nav-links.active {
   color: var(--primary);
-}
-
-.view-switch {
-  color: var(--accent);
-  font-weight: 600;
+  background-color: rgba(0, 188, 212, 0.08);
 }
 
 .view-switch-btn {
-  background: rgba(0, 188, 212, 0.12);
-  border: 1px solid var(--primary);
+  background: var(--dark);
+  border: 1px solid var(--border);
   color: var(--primary);
-  cursor: pointer;
-  font-family: inherit;
-  font-size: 13.5px;
   font-weight: 600;
-  padding: 0.35rem 0.85rem;
-  border-radius: 6px;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-  transition: all 0.2s ease;
+  cursor: pointer;
 }
 
 .view-switch-btn:hover {
   background: var(--primary);
   color: #FFFFFF;
-  transform: translateY(-1px);
 }
 
 .navbar-right-cluster {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 12px;
+}
+
+.btn-nav-action {
+  background: var(--dark);
+  border: 1px solid var(--border);
+  font-size: 1.1rem;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-nav-action:hover {
+  background: var(--cards);
+  border-color: var(--primary);
+  transform: translateY(-1px);
 }
 
 .btn-theme-toggle {
-  background-color: var(--dark);
+  background: var(--dark);
   border: 1px solid var(--border);
   color: var(--text-light);
-  padding: 0.45rem 0.85rem;
-  border-radius: 20px;
-  font-size: 0.8rem;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
   transition: all 0.2s ease;
 }
 
 .btn-theme-toggle:hover {
+  background: var(--cards);
   border-color: var(--primary);
-  color: var(--primary);
-  transform: scale(1.03);
 }
 
 .navbar-user {
@@ -130,7 +134,7 @@
 .user-info {
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
+  text-align: right;
 }
 
 .user-name {
@@ -139,32 +143,38 @@
   font-weight: 600;
 }
 
+.user-name.clickable-profile {
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.user-name.clickable-profile:hover {
+  color: var(--primary);
+  text-decoration: underline;
+}
+
 .user-badge {
-  background-color: var(--secondary);
-  color: white;
-  font-size: 10px;
+  font-size: 11px;
+  color: var(--primary);
   font-weight: 600;
-  padding: 2px 7px;
-  border-radius: 10px;
-  text-transform: uppercase;
-  margin-top: 2px;
 }
 
 .btn-logout {
   background: transparent;
   border: 1px solid var(--border);
-  color: var(--error);
-  padding: 0.35rem 0.75rem;
+  color: var(--text-muted);
+  padding: 5px 12px;
   border-radius: 6px;
-  font-size: 12.5px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .btn-logout:hover {
-  background-color: var(--error);
-  color: white;
+  background-color: rgba(239, 68, 68, 0.1);
+  color: var(--error);
+  border-color: var(--error);
 }
 
 .menu-icon {

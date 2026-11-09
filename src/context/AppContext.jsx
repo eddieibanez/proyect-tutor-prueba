@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
+﻿import React, { createContext, useState, useEffect, useContext } from 'react';
 import { supabase } from '../lib/supabaseClient';
 
 export const AppContext = createContext();
@@ -16,6 +16,7 @@ export const AppProvider = ({ children }) => {
   const [courses, setCourses] = useState([]);
   const [students, setStudents] = useState([]);
   const [messages, setMessages] = useState([]);
+  const [tasks, setTasks] = useState([]);
   const [customContent, setCustomContent] = useState({});
   const [theme, setTheme] = useState('light');
   const [loading, setLoading] = useState(true);
@@ -810,6 +811,114 @@ export const AppProvider = ({ children }) => {
     }
   };
 
+  // ACTUALIZAR PERFIL DE USUARIO (DATOS PERSONALES, IDENTIFICACIÓN, CONTRASEÑA)
+  const updateUserProfile = async (updatedFields) => {
+    if (!user) return;
+    const updatedUser = { ...user, ...updatedFields };
+    setUser(updatedUser);
+    localStorage.setItem('codecraft_user', JSON.stringify(updatedUser));
+
+    // Si es estudiante, actualizar en lista de students
+    if (user.role === 'estudiante') {
+      const updatedStudents = students.map(s => s.id === user.id ? { ...s, ...updatedFields } : s);
+      setStudents(updatedStudents);
+      localStorage.setItem('codecraft_students', JSON.stringify(updatedStudents));
+    }
+
+    try {
+      await supabase.from('profiles').update({
+        name: updatedFields.name || updatedFields.nombre,
+        last_name: updatedFields.lastName || updatedFields.apellido,
+        age: updatedFields.age || updatedFields.edad,
+        grade: updatedFields.grade || updatedFields.grado,
+        password: updatedFields.password
+      }).eq('id', user.id);
+    } catch (e) {
+      console.warn('Error al actualizar perfil en Supabase:', e);
+    }
+  };
+
+  // EDITAR MENSAJE EN TIEMPO REAL
+  const editMessage = async (messageId, newText) => {
+    const updated = messages.map(m => m.id === messageId ? { ...m, text: newText, edited: true, edited_at: new Date().toISOString() } : m);
+    setMessages(updated);
+    localStorage.setItem('codecraft_messages', JSON.stringify(updated));
+
+    try {
+      await supabase.from('messages').update({ text: newText }).eq('id', messageId);
+    } catch (e) {
+      console.warn('Error al editar mensaje en Supabase:', e);
+    }
+  };
+
+  // GESTIÓN DE HORARIOS DE CURSOS Y CANCELACIONES DE CLASES
+  const updateCourseSchedule = async ({ courseId, schedule, scheduleDays, startTime, endTime }) => {
+    const updatedCourses = courses.map(c => {
+      if (c.id === courseId) {
+        return { ...c, schedule, scheduleDays, startTime, endTime };
+      }
+      return c;
+    });
+    setCourses(updatedCourses);
+    localStorage.setItem('codecraft_courses', JSON.stringify(updatedCourses));
+
+    try {
+      await supabase.from('courses').update({ schedule }).eq('id', courseId);
+    } catch (e) {
+      console.warn('Error al actualizar horario de curso en Supabase:', e);
+    }
+  };
+
+  const toggleCourseDateCancellation = async (courseId, dateStr) => {
+    const updatedCourses = courses.map(c => {
+      if (c.id === courseId) {
+        const cancelled = c.cancelledDates || [];
+        const isAlreadyCancelled = cancelled.includes(dateStr);
+        const newCancelled = isAlreadyCancelled
+          ? cancelled.filter(d => d !== dateStr)
+          : [...cancelled, dateStr];
+        return { ...c, cancelledDates: newCancelled };
+      }
+      return c;
+    });
+    setCourses(updatedCourses);
+    localStorage.setItem('codecraft_courses', JSON.stringify(updatedCourses));
+  };
+
+  // GESTIÓN DE TAREAS Y ENTREGAS
+  const addTask = async (newTaskData) => {
+    const task = {
+      ...newTaskData,
+      id: `task-${Date.now()}`,
+      created_at: new Date().toISOString(),
+      submissions: []
+    };
+    const updated = [...tasks, task];
+    setTasks(updated);
+    localStorage.setItem('codecraft_tasks', JSON.stringify(updated));
+    return task;
+  };
+
+  const submitTask = async (taskId, submissionData) => {
+    const now = new Date();
+    const updated = tasks.map(t => {
+      if (t.id === taskId) {
+        const dueDateTime = new Date(`${t.dueDate}T${t.dueTime || '23:59'}`);
+        const isLate = now > dueDateTime;
+        const newSub = {
+          ...submissionData,
+          submittedAt: now.toISOString(),
+          isLate
+        };
+        const subs = (t.submissions || []).filter(s => s.studentId !== submissionData.studentId);
+        return { ...t, submissions: [...subs, newSub] };
+      }
+      return t;
+    });
+    setTasks(updated);
+    localStorage.setItem('codecraft_tasks', JSON.stringify(updated));
+  };
+
   // FUNCIÓN PARA LIMPIAR TODOS LOS DATOS LOCALES
   const clearAllLocalData = () => {
     localStorage.removeItem('codecraft_user');
@@ -859,6 +968,13 @@ export const AppProvider = ({ children }) => {
       saveCustomContent,
       sendMessage,
       markMessagesAsRead,
+      tasks,
+      editMessage,
+      updateUserProfile,
+      updateCourseSchedule,
+      toggleCourseDateCancellation,
+      addTask,
+      submitTask,
       updateStudentNote,
       updateSettings,
       clearAllLocalData,
@@ -868,3 +984,5 @@ export const AppProvider = ({ children }) => {
     </AppContext.Provider>
   );
 };
+
+

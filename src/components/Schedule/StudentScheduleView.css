@@ -1,0 +1,193 @@
+﻿.st-sched-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.st-sched-card {
+  background: var(--cards);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  width: 100%;
+  max-width: 950px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--card-shadow);
+  overflow: hidden;
+}
+
+.st-sched-header {
+  padding: 1.2rem 1.5rem;
+  background: var(--dark);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.st-sched-header h3 {
+  margin: 0;
+  color: var(--primary);
+  font-size: 1.25rem;
+}
+
+.st-sched-header p {
+  margin: 3px 0 0 0;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+
+.st-sched-body {
+  padding: 1.5rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.student-picker-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.student-picker-row label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.student-picker-row select {
+  background: var(--dark);
+  border: 1px solid var(--border);
+  color: var(--text-light);
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  outline: none;
+}
+
+.st-info-banner {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: var(--dark);
+  padding: 0.8rem 1.2rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  margin-bottom: 1rem;
+}
+
+.st-avatar-badge {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.st-info-banner h4 {
+  margin: 0;
+  color: var(--text-light);
+  font-size: 1.05rem;
+}
+
+.st-info-banner p {
+  margin: 2px 0 0 0;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.weekly-schedule-matrix {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 0.6rem;
+  overflow-x: auto;
+}
+
+.day-schedule-column {
+  background: var(--dark);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  min-width: 130px;
+}
+
+.day-column-head {
+  padding: 0.6rem 0.8rem;
+  background: var(--cards);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+.day-column-head strong {
+  color: var(--text-light);
+  font-size: 0.85rem;
+}
+
+.day-count {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.day-classes-list {
+  padding: 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.no-class-slot {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  padding: 1.5rem 0;
+  font-style: italic;
+  opacity: 0.7;
+}
+
+.matrix-class-card {
+  background: var(--cards);
+  border: 1px solid var(--border);
+  border-left: 3px solid;
+  border-radius: 6px;
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.matrix-time {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.matrix-course-name {
+  font-size: 0.78rem;
+  color: var(--text-light);
+  line-height: 1.2;
+}
+
+.matrix-course-code {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+}

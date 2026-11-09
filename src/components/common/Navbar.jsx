@@ -1,13 +1,19 @@
-import React, { useContext, useState } from 'react';
+﻿import React, { useContext, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AppContext } from '../../context/AppContext';
 import './Navbar.css';
+import UnifiedMessenger from '../Messaging/UnifiedMessenger';
+import NotificationsCenterModal from '../Notifications/NotificationsCenterModal';
+import ProfileModal from '../ProfileModal/ProfileModal';
 
 const Navbar = () => {
   const { user, realUser, previewMode, enablePreview, disablePreview, logout, theme, toggleTheme } = useContext(AppContext);
   const navigate = useNavigate();
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [showMessenger, setShowMessenger] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
 
   const isTeacherAccount = realUser?.role === 'profesor' || user?.role === 'profesor';
 
@@ -98,6 +104,30 @@ const Navbar = () => {
         </ul>
 
         <div className="navbar-right-cluster">
+          {user && (
+            <>
+              {/* BOTÓN CENTRO DE NOTIFICACIONES */}
+              <button 
+                type="button" 
+                className="btn-nav-action" 
+                onClick={() => setShowNotifications(true)} 
+                title="Centro de Notificaciones y Plazos"
+              >
+                🔔
+              </button>
+
+              {/* BOTÓN MENSAJERÍA DIRECTA */}
+              <button 
+                type="button" 
+                className="btn-nav-action" 
+                onClick={() => setShowMessenger(true)} 
+                title="Mensajería en tiempo real"
+              >
+                💬
+              </button>
+            </>
+          )}
+
           {/* BOTÓN CAMBIO DE MODO CLARO / OSCURO */}
           <button 
             type="button" 
@@ -111,7 +141,7 @@ const Navbar = () => {
           {user && (
             <div className={`navbar-user ${isMenuOpen ? 'active' : ''}`}>
               <div className="user-info">
-                <span className="user-name">
+                <span className="user-name clickable-profile" onClick={() => setShowProfile(true)} title="Clic para editar tu información personal y clave">
                   {previewMode?.active 
                     ? `${realUser?.nombre || realUser?.name || 'Profesor'} ${realUser?.apellido || realUser?.lastName || ''}`
                     : `${user.nombre || user.name} ${user.apellido || user.lastName || ''}`
@@ -136,3 +166,4 @@ const Navbar = () => {
 };
 
 export default Navbar;
+

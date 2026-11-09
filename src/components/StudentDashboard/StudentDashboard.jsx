@@ -1,7 +1,9 @@
-import React, { useContext, useState } from 'react';
+﻿import React, { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppContext } from '../../context/AppContext';
 import styles from './StudentDashboard.module.css';
+import CourseScheduleModal from '../Schedule/CourseScheduleModal';
+import CourseTasksModal from '../Tasks/CourseTasksModal';
 
 const languageInfo = [
   {
@@ -33,6 +35,8 @@ export default function StudentDashboard() {
   const [enrollModal, setEnrollModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedGradeFilter, setSelectedGradeFilter] = useState('all');
+  const [scheduleModalCourse, setScheduleModalCourse] = useState(null);
+  const [tasksModalCourse, setTasksModalCourse] = useState(null);
 
   const isPreview = previewMode?.active || user?.isPreview;
 
@@ -150,7 +154,22 @@ export default function StudentDashboard() {
                 <h3 className={styles.courseTitle}>{c.name}</h3>
                 <p className={styles.courseDesc}>{c.description}</p>
                 <div className={styles.courseFooter}>
-                  <span>Horario: {c.schedule}</span>
+                                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+                    <button 
+                      type="button" 
+                      onClick={() => setScheduleModalCourse(c)}
+                      style={{ background: 'var(--dark)', border: '1px solid var(--border)', color: 'var(--text-light)', padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem', cursor: 'pointer' }}
+                    >
+                      📅 Horario & Festivos
+                    </button>
+                    <button 
+                      type="button" 
+                      onClick={() => setTasksModalCourse(c)}
+                      style={{ background: 'var(--primary)', border: 'none', color: '#fff', padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem', cursor: 'pointer', fontWeight: 600 }}
+                    >
+                      📋 Tareas & Entregas
+                    </button>
+                  </div>
                   <span className={styles.statusActive}>● Monitoreo Activo</span>
                 </div>
               </div>
@@ -345,3 +364,4 @@ export default function StudentDashboard() {
     </div>
   );
 }
+

@@ -1,12 +1,18 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import './TeacherCourses.css';
+import CourseScheduleModal from '../Schedule/CourseScheduleModal';
+import CourseTasksModal from '../Tasks/CourseTasksModal';
+import StudentScheduleView from '../Schedule/StudentScheduleView';
 
 const TeacherCourses = () => {
-  const { courses, students, addCourse, deleteCourse, addStudent, deleteStudent } = useApp();
+  const { courses, students, addCourse, deleteCourse, addStudent, deleteStudent, updateCourseSchedule, toggleCourseDateCancellation } = useApp();
   const [showCourseModal, setShowCourseModal] = useState(false);
   const [showStudentModal, setShowStudentModal] = useState(false);
   const [selectedCourseId, setSelectedCourseId] = useState(courses[0]?.id || null);
+  const [showScheduleModal, setShowScheduleModal] = useState(false);
+  const [showTasksModal, setShowTasksModal] = useState(false);
+  const [showStudentSchedule, setShowStudentSchedule] = useState(false);
 
   const [newCourse, setNewCourse] = useState({
     name: '',
@@ -358,3 +364,5 @@ const TeacherCourses = () => {
 };
 
 export default TeacherCourses;
+
+
