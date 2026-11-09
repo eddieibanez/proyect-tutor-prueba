@@ -147,6 +147,78 @@
   color: #00BCD4;
 }
 
+/* PESTAÑAS DE MODO DE AUTENTICACIÓN */
+.auth-mode-tabs {
+  display: flex;
+  background: rgba(15, 15, 35, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 4px;
+  margin-bottom: 22px;
+  gap: 6px;
+}
+
+.auth-tab {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: #A0A0B5;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.auth-tab:hover {
+  color: #FFFFFF;
+}
+
+.auth-tab.active {
+  background: linear-gradient(90deg, #00BCD4, #7C4DFF);
+  color: #FFFFFF;
+  box-shadow: 0 4px 12px rgba(0, 188, 212, 0.3);
+}
+
+.field-hint {
+  display: block;
+  font-size: 12px;
+  color: #A0A0B5;
+  margin-top: 6px;
+}
+
+.field-hint code {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: #00BCD4;
+}
+
+.auth-switch-note {
+  text-align: center;
+  font-size: 13.5px;
+  color: #A0A0B5;
+  margin: 15px 0 5px 0;
+}
+
+.link-btn {
+  background: none;
+  border: none;
+  color: #00BCD4;
+  font-weight: bold;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+  font-size: 13.5px;
+  font-family: inherit;
+}
+
+.link-btn:hover {
+  color: #7C4DFF;
+}
+
 .form-group {
   margin-bottom: 20px;
 }

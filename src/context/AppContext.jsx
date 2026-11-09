@@ -783,8 +783,21 @@ export const AppProvider = ({ children }) => {
     localStorage.setItem('codecraft_user', JSON.stringify(userWithDefaults));
 
     if (userWithDefaults.role === 'estudiante') {
-      const exists = students.find(s => s.id === userWithDefaults.id);
-      if (!exists) {
+      const existsIndex = students.findIndex(s => s.id === userWithDefaults.id || (
+        s.name.toLowerCase() === (userWithDefaults.name || userWithDefaults.nombre || '').toLowerCase() &&
+        s.lastName.toLowerCase() === (userWithDefaults.lastName || userWithDefaults.apellido || '').toLowerCase()
+      ));
+
+      if (existsIndex >= 0) {
+        // Actualizar último acceso y mantener el progreso
+        const updatedStudents = [...students];
+        updatedStudents[existsIndex] = {
+          ...updatedStudents[existsIndex],
+          lastActive: new Date().toISOString().split('T')[0]
+        };
+        setStudents(updatedStudents);
+        localStorage.setItem('codecraft_students', JSON.stringify(updatedStudents));
+      } else {
         const newStudent = {
           ...userWithDefaults,
           courseId: userWithDefaults.enrolledCourses[0] || 'course-1',
@@ -799,6 +812,23 @@ export const AppProvider = ({ children }) => {
         localStorage.setItem('codecraft_students', JSON.stringify(updatedStudents));
       }
     }
+  };
+
+  // Buscar un estudiante registrado previamente por nombre y apellido
+  const findExistingStudent = (nombre, apellido) => {
+    if (!nombre) return null;
+    const cleanNombre = nombre.trim().toLowerCase();
+    const cleanApellido = (apellido || '').trim().toLowerCase();
+
+    return students.find(s => {
+      const sNombre = (s.name || s.nombre || '').trim().toLowerCase();
+      const sApellido = (s.lastName || s.apellido || '').trim().toLowerCase();
+
+      if (cleanApellido) {
+        return sNombre === cleanNombre && sApellido === cleanApellido;
+      }
+      return sNombre === cleanNombre;
+    });
   };
 
   const logout = () => {
@@ -1037,6 +1067,7 @@ export const AppProvider = ({ children }) => {
       toggleTheme,
       login,
       logout,
+      findExistingStudent,
       enrollCourse,
       leaveCourse,
       updateProgress,
