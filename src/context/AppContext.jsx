@@ -385,7 +385,11 @@ export const AppProvider = ({ children }) => {
         .insert(profileRecord);
 
       if (insertError) {
-        console.warn('Error al insertar en Supabase (offline fallback):', insertError);
+        console.error('Error al insertar en Supabase profiles:', insertError);
+        return { 
+          success: false, 
+          message: `Error al guardar en la base de datos: ${insertError.message || 'Verifica la conexión'}` 
+        };
       }
 
       // Inicializar progreso si es estudiante
