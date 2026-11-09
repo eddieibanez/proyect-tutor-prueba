@@ -1,0 +1,217 @@
+.student-preview-container {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 64px);
+  background-color: var(--background);
+  color: var(--text-light);
+}
+
+.preview-banner {
+  background: linear-gradient(135deg, var(--secondary), var(--primary));
+  color: white;
+  padding: 0.9rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 64px;
+  z-index: 90;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.banner-content {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.banner-icon {
+  font-size: 1.8rem;
+}
+
+.banner-content strong {
+  display: block;
+  font-size: 0.95rem;
+  letter-spacing: 0.5px;
+}
+
+.banner-subtext {
+  margin: 0;
+  font-size: 0.78rem;
+  opacity: 0.9;
+}
+
+.preview-controls {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+}
+
+.control-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.control-group label {
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.control-group select {
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background-color: var(--cards);
+  color: var(--text-light);
+  font-size: 0.85rem;
+  font-weight: 600;
+  outline: none;
+  cursor: pointer;
+}
+
+.back-btn {
+  background-color: var(--cards);
+  color: var(--text-light);
+  border: 1px solid var(--border);
+  padding: 0.5rem 1.1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.85rem;
+  transition: all 0.2s ease;
+}
+
+.back-btn:hover {
+  background-color: var(--text-light);
+  color: var(--dark);
+  transform: translateY(-2px);
+}
+
+.preview-content-wrapper {
+  flex: 1;
+}
+
+/* NAVEGACIÓN EN MODO RUTA DENTRO DE PREVIEW */
+.preview-language-hub {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.hub-back-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.btn-back-hub {
+  background: var(--cards);
+  border: 1px solid var(--border);
+  color: var(--primary);
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-back-hub:hover {
+  border-color: var(--primary);
+  transform: translateX(-3px);
+}
+
+.hub-preview-badge {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--accent);
+  background: rgba(46, 125, 50, 0.1);
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+}
+
+.preview-levels-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.2rem;
+}
+
+.preview-level-card {
+  background-color: var(--cards);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  box-shadow: var(--card-shadow);
+  transition: all 0.2s ease;
+}
+
+.preview-level-card.done {
+  border-left: 4px solid var(--success);
+}
+
+.preview-level-card.next {
+  border-left: 4px solid var(--primary);
+  background: rgba(0, 188, 212, 0.05);
+}
+
+.preview-level-card.locked {
+  opacity: 0.55;
+  filter: grayscale(0.6);
+  cursor: not-allowed;
+}
+
+.preview-level-card:hover:not(.locked) {
+  transform: translateY(-3px);
+  border-color: var(--primary);
+}
+
+.lvl-head {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.preview-level-card h4 {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--text-light);
+}
+
+.preview-level-card p {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  flex: 1;
+}
+
+.btn-enter-lesson {
+  background: var(--dark);
+  border: 1px solid var(--border);
+  color: var(--text-light);
+  padding: 0.45rem;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.8rem;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.btn-enter-lesson:hover:not(:disabled) {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+.btn-enter-lesson:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}

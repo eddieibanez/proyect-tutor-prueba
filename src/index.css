@@ -1,0 +1,147 @@
+:root {
+  /* Modo Claro por Defecto */
+  --primary: #00838F;
+  --secondary: #6A1B9A;
+  --accent: #2E7D32;
+  --dark: #ECEFF1;
+  --medium: #FFFFFF;
+  --background: #F4F6F9;
+  --cards: #FFFFFF;
+  --border: #DCE2E6;
+  --warning: #E65100;
+  --error: #C62828;
+  --success: #2E7D32;
+  --text-light: #1A202C;
+  --text-muted: #4A5568;
+  --nav-bg: #FFFFFF;
+  --sidebar-bg: #F8FAFC;
+  --code-bg: #1E293B;
+  --code-text: #38BDF8;
+  --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* Modo Oscuro Activado */
+[data-theme="dark"] {
+  --primary: #00BCD4;
+  --secondary: #7C4DFF;
+  --accent: #00E676;
+  --dark: #1A1A2E;
+  --medium: #16213E;
+  --background: #0F0F23;
+  --cards: #1E1E3F;
+  --border: rgba(255, 255, 255, 0.1);
+  --warning: #FF6B35;
+  --error: #FF5252;
+  --success: #00E676;
+  --text-light: #FFFFFF;
+  --text-muted: #A0A0C0;
+  --nav-bg: #16213E;
+  --sidebar-bg: #121226;
+  --code-bg: #0B0B18;
+  --code-text: #00E676;
+  --card-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: var(--background);
+  color: var(--text-light);
+  line-height: 1.5;
+  font-size: 14.5px; /* Reducida la escala para que no se vea abrumadora ni gigante */
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+code, pre {
+  font-family: 'Fira Code', monospace;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--secondary);
+}
+
+/* Utilities */
+.btn {
+  display: inline-block;
+  padding: 8px 18px;
+  border: none;
+  border-radius: 6px;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  text-decoration: none;
+  text-align: center;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: #FFFFFF;
+  box-shadow: 0 3px 10px rgba(0, 188, 212, 0.25);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 188, 212, 0.4);
+}
+
+.btn-secondary {
+  background-color: var(--medium);
+  color: var(--text-light);
+  border: 1px solid var(--border);
+}
+
+.btn-secondary:hover {
+  background-color: var(--dark);
+  border-color: var(--primary);
+}
+
+.card {
+  background-color: var(--cards);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.25rem;
+  box-shadow: var(--card-shadow);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+}
+
+.container {
+  width: 100%;
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+/* Keyframes */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}

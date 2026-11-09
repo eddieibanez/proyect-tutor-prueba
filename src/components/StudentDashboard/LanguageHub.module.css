@@ -1,0 +1,231 @@
+.hubContainer {
+  padding: 2rem;
+  background-color: #0F0F23;
+  color: #FFFFFF;
+  min-height: 100vh;
+  font-family: sans-serif;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  margin-bottom: 4rem;
+  background-color: #1E1E3F;
+  padding: 1.5rem 2rem;
+  border-radius: 16px;
+  max-width: 1000px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.backBtn {
+  background-color: #16213E;
+  color: #00BCD4;
+  border: 1px solid #00BCD4;
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.backBtn:hover {
+  background-color: #00BCD4;
+  color: #1A1A2E;
+}
+
+.titleContainer {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.langIcon {
+  font-size: 4rem;
+}
+
+.langName {
+  font-size: 2.2rem;
+  margin: 0 0 0.5rem 0;
+  color: #FFFFFF;
+}
+
+.progressSummary {
+  color: #00E676;
+  font-weight: bold;
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.pathContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.levelWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.levelCard {
+  background-color: #1E1E3F;
+  border-radius: 16px;
+  padding: 2rem;
+  width: 100%;
+  max-width: 600px;
+  position: relative;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 3px solid transparent;
+}
+
+.levelCard.completed {
+  border-color: #00E676;
+  cursor: pointer;
+}
+
+.levelCard.completed:hover {
+  transform: scale(1.02);
+  box-shadow: 0 8px 25px rgba(0, 230, 118, 0.2);
+}
+
+.levelCard.in-progress {
+  border-color: #00BCD4;
+  box-shadow: 0 0 20px rgba(0, 188, 212, 0.3);
+  cursor: pointer;
+}
+
+.levelCard.in-progress:hover {
+  transform: scale(1.02);
+}
+
+.levelCard.locked {
+  background-color: #16213E;
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.levelHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.levelNumber {
+  font-size: 1rem;
+  color: #A0A0B5;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-weight: bold;
+}
+
+.statusIcon {
+  font-size: 1.5rem;
+}
+
+.levelTitle {
+  font-size: 1.6rem;
+  margin: 0 0 0.8rem 0;
+  color: #FFFFFF;
+}
+
+.levelDesc {
+  color: #A0A0B5;
+  margin: 0 0 1.2rem 0;
+  font-size: 1.1rem;
+}
+
+.stars {
+  display: flex;
+  gap: 0.3rem;
+  margin-top: 0.5rem;
+  font-size: 1.5rem;
+}
+
+.starFilled {
+  color: #FFB300;
+}
+
+.starEmpty {
+  color: #4A4A6A;
+}
+
+.quizBtn {
+  margin-top: 1.5rem;
+  background-color: transparent;
+  border: 2px solid #7C4DFF;
+  color: #7C4DFF;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: bold;
+  transition: all 0.3s;
+}
+
+.quizBtn:hover {
+  background-color: #7C4DFF;
+  color: #FFFFFF;
+}
+
+.connector {
+  width: 6px;
+  height: 50px;
+  background-color: #16213E;
+  margin: 0;
+  border-radius: 3px;
+}
+
+.connectorActive {
+  background-color: #00E676;
+}
+
+.finalExamSection {
+  margin-top: 5rem;
+  text-align: center;
+  padding-bottom: 3rem;
+}
+
+.finalExamBtn {
+  background-color: #7C4DFF;
+  color: #FFFFFF;
+  border: none;
+  padding: 1.2rem 3rem;
+  font-size: 1.5rem;
+  font-weight: bold;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.finalExamBtn:disabled {
+  background-color: #16213E;
+  color: #A0A0B5;
+  cursor: not-allowed;
+}
+
+.finalExamBtn:not(:disabled):hover {
+  background-color: #651FFF;
+  transform: scale(1.05);
+  box-shadow: 0 0 25px rgba(124, 77, 255, 0.4);
+}
+
+.examHint {
+  color: #FF6B35;
+  margin-top: 1.5rem;
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+.errorContainer {
+  text-align: center;
+  padding: 5rem;
+  color: #FFFFFF;
+}

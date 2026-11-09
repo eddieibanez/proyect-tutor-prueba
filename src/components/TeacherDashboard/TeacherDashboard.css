@@ -1,0 +1,222 @@
+.teacher-panel-layout {
+  display: flex;
+  min-height: calc(100vh - 64px);
+  background-color: var(--background);
+  color: var(--text-light);
+  transition: background-color 0.3s ease;
+}
+
+/* CINTA / BARRA LATERAL IZQUIERDA */
+.teacher-sidebar-ribbon {
+  width: 270px;
+  background-color: var(--sidebar-bg);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  position: sticky;
+  top: 64px;
+  height: calc(100vh - 64px);
+}
+
+.ribbon-brand {
+  padding: 1.2rem 1.2rem;
+  background-color: var(--dark);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.brand-icon {
+  font-size: 1.6rem;
+  background: rgba(124, 77, 255, 0.12);
+  border: 1px solid var(--secondary);
+  padding: 0.3rem 0.5rem;
+  border-radius: 8px;
+}
+
+.brand-text h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  color: var(--text-light);
+}
+
+.brand-text p {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.ribbon-nav {
+  flex: 1;
+  padding: 0.9rem 0.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  overflow-y: auto;
+}
+
+.ribbon-item {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.75rem 0.9rem;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+  position: relative;
+  width: 100%;
+}
+
+.ribbon-item:hover {
+  background-color: var(--dark);
+  color: var(--text-light);
+}
+
+.ribbon-item.active {
+  background: rgba(0, 188, 212, 0.12);
+  border: 1px solid var(--primary);
+  color: var(--primary);
+  box-shadow: 0 2px 8px rgba(0, 188, 212, 0.15);
+}
+
+.ribbon-icon {
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.ribbon-label {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.ribbon-label strong {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-light);
+}
+
+.ribbon-label small {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-top: 0.1rem;
+}
+
+.ribbon-item.active .ribbon-label strong {
+  color: var(--primary);
+}
+
+.ribbon-badge {
+  background: var(--error);
+  color: white;
+  font-size: 0.7rem;
+  font-weight: bold;
+  padding: 0.15rem 0.45rem;
+  border-radius: 10px;
+}
+
+.ribbon-footer {
+  padding: 0.9rem 1rem;
+  background-color: var(--dark);
+  border-top: 1px solid var(--border);
+}
+
+.teacher-mini-profile {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.teacher-avatar {
+  font-size: 1.5rem;
+  background: rgba(0, 188, 212, 0.15);
+  border: 1px solid var(--primary);
+  padding: 0.2rem 0.4rem;
+  border-radius: 8px;
+}
+
+.teacher-info span {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-light);
+}
+
+.teacher-info small {
+  font-size: 0.7rem;
+  color: var(--success);
+  font-weight: 600;
+}
+
+/* ÁREA DE CONTENIDO */
+.teacher-main-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+.teacher-top-navbar {
+  height: 56px;
+  background-color: var(--nav-bg);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 1.8rem;
+  flex-shrink: 0;
+}
+
+.top-title-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.85rem;
+}
+
+.breadcrumb-path {
+  color: var(--text-muted);
+}
+
+.breadcrumb-sep {
+  color: var(--border);
+}
+
+.breadcrumb-current {
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.btn-student-view-top {
+  background: rgba(46, 125, 50, 0.12);
+  border: 1px solid var(--success);
+  color: var(--success);
+  padding: 0.45rem 1rem;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.btn-student-view-top:hover {
+  background: var(--success);
+  color: white;
+  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
+  transform: translateY(-2px);
+}
+
+.teacher-content-stage {
+  flex: 1;
+  overflow-y: auto;
+}

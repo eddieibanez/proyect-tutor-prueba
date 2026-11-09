@@ -1,0 +1,427 @@
+.teacher-courses-view {
+  padding: 1.5rem 2rem;
+  color: var(--text-light);
+}
+
+.courses-header-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.courses-header-bar h2 {
+  font-size: 1.4rem;
+  margin: 0 0 0.3rem 0;
+  color: var(--text-light);
+}
+
+.courses-header-bar .subtitle {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.btn-add-course {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: white;
+  border: none;
+  padding: 0.65rem 1.2rem;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-add-course:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 188, 212, 0.35);
+}
+
+.courses-grid-layout {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.courses-list-col {
+  width: 330px;
+  flex-shrink: 0;
+}
+
+.col-head-row h3 {
+  font-size: 0.95rem;
+  color: var(--primary);
+  margin-bottom: 0.8rem;
+}
+
+.courses-cards-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.course-summary-card {
+  background-color: var(--cards);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--primary);
+  border-radius: 10px;
+  padding: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: var(--card-shadow);
+}
+
+.course-summary-card:hover {
+  transform: translateX(4px);
+  border-color: var(--primary);
+}
+
+.course-summary-card.selected {
+  background-color: rgba(0, 188, 212, 0.08);
+  border-color: var(--primary);
+  box-shadow: 0 4px 12px rgba(0, 188, 212, 0.15);
+}
+
+.card-top-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.4rem;
+}
+
+.course-code-tag {
+  font-size: 0.75rem;
+  font-weight: 800;
+  background-color: var(--dark);
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+}
+
+.btn-delete-course {
+  background: transparent;
+  border: none;
+  color: var(--error);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.btn-delete-course:hover {
+  background-color: rgba(239, 68, 68, 0.12);
+}
+
+.course-title {
+  font-size: 0.95rem;
+  margin: 0 0 0.3rem 0;
+  color: var(--text-light);
+}
+
+.course-info-sub {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin: 0 0 0.4rem 0;
+}
+
+.course-schedule {
+  display: inline-block;
+  font-size: 0.75rem;
+  color: var(--accent);
+  background: rgba(46, 125, 50, 0.1);
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+/* DETALLE DEL CURSO */
+.course-detail-col {
+  flex: 1;
+  min-width: 340px;
+}
+
+.course-detail-card {
+  background-color: var(--cards);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--card-shadow);
+}
+
+.detail-top-banner {
+  padding: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+  background: var(--dark);
+}
+
+.banner-pills-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+}
+
+.badge-grade {
+  background: var(--secondary);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+}
+
+.badge-code {
+  background: var(--primary);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+}
+
+.detail-top-banner h3 {
+  font-size: 1.25rem;
+  margin: 0 0 0.3rem 0;
+  color: var(--text-light);
+}
+
+.detail-top-banner p {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.stat-pill {
+  background: var(--cards);
+  border: 1px solid var(--border);
+  padding: 0.7rem 1.2rem;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.stat-pill strong {
+  display: block;
+  font-size: 1.6rem;
+  color: var(--primary);
+}
+
+.stat-pill span {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* SECCIÓN MATRICULADOS */
+.enrolled-students-section {
+  padding: 1.5rem;
+}
+
+.enrolled-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.enrolled-header h4 {
+  font-size: 1rem;
+  margin: 0;
+  color: var(--text-light);
+}
+
+.btn-add-student-course {
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 0.45rem 0.9rem;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-add-student-course:hover {
+  filter: brightness(1.1);
+}
+
+.enrolled-table-container {
+  overflow-x: auto;
+}
+
+.enrolled-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.enrolled-table th {
+  background-color: var(--dark);
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  padding: 0.8rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+
+.enrolled-table td {
+  padding: 0.8rem;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.85rem;
+}
+
+.score {
+  font-weight: bold;
+}
+.score.ard { color: var(--primary); }
+.score.scr { color: #FFB300; }
+.score.pyt { color: var(--accent); }
+
+.pill-status {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+.pill-status.excelente { background: rgba(46, 125, 50, 0.15); color: var(--success); }
+.pill-status.bueno { background: rgba(0, 188, 212, 0.15); color: var(--primary); }
+.pill-status.regular { background: rgba(255, 179, 0, 0.15); color: #FFB300; }
+.pill-status.necesita-apoyo { background: rgba(198, 40, 40, 0.15); color: var(--error); }
+
+.btn-remove-student-row {
+  background: transparent;
+  border: 1px solid var(--error);
+  color: var(--error);
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-remove-student-row:hover {
+  background: var(--error);
+  color: white;
+}
+
+/* MODALES */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.modal-content {
+  background-color: var(--cards);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.8rem;
+  width: 90%;
+  max-width: 520px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.2rem;
+}
+
+.modal-header h3 {
+  margin: 0;
+  color: var(--primary);
+  font-size: 1.2rem;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+}
+
+.form-field label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.form-field input, .form-field select, .form-field textarea {
+  background-color: var(--dark);
+  border: 1px solid var(--border);
+  color: var(--text-light);
+  padding: 0.6rem 0.8rem;
+  border-radius: 6px;
+  font-family: inherit;
+  outline: none;
+  font-size: 0.85rem;
+}
+
+.form-field input:focus, .form-field select:focus, .form-field textarea:focus {
+  border-color: var(--primary);
+}
+
+.form-row-2 {
+  display: flex;
+  gap: 1rem;
+}
+
+.form-row-2 .form-field {
+  flex: 1;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.8rem;
+  margin-top: 1.5rem;
+}
+
+.btn-cancel {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn-submit {
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 0.5rem 1.2rem;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.empty-notice, .no-course-chosen {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  padding: 1.5rem;
+  text-align: center;
+}
