@@ -194,6 +194,7 @@ const LessonView = () => {
                 language={langKey}
                 initialCode={lesson.practice.initialCode}
                 expectedOutput={lesson.practice.expectedOutput}
+                lessonData={lesson}
               />
             </div>
           )}
@@ -230,6 +231,7 @@ const LessonView = () => {
               <CodeEditor
                 language={langKey}
                 initialCode={lesson.practice.initialCode || ''}
+                lessonData={lesson}
               />
             </div>
           )}

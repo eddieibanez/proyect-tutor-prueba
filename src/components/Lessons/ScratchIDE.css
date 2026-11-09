@@ -1,0 +1,231 @@
+.scratch-ide-wrapper {
+  display: flex;
+  height: 100%;
+  min-height: 440px;
+  background-color: var(--cards);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+/* Columna lateral de categorías (estilo Scratch oficial) */
+.scratch-categories-rail {
+  width: 110px;
+  background-color: var(--dark);
+  display: flex;
+  flex-direction: column;
+  padding: 8px 4px;
+  gap: 4px;
+  border-right: 1px solid var(--border);
+  flex-shrink: 0;
+  overflow-y: auto;
+}
+
+.cat-rail-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px 4px;
+  border-radius: 6px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.cat-rail-btn:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.cat-rail-btn.active {
+  background-color: rgba(255, 255, 255, 0.15);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+}
+
+.cat-color-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.cat-rail-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-align: center;
+  line-height: 1.1;
+}
+
+.cat-rail-btn.active .cat-rail-label {
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+/* Paleta de bloques de la categoría seleccionada */
+.scratch-palette-pane {
+  width: 280px;
+  background-color: var(--background);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  overflow-y: auto;
+}
+
+.palette-header {
+  padding: 10px 14px;
+  border-bottom: 2px solid;
+  background-color: var(--cards);
+}
+
+.palette-header h4 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.palette-sub {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  display: block;
+  margin-top: 2px;
+}
+
+.palette-blocks-grid {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Bloques individuales estilo Scratch */
+.scratch-block-item {
+  color: #FFFFFF;
+  padding: 7px 12px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-family: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 2px 4px rgba(0, 0, 0, 0.25);
+  user-select: none;
+  transition: transform 0.1s ease, filter 0.15s ease;
+  position: relative;
+  display: inline-block;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+}
+
+.scratch-block-item:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+.scratch-block-item:active {
+  transform: translateY(1px);
+}
+
+.scratch-block-item.hat {
+  border-top-left-radius: 14px;
+  border-top-right-radius: 14px;
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
+}
+
+.scratch-block-item.boolean {
+  border-radius: 16px;
+  padding: 5px 12px;
+}
+
+.scratch-block-item.reporter {
+  border-radius: 12px;
+  padding: 5px 10px;
+}
+
+.block-content-text {
+  pointer-events: none;
+}
+
+/* Espacio de trabajo */
+.scratch-workspace-pane {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--cards);
+  overflow: hidden;
+}
+
+.workspace-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 14px;
+  background-color: var(--dark);
+  border-bottom: 1px solid var(--border);
+}
+
+.ws-title-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ws-badge {
+  background-color: var(--primary);
+  color: #FFFFFF;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.ws-hint {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.btn-clear-blocks {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.btn-clear-blocks:hover {
+  background-color: #EF4444;
+  color: #FFFFFF;
+  border-color: #EF4444;
+}
+
+.scratch-script-visual-zone {
+  flex: 1;
+  padding: 12px;
+  display: flex;
+}
+
+.scratch-raw-editor {
+  width: 100%;
+  height: 100%;
+  background-color: var(--background);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px;
+  font-family: 'Fira Code', 'Courier New', monospace;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  resize: none;
+  outline: none;
+}
+
+.scratch-raw-editor:focus {
+  border-color: var(--primary);
+}
