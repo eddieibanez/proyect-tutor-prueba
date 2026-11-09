@@ -1,6 +1,6 @@
 .monitor-container {
   padding: 1.5rem 2rem;
-  color: white;
+  color: var(--text-light);
 }
 
 .monitor-header-bar {
@@ -11,23 +11,23 @@
   gap: 1rem;
   margin-bottom: 1.5rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid var(--border);
 }
 
 .monitor-header-bar h2 {
   font-size: 1.5rem;
-  color: white;
+  color: var(--text-light);
   margin: 0 0 0.4rem 0;
 }
 
 .monitor-subtitle {
-  color: #A0A0B0;
+  color: var(--text-muted);
   font-size: 0.9rem;
   margin: 0;
 }
 
 .btn-export-group {
-  background: linear-gradient(135deg, #7C4DFF, #00BCD4);
+  background: linear-gradient(135deg, var(--secondary), var(--primary));
   color: white;
   border: none;
   padding: 0.7rem 1.4rem;
@@ -36,7 +36,7 @@
   font-size: 0.9rem;
   cursor: pointer;
   transition: all 0.2s;
-  box-shadow: 0 4px 15px rgba(124, 77, 255, 0.3);
+  box-shadow: 0 4px 15px rgba(0, 188, 212, 0.25);
 }
 
 .btn-export-group:hover {
@@ -46,14 +46,15 @@
 
 /* FILTROS */
 .monitor-filters-card {
-  background-color: #1E1E3F;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background-color: var(--cards);
+  border: 1px solid var(--border);
   border-radius: 12px;
   padding: 1.2rem;
   display: flex;
   flex-wrap: wrap;
   gap: 1.2rem;
   margin-bottom: 1.5rem;
+  box-shadow: var(--card-shadow);
 }
 
 .filter-group {
@@ -66,13 +67,13 @@
 .filter-group label {
   font-size: 0.8rem;
   font-weight: 600;
-  color: #00BCD4;
+  color: var(--primary);
 }
 
 .filter-group select, .filter-group input {
-  background-color: #16213E;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: white;
+  background-color: var(--dark);
+  border: 1px solid var(--border);
+  color: var(--text-light);
   padding: 0.55rem 0.8rem;
   border-radius: 6px;
   font-size: 0.85rem;
@@ -80,7 +81,7 @@
 }
 
 .filter-group select:focus, .filter-group input:focus {
-  border-color: #00BCD4;
+  border-color: var(--primary);
 }
 
 .search-group {
@@ -99,40 +100,42 @@
 .metric-box {
   flex: 1;
   min-width: 150px;
-  background-color: #1E1E3F;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background-color: var(--cards);
+  border: 1px solid var(--border);
   border-radius: 10px;
   padding: 1rem;
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
+  box-shadow: var(--card-shadow);
 }
 
 .metric-label {
   font-size: 0.8rem;
-  color: #A0A0B0;
+  color: var(--text-muted);
 }
 
 .metric-val {
   font-size: 1.8rem;
   font-weight: bold;
-  color: #00BCD4;
+  color: var(--primary);
 }
 
 .metric-box.green .metric-val {
-  color: #00E676;
+  color: var(--success);
 }
 
 .metric-box.red .metric-val {
-  color: #FF5252;
+  color: var(--error);
 }
 
 /* TABLA DE ESTUDIANTES */
 .students-table-wrapper {
-  background-color: #1E1E3F;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background-color: var(--cards);
+  border: 1px solid var(--border);
   border-radius: 12px;
   overflow-x: auto;
+  box-shadow: var(--card-shadow);
 }
 
 .students-table {
@@ -142,23 +145,24 @@
 }
 
 .students-table th {
-  background-color: #16213E;
-  color: #A0A0B0;
+  background-color: var(--dark);
+  color: var(--text-muted);
   font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   padding: 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid var(--border);
 }
 
 .students-table td {
   padding: 0.9rem 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid var(--border);
   font-size: 0.9rem;
+  color: var(--text-light);
 }
 
 .student-row:hover {
-  background-color: rgba(255, 255, 255, 0.03);
+  background-color: rgba(0, 188, 212, 0.05);
 }
 
 .student-row.row-expanded {
@@ -172,13 +176,13 @@
 
 .student-sub {
   font-size: 0.75rem;
-  color: #A0A0B0;
+  color: var(--text-muted);
 }
 
 .course-tag {
-  background: rgba(124, 77, 255, 0.15);
-  border: 1px solid #7C4DFF;
-  color: #B388FF;
+  background: rgba(124, 77, 255, 0.12);
+  border: 1px solid var(--secondary);
+  color: var(--secondary);
   padding: 0.2rem 0.6rem;
   border-radius: 4px;
   font-size: 0.75rem;
@@ -193,9 +197,9 @@
   border-radius: 4px;
 }
 
-.score-badge.arduino { color: #00BCD4; background: rgba(0, 188, 212, 0.1); }
-.score-badge.scratch { color: #FFB300; background: rgba(255, 179, 0, 0.1); }
-.score-badge.python { color: #00E676; background: rgba(0, 230, 118, 0.1); }
+.score-badge.arduino { color: var(--primary); background: rgba(0, 188, 212, 0.12); }
+.score-badge.scratch { color: #E65100; background: rgba(230, 81, 0, 0.12); }
+.score-badge.python { color: var(--success); background: rgba(46, 125, 50, 0.12); }
 
 .status-pill {
   font-size: 0.75rem;
@@ -204,10 +208,10 @@
   border-radius: 12px;
 }
 
-.status-excellent { background: rgba(0, 230, 118, 0.15); color: #00E676; }
-.status-good { background: rgba(0, 188, 212, 0.15); color: #00BCD4; }
-.status-regular { background: rgba(255, 179, 0, 0.15); color: #FFB300; }
-.status-support { background: rgba(255, 82, 82, 0.15); color: #FF5252; }
+.status-excellent { background: rgba(46, 125, 50, 0.15); color: var(--success); }
+.status-good { background: rgba(0, 188, 212, 0.15); color: var(--primary); }
+.status-regular { background: rgba(230, 81, 0, 0.15); color: var(--warning); }
+.status-support { background: rgba(198, 40, 40, 0.15); color: var(--error); }
 
 .actions-cell {
   display: flex;
@@ -215,9 +219,9 @@
 }
 
 .btn-inspect {
-  background: #16213E;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #00BCD4;
+  background: var(--dark);
+  border: 1px solid var(--border);
+  color: var(--primary);
   padding: 0.35rem 0.7rem;
   border-radius: 6px;
   cursor: pointer;
@@ -228,13 +232,13 @@
 
 .btn-inspect:hover {
   background: rgba(0, 188, 212, 0.15);
-  border-color: #00BCD4;
+  border-color: var(--primary);
 }
 
 .btn-pdf-single {
-  background: rgba(124, 77, 255, 0.2);
-  border: 1px solid #7C4DFF;
-  color: #B388FF;
+  background: rgba(124, 77, 255, 0.15);
+  border: 1px solid var(--secondary);
+  color: var(--secondary);
   padding: 0.35rem 0.7rem;
   border-radius: 6px;
   cursor: pointer;
@@ -244,13 +248,13 @@
 }
 
 .btn-pdf-single:hover {
-  background: #7C4DFF;
+  background: var(--secondary);
   color: white;
 }
 
 /* DETALLES EXPANDIDOS */
 .student-details-row td {
-  background-color: #121226;
+  background-color: var(--sidebar-bg);
   padding: 1.2rem 1.5rem;
 }
 
@@ -267,7 +271,7 @@
 
 .details-col h4 {
   font-size: 0.95rem;
-  color: #00BCD4;
+  color: var(--primary);
   margin: 0 0 0.6rem 0;
 }
 
@@ -281,35 +285,35 @@
 }
 
 .weaknesses-list li {
-  background: rgba(255, 82, 82, 0.08);
-  border-left: 3px solid #FF5252;
+  background: rgba(198, 40, 40, 0.08);
+  border-left: 3px solid var(--error);
   padding: 0.5rem 0.8rem;
   border-radius: 4px;
   font-size: 0.85rem;
-  color: #FFB4B4;
+  color: var(--error);
 }
 
 .weaknesses-list li.no-issues {
-  background: rgba(0, 230, 118, 0.08);
-  border-left: 3px solid #00E676;
-  color: #A3FFCE;
+  background: rgba(46, 125, 50, 0.08);
+  border-left: 3px solid var(--success);
+  color: var(--success);
 }
 
 .classroom-recommendation {
   background: rgba(0, 188, 212, 0.08);
-  border-left: 3px solid #00BCD4;
+  border-left: 3px solid var(--primary);
   padding: 0.7rem 0.9rem;
   border-radius: 4px;
   font-size: 0.85rem;
-  color: #D0EFFF;
+  color: var(--text-light);
   line-height: 1.4;
 }
 
 .notes-col textarea {
   width: 100%;
-  background: #16213E;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: white;
+  background: var(--cards);
+  border: 1px solid var(--border);
+  color: var(--text-light);
   padding: 0.7rem;
   border-radius: 6px;
   resize: vertical;
@@ -325,8 +329,8 @@
 }
 
 .btn-save-note {
-  background: #00BCD4;
-  color: #0F0F23;
+  background: var(--primary);
+  color: white;
   border: none;
   padding: 0.45rem 1rem;
   border-radius: 6px;
@@ -337,8 +341,8 @@
 
 .btn-download-pdf-inside {
   background: transparent;
-  border: 1px solid #7C4DFF;
-  color: #B388FF;
+  border: 1px solid var(--secondary);
+  color: var(--secondary);
   padding: 0.45rem 1rem;
   border-radius: 6px;
   font-size: 0.85rem;
@@ -346,12 +350,12 @@
 }
 
 .btn-download-pdf-inside:hover {
-  background: #7C4DFF;
+  background: var(--secondary);
   color: white;
 }
 
 .empty-row {
   text-align: center;
-  color: #A0A0B0;
+  color: var(--text-muted);
   padding: 2rem !important;
 }

@@ -252,6 +252,179 @@ export const AppProvider = ({ children }) => {
     return user;
   }, [previewMode, user, courses]);
 
+  // AUTENTICACIÓN POR CORREO Y CONTRASEÑA (SUPABASE + LOCAL)
+  const authenticateUser = async (email, password, expectedRole) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select(`
+          id, role, email, password, name, last_name, grade, age,
+          enrollments ( course_id ),
+          progress ( language_id, current_level, lessons_completed, quiz_scores, exam_scores, time_spent )
+        `)
+        .eq('email', email.trim().toLowerCase())
+        .single();
+
+      if (error || !data) {
+        // Fallback a almacenamiento local si la tabla aún no tiene datos o está offline
+        const localStudents = JSON.parse(localStorage.getItem('codecraft_students') || '[]');
+        const foundLocal = localStudents.find(s => s.email?.toLowerCase() === email.trim().toLowerCase());
+        
+        if (foundLocal && foundLocal.password === password) {
+          if (expectedRole && foundLocal.role !== expectedRole) {
+            return { success: false, message: `Esta cuenta está registrada como ${foundLocal.role}, no como ${expectedRole}.` };
+          }
+          login(foundLocal);
+          return { success: true, user: foundLocal };
+        }
+
+        // Caso especial profesor por defecto
+        if (expectedRole === 'profesor' && password === 'profesor2024') {
+          const defaultProf = {
+            id: 'teacher-main',
+            role: 'profesor',
+            email: email.trim().toLowerCase(),
+            name: 'Profesor Titular',
+            nombre: 'Profesor Titular',
+            lastName: '',
+            apellido: ''
+          };
+          login(defaultProf);
+          return { success: true, user: defaultProf };
+        }
+
+        return { success: false, message: 'Usuario no encontrado con este correo electrónico.' };
+      }
+
+      if (data.password !== password) {
+        return { success: false, message: 'Contraseña incorrecta. Por favor verifica tus datos.' };
+      }
+
+      if (expectedRole && data.role !== expectedRole) {
+        return { success: false, message: `Esta cuenta pertenece al rol de ${data.role}. Selecciona la opción correcta en la pantalla inicial.` };
+      }
+
+      // Reconstruir mapa de progreso
+      const progMap = {
+        arduino: { currentLevel: 1, lessonsCompleted: 0, quizScores: [], examScores: [], timeSpent: 0 },
+        scratch: { currentLevel: 1, lessonsCompleted: 0, quizScores: [], examScores: [], timeSpent: 0 },
+        python: { currentLevel: 1, lessonsCompleted: 0, quizScores: [], examScores: [], timeSpent: 0 }
+      };
+
+      (data.progress || []).forEach(pr => {
+        if (progMap[pr.language_id]) {
+          progMap[pr.language_id] = {
+            currentLevel: pr.current_level,
+            lessonsCompleted: pr.lessons_completed,
+            quizScores: pr.quiz_scores || [],
+            examScores: pr.exam_scores || [],
+            timeSpent: pr.time_spent || 0
+          };
+        }
+      });
+
+      const enrolledCourses = (data.enrollments || []).map(e => e.course_id);
+
+      const loggedUser = {
+        id: data.id,
+        role: data.role,
+        email: data.email,
+        password: data.password,
+        name: data.name,
+        nombre: data.name,
+        lastName: data.last_name || '',
+        apellido: data.last_name || '',
+        grade: data.grade || null,
+        grado: data.grade || null,
+        age: data.age || 12,
+        edad: data.age || 12,
+        enrolledCourses,
+        courseId: enrolledCourses[0] || null,
+        progress: progMap
+      };
+
+      login(loggedUser);
+      return { success: true, user: loggedUser };
+    } catch (err) {
+      console.error('Error al autenticar:', err);
+      return { success: false, message: 'Error de conexión al autenticar.' };
+    }
+  };
+
+  // REGISTRO DE NUEVO USUARIO (CORREO, CONTRASEÑA, GRADO)
+  const registerUser = async (newUserData) => {
+    try {
+      const emailClean = newUserData.email.trim().toLowerCase();
+
+      // Verificar si ya existe en Supabase
+      const { data: existingUser } = await supabase
+        .from('profiles')
+        .select('id, email')
+        .eq('email', emailClean)
+        .maybeSingle();
+
+      if (existingUser) {
+        return { success: false, message: 'Ya existe una cuenta registrada con este correo electrónico.' };
+      }
+
+      const userId = `${newUserData.role === 'profesor' ? 'prof' : 'st'}-${Date.now()}`;
+      const profileRecord = {
+        id: userId,
+        role: newUserData.role,
+        email: emailClean,
+        password: newUserData.password,
+        name: newUserData.name,
+        last_name: newUserData.lastName || '',
+        grade: newUserData.grade || null,
+        age: newUserData.age || null,
+        last_active: new Date().toISOString().split('T')[0]
+      };
+
+      const { error: insertError } = await supabase
+        .from('profiles')
+        .insert(profileRecord);
+
+      if (insertError) {
+        console.warn('Error al insertar en Supabase (offline fallback):', insertError);
+      }
+
+      // Inicializar progreso si es estudiante
+      if (newUserData.role === 'estudiante') {
+        for (const lang of ['arduino', 'scratch', 'python']) {
+          await supabase.from('progress').upsert({
+            student_id: userId,
+            language_id: lang,
+            current_level: 1,
+            lessons_completed: 0,
+            quiz_scores: [],
+            exam_scores: [],
+            time_spent: 0
+          });
+        }
+      }
+
+      const fullUser = {
+        ...profileRecord,
+        nombre: profileRecord.name,
+        apellido: profileRecord.last_name,
+        grado: profileRecord.grade,
+        edad: profileRecord.age,
+        enrolledCourses: [],
+        progress: {
+          arduino: { currentLevel: 1, lessonsCompleted: 0, quizScores: [], examScores: [], timeSpent: 0 },
+          scratch: { currentLevel: 1, lessonsCompleted: 0, quizScores: [], examScores: [], timeSpent: 0 },
+          python: { currentLevel: 1, lessonsCompleted: 0, quizScores: [], examScores: [], timeSpent: 0 }
+        }
+      };
+
+      login(fullUser);
+      return { success: true, user: fullUser };
+    } catch (err) {
+      console.error('Error al registrar usuario:', err);
+      return { success: false, message: 'No se pudo completar el registro en la base de datos.' };
+    }
+  };
+
   // LOGIN / REGISTRO SINCRONIZADO CON SUPABASE
   const login = async (userData) => {
     const userWithDefaults = {
@@ -666,6 +839,8 @@ export const AppProvider = ({ children }) => {
       toggleTheme,
       login,
       logout,
+      authenticateUser,
+      registerUser,
       findExistingStudent,
       enrollCourse,
       leaveCourse,

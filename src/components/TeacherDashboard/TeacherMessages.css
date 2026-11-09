@@ -1,51 +1,53 @@
 .teacher-messages-view {
   padding: 1.5rem 2rem;
-  color: white;
+  color: var(--text-light);
 }
 
 .messages-header-bar {
   margin-bottom: 1.5rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid var(--border);
 }
 
 .messages-header-bar h2 {
   font-size: 1.5rem;
   margin: 0 0 0.4rem 0;
+  color: var(--text-light);
 }
 
 .messages-header-bar .subtitle {
-  color: #A0A0B0;
+  color: var(--text-muted);
   font-size: 0.9rem;
   margin: 0;
 }
 
 .messages-layout-card {
   display: flex;
-  background-color: #1E1E3F;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background-color: var(--cards);
+  border: 1px solid var(--border);
   border-radius: 12px;
   height: calc(100vh - 230px);
   min-height: 500px;
   overflow: hidden;
+  box-shadow: var(--card-shadow);
 }
 
 /* LISTA DE ALUMNOS */
 .messages-students-list {
   width: 320px;
-  background-color: #16213E;
-  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  background-color: var(--sidebar-bg);
+  border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
 }
 
 .students-list-head {
   padding: 1rem;
-  background-color: #1A1A2E;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background-color: var(--dark);
+  border-bottom: 1px solid var(--border);
   font-size: 0.85rem;
   font-weight: 700;
-  color: #00BCD4;
+  color: var(--primary);
 }
 
 .students-scroll-area {
@@ -58,25 +60,25 @@
   align-items: center;
   gap: 0.8rem;
   padding: 0.8rem 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid var(--border);
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .student-msg-item:hover {
-  background-color: rgba(255, 255, 255, 0.03);
+  background-color: rgba(0, 188, 212, 0.05);
 }
 
 .student-msg-item.active {
-  background-color: rgba(0, 188, 212, 0.15);
-  border-left: 3px solid #00BCD4;
+  background-color: rgba(0, 188, 212, 0.12);
+  border-left: 3px solid var(--primary);
 }
 
 .avatar-initials {
   width: 38px;
   height: 38px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #7C4DFF, #00BCD4);
+  background: linear-gradient(135deg, var(--secondary), var(--primary));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -100,11 +102,11 @@
 .student-chat-name {
   font-size: 0.9rem;
   font-weight: 600;
-  color: white;
+  color: var(--text-light);
 }
 
 .unread-dot {
-  background: #FF5252;
+  background: var(--error);
   color: white;
   font-size: 0.7rem;
   font-weight: bold;
@@ -115,7 +117,7 @@
 .student-grade-tag {
   display: block;
   font-size: 0.75rem;
-  color: #A0A0B0;
+  color: var(--text-muted);
   margin-top: 0.2rem;
 }
 
@@ -124,29 +126,29 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  background-color: #0F0F23;
+  background-color: var(--background);
 }
 
 .chat-pane-header {
   padding: 1rem 1.5rem;
-  background-color: #1A1A2E;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background-color: var(--cards);
+  border-bottom: 1px solid var(--border);
 }
 
 .chat-user-details h3 {
   margin: 0 0 0.3rem 0;
   font-size: 1.15rem;
-  color: white;
+  color: var(--text-light);
 }
 
 .chat-user-details p {
   margin: 0;
   font-size: 0.8rem;
-  color: #A0A0B0;
+  color: var(--text-muted);
 }
 
 .chat-status {
-  color: #00E676;
+  color: var(--success);
   font-weight: 600;
 }
 
@@ -161,7 +163,7 @@
 
 .no-messages-alert {
   text-align: center;
-  color: #A0A0B0;
+  color: var(--text-muted);
   margin: auto;
   font-size: 0.9rem;
 }
@@ -187,15 +189,15 @@
 }
 
 .chat-bubble-row.sent .chat-bubble {
-  background: linear-gradient(135deg, #7C4DFF, #5c27e6);
+  background: linear-gradient(135deg, var(--secondary), var(--primary));
   color: white;
   border-bottom-right-radius: 2px;
 }
 
 .chat-bubble-row.received .chat-bubble {
-  background-color: #1E1E3F;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #E0E0FF;
+  background-color: var(--cards);
+  border: 1px solid var(--border);
+  color: var(--text-light);
   border-bottom-left-radius: 2px;
 }
 
@@ -223,17 +225,17 @@
 /* BARRA DE ENTRADA */
 .chat-input-bar {
   padding: 1rem 1.5rem;
-  background-color: #16213E;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background-color: var(--cards);
+  border-top: 1px solid var(--border);
   display: flex;
   gap: 0.8rem;
 }
 
 .chat-input-bar input {
   flex: 1;
-  background-color: #0F0F23;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: white;
+  background-color: var(--dark);
+  border: 1px solid var(--border);
+  color: var(--text-light);
   padding: 0.7rem 1rem;
   border-radius: 8px;
   font-size: 0.9rem;
@@ -241,12 +243,12 @@
 }
 
 .chat-input-bar input:focus {
-  border-color: #00BCD4;
+  border-color: var(--primary);
 }
 
 .btn-send-msg {
-  background: linear-gradient(135deg, #00BCD4, #00E676);
-  color: #0F0F23;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  color: white;
   border: none;
   padding: 0.7rem 1.3rem;
   border-radius: 8px;
@@ -263,6 +265,6 @@
 
 .no-student-selected {
   margin: auto;
-  color: #A0A0B0;
+  color: var(--text-muted);
   text-align: center;
 }

@@ -1,15 +1,17 @@
 -- ====================================================================
--- ESQUEMA SQL PARA CODECRAFT ACADEMY EN SUPABASE
--- Pega este script en el SQL Editor de tu Dashboard de Supabase
+-- ESQUEMA SQL ACTUALIZADO PARA CODECRAFT ACADEMY EN SUPABASE
+-- Con autenticación por Correo Electrónico, Contraseña y Grado
 -- ====================================================================
 
 -- 1. Tabla de Usuarios (Estudiantes y Profesores)
 CREATE TABLE IF NOT EXISTS public.profiles (
   id TEXT PRIMARY KEY,
   role TEXT NOT NULL DEFAULT 'estudiante', -- 'estudiante' | 'profesor'
+  email TEXT NOT NULL UNIQUE,
+  password TEXT NOT NULL,
   name TEXT NOT NULL,
   last_name TEXT,
-  grade TEXT, -- '6', '7', '8', '9', '10', '11'
+  grade TEXT, -- '6', '7', '8', '9', '10', '11' (solo estudiantes)
   age INTEGER,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   last_active DATE DEFAULT CURRENT_DATE
@@ -76,7 +78,7 @@ CREATE TABLE IF NOT EXISTS public.settings (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Habilitar RLS (Row Level Security) y crear políticas públicas para la API Anon
+-- Habilitar RLS (Row Level Security) y políticas públicas para API Anon
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.courses ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.enrollments ENABLE ROW LEVEL SECURITY;
@@ -84,6 +86,14 @@ ALTER TABLE public.progress ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.messages ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.custom_content ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.settings ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Allow public read-write for profiles" ON public.profiles;
+DROP POLICY IF EXISTS "Allow public read-write for courses" ON public.courses;
+DROP POLICY IF EXISTS "Allow public read-write for enrollments" ON public.enrollments;
+DROP POLICY IF EXISTS "Allow public read-write for progress" ON public.progress;
+DROP POLICY IF EXISTS "Allow public read-write for messages" ON public.messages;
+DROP POLICY IF EXISTS "Allow public read-write for custom_content" ON public.custom_content;
+DROP POLICY IF EXISTS "Allow public read-write for settings" ON public.settings;
 
 CREATE POLICY "Allow public read-write for profiles" ON public.profiles FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Allow public read-write for courses" ON public.courses FOR ALL USING (true) WITH CHECK (true);
