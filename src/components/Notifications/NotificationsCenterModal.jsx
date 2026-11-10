@@ -1,12 +1,37 @@
-﻿import React from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import './NotificationsCenterModal.css';
 
 const NotificationsCenterModal = ({ onClose, onNavigateLesson }) => {
   const { user, courses, tasks, customContent } = useApp();
+  const [readNotifs, setReadNotifs] = useState(() => {
+    return JSON.parse(localStorage.getItem('codecraft_read_notifs') || '[]');
+  });
 
   const isTeacher = user?.role === 'profesor';
   const now = new Date();
+
+  // Marcar todas como leídas
+  const handleMarkAllAsRead = () => {
+    const allIds = [
+      ...taskAlerts.map(t => t.id),
+      ...lessonAlerts.map(l => l.id),
+      ...contentChangeAlerts.map(c => c.id)
+    ];
+    setReadNotifs(allIds);
+    localStorage.setItem('codecraft_read_notifs', JSON.stringify(allIds));
+  };
+
+  const handleToggleRead = (id) => {
+    let updated;
+    if (readNotifs.includes(id)) {
+      updated = readNotifs.filter(x => x !== id);
+    } else {
+      updated = [...readNotifs, id];
+    }
+    setReadNotifs(updated);
+    localStorage.setItem('codecraft_read_notifs', JSON.stringify(updated));
+  };
 
   // 1. Tareas próximas a vencer o vencidas
   const userEnrolledCourseIds = user?.enrolledCourses || [];
@@ -71,7 +96,7 @@ const NotificationsCenterModal = ({ onClose, onNavigateLesson }) => {
     });
   }
 
-  // 3. Modificaciones recientes de contenido en el curso
+  // 3. Modificaciones recientes de contenido
   const contentChangeAlerts = [];
   if (customContent && Object.keys(customContent).length > 0) {
     Object.entries(customContent).forEach(([key, val]) => {
@@ -89,93 +114,163 @@ const NotificationsCenterModal = ({ onClose, onNavigateLesson }) => {
     });
   }
 
+  const allAlerts = [...taskAlerts, ...lessonAlerts, ...contentChangeAlerts];
+  const unreadCount = allAlerts.filter(a => !readNotifs.includes(a.id)).length;
+
   return (
     <div className="notif-modal-overlay" onClick={onClose}>
       <div className="notif-modal-card" onClick={e => e.stopPropagation()}>
         <div className="notif-modal-header">
-          <div>
+          <div className="head-text">
             <h3>🔔 Centro de Notificaciones & Plazos Académicos</h3>
-            <p>Alertas de vencimiento de tareas, lecciones pendientes y cambios de curso</p>
+            <p>
+              {unreadCount > 0 
+                ? `Tienes ${unreadCount} notificación(es) nueva(s) sin leer` 
+                : '✅ Ya estás al día. No hay notificaciones pendientes por leer.'}
+            </p>
           </div>
-          <button type="button" className="close-btn" onClick={onClose}>✕</button>
+          <div className="head-actions">
+            {unreadCount > 0 && (
+              <button type="button" className="btn-mark-all-read" onClick={handleMarkAllAsRead}>
+                ✓ Marcar todas leídas
+              </button>
+            )}
+            <button type="button" className="close-btn" onClick={onClose}>✕</button>
+          </div>
         </div>
 
         <div className="notif-modal-body">
-          {/* SECCIÓN 1: VENCIMIENTO DE TAREAS */}
-          <div className="notif-section">
-            <h4>⏰ Plazos de Tareas y Proyectos ({taskAlerts.length})</h4>
-            {taskAlerts.length === 0 ? (
-              <p className="empty-notif-text">No tienes tareas asignadas con plazos pendientes en este momento.</p>
-            ) : (
-              <div className="notif-items-list">
-                {taskAlerts.map(a => (
-                  <div key={a.id} className={`notif-card ${a.type}`}>
-                    <div className="notif-icon">
-                      {a.type === 'danger' ? '⛔' : a.type === 'urgent' ? '🚨' : a.type === 'warning' ? '⚠️' : '📅'}
-                    </div>
-                    <div className="notif-content">
-                      <div className="notif-title-row">
-                        <strong>{a.title}</strong>
-                        <span className="course-code-tag">{a.courseCode}</span>
-                        {a.isSubmitted && <span className="already-submitted-tag">✓ Ya entregada</span>}
-                      </div>
-                      <p>{a.message}</p>
-                      <small className="notif-meta">Límite oficial: {a.dueDate}</small>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* SECCIÓN 2: LECCIONES PENDIENTES */}
-          {!isTeacher && (
-            <div className="notif-section">
-              <h4>📖 Lecciones y Rutas Pendientes</h4>
-              <div className="notif-items-list">
-                {lessonAlerts.map(l => (
-                  <div key={l.id} className="notif-card lesson">
-                    <div className="notif-icon">💡</div>
-                    <div className="notif-content">
-                      <div className="notif-title-row">
-                        <strong>{l.title}</strong>
-                      </div>
-                      <p>{l.message}</p>
-                      {onNavigateLesson && (
-                        <button
-                          type="button"
-                          className="btn-continue-lesson-notif"
-                          onClick={() => {
-                            onNavigateLesson(l.langId, l.currentLevel);
-                            onClose();
-                          }}
-                        >
-                          Continuar Nivel {l.currentLevel} →
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
+          {allAlerts.length === 0 ? (
+            <div className="empty-notif-state">
+              <span className="empty-icon">📭</span>
+              <h4>No hay notificaciones ni avisos pendientes en este momento</h4>
+              <p>Cuando un docente asigne una tarea, modifique contenido o se acerque un plazo de entrega, aparecerá aquí.</p>
             </div>
-          )}
-
-          {/* SECCIÓN 3: CAMBIOS DE CONTENIDO POR EL DOCENTE */}
-          {contentChangeAlerts.length > 0 && (
-            <div className="notif-section">
-              <h4>📝 Actualizaciones de Contenido por el Docente</h4>
-              <div className="notif-items-list">
-                {contentChangeAlerts.map(c => (
-                  <div key={c.id} className="notif-card content">
-                    <div className="notif-icon">✏️</div>
-                    <div className="notif-content">
-                      <strong>{c.title}</strong>
-                      <p>{c.message}</p>
-                    </div>
+          ) : (
+            <>
+              {/* SECCIÓN 1: VENCIMIENTO DE TAREAS */}
+              {taskAlerts.length > 0 && (
+                <div className="notif-section">
+                  <h4>⏰ Plazos de Tareas y Proyectos ({taskAlerts.length})</h4>
+                  <div className="notif-items-list">
+                    {taskAlerts.map(a => {
+                      const isRead = readNotifs.includes(a.id);
+                      return (
+                        <div key={a.id} className={`notif-card ${a.type} ${isRead ? 'read' : 'unread'}`}>
+                          <div className="notif-icon">
+                            {a.type === 'danger' ? '⛔' : a.type === 'urgent' ? '🚨' : a.type === 'warning' ? '⚠️' : '📅'}
+                          </div>
+                          <div className="notif-content">
+                            <div className="notif-title-row">
+                              <strong>{a.title}</strong>
+                              <span className="course-code-tag">{a.courseCode}</span>
+                              {a.isSubmitted && <span className="already-submitted-tag">✓ Ya entregada</span>}
+                              <span className={`read-tag ${isRead ? 'read' : 'unread'}`}>
+                                {isRead ? '👁️ Leída' : '● Nueva'}
+                              </span>
+                            </div>
+                            <p>{a.message}</p>
+                            <div className="notif-footer-actions">
+                              <small className="notif-meta">Límite: {a.dueDate}</small>
+                              <button
+                                type="button"
+                                className="btn-toggle-read"
+                                onClick={() => handleToggleRead(a.id)}
+                              >
+                                {isRead ? 'Marcar no leída' : 'Marcar leída ✓'}
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
-                ))}
-              </div>
-            </div>
+                </div>
+              )}
+
+              {/* SECCIÓN 2: LECCIONES PENDIENTES */}
+              {!isTeacher && lessonAlerts.length > 0 && (
+                <div className="notif-section">
+                  <h4>📖 Lecciones y Rutas Pendientes</h4>
+                  <div className="notif-items-list">
+                    {lessonAlerts.map(l => {
+                      const isRead = readNotifs.includes(l.id);
+                      return (
+                        <div key={l.id} className={`notif-card lesson ${isRead ? 'read' : 'unread'}`}>
+                          <div className="notif-icon">💡</div>
+                          <div className="notif-content">
+                            <div className="notif-title-row">
+                              <strong>{l.title}</strong>
+                              <span className={`read-tag ${isRead ? 'read' : 'unread'}`}>
+                                {isRead ? '👁️ Leída' : '● Nueva'}
+                              </span>
+                            </div>
+                            <p>{l.message}</p>
+                            <div className="notif-footer-actions">
+                              {onNavigateLesson && (
+                                <button
+                                  type="button"
+                                  className="btn-continue-lesson-notif"
+                                  onClick={() => {
+                                    handleToggleRead(l.id);
+                                    onNavigateLesson(l.langId, l.currentLevel);
+                                    onClose();
+                                  }}
+                                >
+                                  Continuar Nivel {l.currentLevel} →
+                                </button>
+                              )}
+                              <button
+                                type="button"
+                                className="btn-toggle-read"
+                                onClick={() => handleToggleRead(l.id)}
+                              >
+                                {isRead ? 'Marcar no leída' : 'Marcar leída ✓'}
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* SECCIÓN 3: CAMBIOS DE CONTENIDO POR EL DOCENTE */}
+              {contentChangeAlerts.length > 0 && (
+                <div className="notif-section">
+                  <h4>📝 Actualizaciones de Contenido por el Docente</h4>
+                  <div className="notif-items-list">
+                    {contentChangeAlerts.map(c => {
+                      const isRead = readNotifs.includes(c.id);
+                      return (
+                        <div key={c.id} className={`notif-card content ${isRead ? 'read' : 'unread'}`}>
+                          <div className="notif-icon">✏️</div>
+                          <div className="notif-content">
+                            <div className="notif-title-row">
+                              <strong>{c.title}</strong>
+                              <span className={`read-tag ${isRead ? 'read' : 'unread'}`}>
+                                {isRead ? '👁️ Leída' : '● Nueva'}
+                              </span>
+                            </div>
+                            <p>{c.message}</p>
+                            <div className="notif-footer-actions">
+                              <button
+                                type="button"
+                                className="btn-toggle-read"
+                                onClick={() => handleToggleRead(c.id)}
+                              >
+                                {isRead ? 'Marcar no leída' : 'Marcar leída ✓'}
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>

@@ -1,6 +1,7 @@
 ﻿import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import './TeacherCourses.css';
+import CalendarWidget from '../Schedule/CalendarWidget';
 import CourseScheduleModal from '../Schedule/CourseScheduleModal';
 import CourseTasksModal from '../Tasks/CourseTasksModal';
 import StudentScheduleView from '../Schedule/StudentScheduleView';
@@ -364,5 +365,6 @@ const TeacherCourses = () => {
 };
 
 export default TeacherCourses;
+
 
 

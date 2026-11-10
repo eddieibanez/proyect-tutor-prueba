@@ -1,12 +1,12 @@
 ﻿.tasks-modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(4px);
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(5px);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 10000;
   padding: 1rem;
 }
 
@@ -18,7 +18,7 @@
   max-width: 860px;
   max-height: 85vh;
   overflow-y: auto;
-  box-shadow: var(--card-shadow);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   display: flex;
   flex-direction: column;
   padding: 1.5rem;
@@ -239,11 +239,11 @@
 .create-task-submodal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.65);
+  background: rgba(0, 0, 0, 0.7);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1100;
+  z-index: 10100;
   padding: 1rem;
 }
 

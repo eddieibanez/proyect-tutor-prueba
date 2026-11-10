@@ -1,12 +1,12 @@
 ﻿.notif-modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(4px);
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(5px);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 10000;
   padding: 1rem;
 }
 
@@ -15,11 +15,11 @@
   border: 1px solid var(--border);
   border-radius: 12px;
   width: 100%;
-  max-width: 680px;
+  max-width: 720px;
   max-height: 85vh;
   display: flex;
   flex-direction: column;
-  box-shadow: var(--card-shadow);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   overflow: hidden;
 }
 
@@ -29,19 +29,42 @@
   border-bottom: 1px solid var(--border);
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
 }
 
-.notif-modal-header h3 {
+.head-text h3 {
   margin: 0;
   color: var(--primary);
   font-size: 1.25rem;
 }
 
-.notif-modal-header p {
+.head-text p {
   margin: 4px 0 0 0;
   color: var(--text-muted);
   font-size: 0.82rem;
+}
+
+.head-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.btn-mark-all-read {
+  background: var(--cards);
+  border: 1px solid var(--border);
+  color: var(--primary);
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-mark-all-read:hover {
+  background: var(--primary);
+  color: #FFFFFF;
 }
 
 .notif-modal-body {
@@ -52,16 +75,31 @@
   gap: 1.5rem;
 }
 
+.empty-notif-state {
+  text-align: center;
+  padding: 3rem 1.5rem;
+  color: var(--text-muted);
+}
+
+.empty-notif-state .empty-icon {
+  font-size: 3rem;
+  display: block;
+  margin-bottom: 0.8rem;
+}
+
+.empty-notif-state h4 {
+  color: var(--text-light);
+  margin: 0 0 0.4rem 0;
+}
+
+.empty-notif-state p {
+  font-size: 0.85rem;
+}
+
 .notif-section h4 {
   margin: 0 0 0.8rem 0;
   color: var(--text-light);
   font-size: 0.95rem;
-}
-
-.empty-notif-text {
-  color: var(--text-muted);
-  font-size: 0.85rem;
-  font-style: italic;
 }
 
 .notif-items-list {
@@ -78,6 +116,14 @@
   border-radius: 8px;
   padding: 0.9rem 1.1rem;
   transition: all 0.2s;
+}
+
+.notif-card.read {
+  opacity: 0.65;
+}
+
+.notif-card.unread {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .notif-card.danger {
@@ -143,16 +189,58 @@
   border-radius: 4px;
 }
 
+.read-tag {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 4px;
+  margin-left: auto;
+}
+
+.read-tag.unread {
+  background: #EF4444;
+  color: #FFFFFF;
+}
+
+.read-tag.read {
+  background: var(--border);
+  color: var(--text-muted);
+}
+
 .notif-content p {
-  margin: 0 0 0.4rem 0;
+  margin: 0 0 0.5rem 0;
   font-size: 0.85rem;
   color: var(--text-light);
   line-height: 1.4;
 }
 
+.notif-footer-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.8rem;
+  margin-top: 0.4rem;
+}
+
 .notif-meta {
   font-size: 0.75rem;
   color: var(--text-muted);
+}
+
+.btn-toggle-read {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-toggle-read:hover {
+  background: var(--cards);
+  color: var(--text-light);
 }
 
 .btn-continue-lesson-notif {
@@ -164,7 +252,6 @@
   font-size: 0.78rem;
   font-weight: 600;
   cursor: pointer;
-  margin-top: 0.3rem;
   transition: all 0.2s;
 }
 

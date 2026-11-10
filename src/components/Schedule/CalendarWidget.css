@@ -1,0 +1,161 @@
+﻿.calendar-widget-card {
+  background: var(--cards);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.2rem;
+  box-shadow: var(--card-shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.widget-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.6rem;
+}
+
+.widget-head h4 {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.widget-month-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-widget-month {
+  background: var(--dark);
+  border: 1px solid var(--border);
+  color: var(--text-light);
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.75rem;
+}
+
+.widget-month-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-light);
+}
+
+.widget-weekdays-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.widget-days-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.widget-cell.empty {
+  min-height: 32px;
+}
+
+.widget-cell-btn {
+  background: var(--dark);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  min-height: 34px;
+  padding: 3px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.15s ease;
+}
+
+.widget-cell-btn:hover {
+  border-color: var(--primary);
+}
+
+.widget-cell-btn.selected {
+  background: rgba(0, 188, 212, 0.2);
+  border-color: var(--primary);
+}
+
+.widget-cell-btn.holiday {
+  background: rgba(46, 125, 50, 0.15);
+  border-color: var(--success);
+}
+
+.widget-cell-btn.class-day {
+  border-color: var(--primary);
+}
+
+.day-number {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-light);
+}
+
+.cell-mini-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  margin-top: 2px;
+}
+
+.cell-mini-dot.holiday { background: var(--success); }
+.cell-mini-dot.class { background: var(--primary); }
+
+.widget-selected-info {
+  background: var(--dark);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.7rem;
+  font-size: 0.78rem;
+}
+
+.selected-date-title {
+  display: block;
+  font-weight: 700;
+  color: var(--text-muted);
+  margin-bottom: 0.4rem;
+}
+
+.holiday-info-pill {
+  color: var(--success);
+  font-weight: 600;
+}
+
+.courses-mini-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.course-mini-item {
+  background: var(--cards);
+  border: 1px solid var(--border);
+  border-left: 3px solid;
+  padding: 0.4rem 0.6rem;
+  border-radius: 4px;
+  color: var(--text-light);
+}
+
+.no-classes-info {
+  color: var(--text-muted);
+  font-style: italic;
+}

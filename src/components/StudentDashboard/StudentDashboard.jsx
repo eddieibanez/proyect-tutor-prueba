@@ -2,6 +2,7 @@
 import { useNavigate } from 'react-router-dom';
 import { AppContext } from '../../context/AppContext';
 import styles from './StudentDashboard.module.css';
+import CalendarWidget from '../Schedule/CalendarWidget';
 import CourseScheduleModal from '../Schedule/CourseScheduleModal';
 import CourseTasksModal from '../Tasks/CourseTasksModal';
 
@@ -364,4 +365,5 @@ export default function StudentDashboard() {
     </div>
   );
 }
+
 
