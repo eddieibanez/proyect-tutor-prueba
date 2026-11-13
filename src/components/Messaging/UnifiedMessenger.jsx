@@ -1,10 +1,11 @@
 ﻿import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
+import { IconSend, IconEdit, IconClose, IconCheck, IconUser } from '../common/Icons';
 import './UnifiedMessenger.css';
 
 const UnifiedMessenger = ({ onClose }) => {
   const { user, students, courses, messages, sendMessage, editMessage } = useApp();
-  const [activeTab, setActiveTab] = useState('teachers'); // 'teachers' o 'students'
+  const [activeTab, setActiveTab] = useState('teachers');
   const [selectedContactId, setSelectedContactId] = useState(null);
   const [inputText, setInputText] = useState('');
   const [editingMsgId, setEditingMsgId] = useState(null);
@@ -12,13 +13,10 @@ const UnifiedMessenger = ({ onClose }) => {
 
   const isTeacher = user?.role === 'profesor';
 
-  // Lista de contactos según rol y tab
-  // 1. Docentes
   const teacherContacts = [
     { id: 'teacher-main', name: 'Profesor Titular', role: 'profesor', sub: 'Docente de Informática & Robótica' }
   ];
 
-  // 2. Estudiantes del mismo curso / todos si es profesor
   const studentContacts = students.filter(s => s.id !== user?.id);
 
   const contactList = isTeacher
@@ -27,15 +25,51 @@ const UnifiedMessenger = ({ onClose }) => {
 
   const activeContact = contactList.find(c => c.id === selectedContactId) || contactList[0];
 
-  // Filtrar mensajes bidireccionales entre el usuario y el contacto seleccionado
+  // Filtrado de mensajes entre el usuario y el contacto seleccionado
   const conversation = messages.filter(m => {
     if (!activeContact) return false;
-    const isDirect = (m.senderId === user?.id && m.receiverId === activeContact.id) ||
-                     (m.senderId === activeContact.id && m.receiverId === user?.id);
-    // Compatibilidad con mensajes legados
-    const isLegacy = m.studentId === (isTeacher ? activeContact.id : user?.id);
-    return isDirect || isLegacy;
+    const isMineToContact = m.senderId === user.id && m.receiverId === activeContact.id;
+    const isContactToMe = m.senderId === activeContact.id && m.receiverId === user.id;
+
+    // Compatibilidad con registros antiguos
+    const isLegacy = m.studentId === (isTeacher ? activeContact.id : user.id);
+    return isMineToContact || isContactToMe || isLegacy;
   });
+
+  // Agrupamiento cronológico de mensajes por días
+  const groupMessagesByDate = (msgs) => {
+    const groups = {};
+    const todayStr = new Date().toDateString();
+    const yesterday = new Date(Date.now() - 86400000);
+    const yesterdayStr = yesterday.toDateString();
+
+    msgs.forEach(msg => {
+      const msgDate = new Date(msg.created_at || Date.now());
+      const dateKey = msgDate.toDateString();
+
+      let displayLabel = msgDate.toLocaleDateString('es-CO', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+
+      if (dateKey === todayStr) {
+        displayLabel = 'Hoy';
+      } else if (dateKey === yesterdayStr) {
+        displayLabel = 'Ayer';
+      }
+
+      if (!groups[displayLabel]) {
+        groups[displayLabel] = [];
+      }
+      groups[displayLabel].push(msg);
+    });
+
+    return groups;
+  };
+
+  const groupedConversation = groupMessagesByDate(conversation);
 
   const handleSendMessage = (e) => {
     e.preventDefault();
@@ -68,19 +102,24 @@ const UnifiedMessenger = ({ onClose }) => {
     setEditText('');
   };
 
+  const handleCancelEdit = () => {
+    setEditingMsgId(null);
+    setEditText('');
+  };
+
   return (
     <div className="messenger-modal-overlay" onClick={onClose}>
       <div className="messenger-modal-card" onClick={e => e.stopPropagation()}>
-        {/* ENCABEZADO */}
         <div className="messenger-header">
           <div className="header-info">
-            <h3>💬 Mensajería y Tutoría en Tiempo Real</h3>
+            <h3>Mensajería y Tutoría en Tiempo Real</h3>
             <p>Comunícate con docentes y compañeros de clase</p>
           </div>
-          <button type="button" className="close-btn" onClick={onClose}>✕</button>
+          <button type="button" className="close-btn" onClick={onClose}>
+            <IconClose size={18} />
+          </button>
         </div>
 
-        {/* PESTAÑAS PARA ESTUDIANTES */}
         {!isTeacher && (
           <div className="messenger-tabs-row">
             <button
@@ -88,20 +127,20 @@ const UnifiedMessenger = ({ onClose }) => {
               className={`msg-tab-btn ${activeTab === 'teachers' ? 'active' : ''}`}
               onClick={() => { setActiveTab('teachers'); setSelectedContactId(null); }}
             >
-              👨‍🏫 Mis Docentes
+              Mis Docentes
             </button>
             <button
               type="button"
               className={`msg-tab-btn ${activeTab === 'students' ? 'active' : ''}`}
               onClick={() => { setActiveTab('students'); setSelectedContactId(null); }}
             >
-              👥 Compañeros de Clase ({studentContacts.length})
+              Compañeros de Clase ({studentContacts.length})
             </button>
           </div>
         )}
 
         <div className="messenger-body-split">
-          {/* LISTA LATERAL DE CONTACTOS */}
+          {/* LISTA DE CONTACTOS */}
           <div className="messenger-contacts-list">
             <div className="contacts-head">
               <span>{isTeacher ? 'Alumnos' : activeTab === 'teachers' ? 'Docentes' : 'Compañeros'}</span>
@@ -128,7 +167,7 @@ const UnifiedMessenger = ({ onClose }) => {
             </div>
           </div>
 
-          {/* CHAT ACTIVO */}
+          {/* CHAT */}
           <div className="messenger-chat-pane">
             {activeContact ? (
               <>
@@ -145,61 +184,85 @@ const UnifiedMessenger = ({ onClose }) => {
                 <div className="chat-messages-container">
                   {conversation.length === 0 ? (
                     <div className="empty-chat-hint">
-                      <p>No hay mensajes aún en esta conversación. ¡Escribe un mensaje para comenzar!</p>
+                      <p>No hay mensajes en esta conversación. ¡Escribe un mensaje abajo para comenzar!</p>
                     </div>
                   ) : (
-                    conversation.map(msg => {
-                      const isMine = msg.senderId === user.id || (isTeacher && msg.sender === 'teacher') || (!isTeacher && msg.sender === 'student' && msg.senderId !== activeContact.id);
-                      const timeStr = msg.created_at ? new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Ahora';
+                    Object.entries(groupedConversation).map(([dateLabel, msgs]) => (
+                      <div key={dateLabel} className="chat-day-group">
+                        {/* SEPARADOR CRONOLÓGICO POR DÍA */}
+                        <div className="chat-day-divider">
+                          <span>{dateLabel}</span>
+                        </div>
 
-                      return (
-                        <div key={msg.id} className={`chat-bubble-row ${isMine ? 'mine' : 'theirs'}`}>
-                          <div className="bubble-content">
-                            <div className="bubble-header-row">
-                              <span className="bubble-author">
-                                {isMine ? 'Tú' : (msg.senderName || activeContact.name)}
-                              </span>
-                              {msg.edited && <span className="edited-indicator">(editado)</span>}
-                            </div>
+                        {msgs.map(msg => {
+                          const isMine = msg.senderId === user.id || 
+                            (isTeacher && msg.sender === 'teacher') || 
+                            (!isTeacher && msg.sender === 'student' && msg.senderId !== activeContact.id);
 
-                            {editingMsgId === msg.id ? (
-                              <div className="inline-edit-box">
-                                <input
-                                  type="text"
-                                  value={editText}
-                                  onChange={e => setEditText(e.target.value)}
-                                  autoFocus
-                                />
-                                <div className="inline-edit-actions">
-                                  <button type="button" className="btn-save-edit" onClick={() => handleSaveEdit(msg.id)}>
-                                    Guardar
-                                  </button>
-                                  <button type="button" className="btn-cancel-edit" onClick={() => setEditingMsgId(null)}>
-                                    Cancelar
-                                  </button>
+                          const timeStr = msg.created_at 
+                            ? new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                            : (msg.time || 'Ahora');
+
+                          return (
+                            <div key={msg.id} className={`chat-bubble-row ${isMine ? 'mine' : 'theirs'}`}>
+                              <div className="bubble-content">
+                                <div className="bubble-header-row">
+                                  <span className="bubble-author">
+                                    {isMine ? 'Tú' : (msg.senderName || activeContact.name)}
+                                  </span>
+                                  {msg.edited && <span className="edited-indicator">(editado)</span>}
+                                </div>
+
+                                {editingMsgId === msg.id ? (
+                                  <div className="inline-edit-box">
+                                    <input
+                                      type="text"
+                                      value={editText}
+                                      onChange={e => setEditText(e.target.value)}
+                                      autoFocus
+                                    />
+                                    <div className="inline-edit-actions">
+                                      <button 
+                                        type="button" 
+                                        className="btn-save-edit" 
+                                        onClick={() => handleSaveEdit(msg.id)}
+                                        title="Guardar edición"
+                                      >
+                                        <IconCheck size={14} /> Guardar
+                                      </button>
+                                      <button 
+                                        type="button" 
+                                        className="btn-cancel-edit" 
+                                        onClick={handleCancelEdit}
+                                        title="Cancelar"
+                                      >
+                                        <IconClose size={14} /> Cancelar
+                                      </button>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <p className="bubble-message-text">{msg.text}</p>
+                                )}
+
+                                <div className="bubble-footer-row">
+                                  <span className="bubble-timestamp">Enviado a las {timeStr}</span>
+                                  {isMine && editingMsgId !== msg.id && (
+                                    <button
+                                      type="button"
+                                      className="btn-edit-trigger"
+                                      onClick={() => handleStartEdit(msg)}
+                                      title="Editar mensaje"
+                                    >
+                                      <IconEdit size={13} />
+                                    </button>
+                                  )}
                                 </div>
                               </div>
-                            ) : (
-                              <p className="bubble-message-text">{msg.text}</p>
-                            )}
-
-                            <div className="bubble-footer-row">
-                              <span className="bubble-timestamp">{timeStr}</span>
-                              {isMine && editingMsgId !== msg.id && (
-                                <button
-                                  type="button"
-                                  className="btn-edit-trigger"
-                                  onClick={() => handleStartEdit(msg)}
-                                  title="Editar mensaje"
-                                >
-                                  ✏️
-                                </button>
-                              )}
                             </div>
-                          </div>
-                        </div>
-                      );
-                    })
+                          );
+                        })}
+                      </div>
+                    ))
                   )}
                 </div>
 
@@ -211,7 +274,7 @@ const UnifiedMessenger = ({ onClose }) => {
                     onChange={e => setInputText(e.target.value)}
                   />
                   <button type="submit" className="btn-send-message">
-                    Enviar 🚀
+                    <IconSend size={16} /> Enviar
                   </button>
                 </form>
               </>

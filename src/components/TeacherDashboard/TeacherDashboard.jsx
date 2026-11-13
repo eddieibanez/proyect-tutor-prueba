@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
 import StudentMonitor from './StudentMonitor';
@@ -6,146 +6,111 @@ import ContentEditor from './ContentEditor';
 import TeacherCourses from './TeacherCourses';
 import TeacherMessages from './TeacherMessages';
 import TeacherSettings from './TeacherSettings';
+import CalendarWidget from '../Schedule/CalendarWidget';
+import LessonGoalModal from '../Schedule/LessonGoalModal';
+import { IconCalendar, IconChat, IconCode, IconSettings, IconBook, IconUsers, IconTarget, IconClose, IconBell } from '../common/Icons';
 import './TeacherDashboard.css';
 
 const TeacherDashboard = () => {
   const navigate = useNavigate();
-  const { user, messages, enablePreview } = useApp();
-  
-  // Pestaña activa del sistema de cinta lateral
+  const { user, messages, enablePreview, courses, students, logout } = useApp();
   const [activeTab, setActiveTab] = useState('monitor');
+  const [isCalendarDrawerOpen, setIsCalendarDrawerOpen] = useState(false);
+  const [isGoalModalOpen, setIsGoalModalOpen] = useState(false);
+  const unreadCount = (messages || []).filter(m => m.sender === 'student' && !m.read).length;
 
-  // Conteo de mensajes no leídos
-  const unreadCount = messages.filter(m => m.sender === 'student' && !m.read).length;
+  const navItems = [
+    { id: 'monitor', label: 'Monitoreo y Analisis', sub: 'Rendimiento, alertas y reportes', icon: <IconUsers size={20} /> },
+    { id: 'editor', label: 'Personalizar Lecciones', sub: 'Teoria, ejemplos y retos', icon: <IconCode size={20} /> },
+    { id: 'courses', label: 'Cursos y Horarios', sub: 'Gestionar cursos y calendario', icon: <IconBook size={20} /> },
+    { id: 'messages', label: 'Mensajeria', sub: 'Comunicacion con estudiantes', icon: <IconChat size={20} /> },
+    { id: 'settings', label: 'Configuracion', sub: 'Perfil y ajustes', icon: <IconSettings size={20} /> },
+  ];
+
+  const renderContent = () => {
+    switch(activeTab) {
+      case 'monitor': return <StudentMonitor />;
+      case 'editor': return <ContentEditor />;
+      case 'courses': return <TeacherCourses onOpenGoalModal={() => setIsGoalModalOpen(true)} />;
+      case 'messages': return <TeacherMessages />;
+      case 'settings': return <TeacherSettings />;
+      default: return <StudentMonitor />;
+    }
+  };
 
   return (
     <div className="teacher-panel-layout">
-      {/* CINTA / BARRA LATERAL IZQUIERDA CON APARTADOS */}
       <aside className="teacher-sidebar-ribbon">
         <div className="ribbon-brand">
-          <span className="brand-icon">🏫</span>
-          <div className="brand-text">
-            <h3>Panel Docente</h3>
-            <p>CodeCraft Academy</p>
-          </div>
+          <div className="brand-icon-box"><IconBook size={24} color="#00BCD4" /></div>
+          <div className="brand-text"><h3>Panel Docente</h3><p>CodeCraft Academy</p></div>
         </div>
-
         <nav className="ribbon-nav">
-          <button
-            type="button"
-            className={`ribbon-item ${activeTab === 'monitor' ? 'active' : ''}`}
-            onClick={() => setActiveTab('monitor')}
-          >
-            <span className="ribbon-icon">📊</span>
-            <div className="ribbon-label">
-              <strong>Monitoreo y Análisis</strong>
-              <small>Rendimiento, alertas y PDFs</small>
-            </div>
-          </button>
-
-          <button
-            type="button"
-            className={`ribbon-item ${activeTab === 'editor' ? 'active' : ''}`}
-            onClick={() => setActiveTab('editor')}
-          >
-            <span className="ribbon-icon">📝</span>
-            <div className="ribbon-label">
-              <strong>Modo Editor</strong>
-              <small>Editar temas, retos y pistas</small>
-            </div>
-          </button>
-
-          <button
-            type="button"
-            className={`ribbon-item ${activeTab === 'courses' ? 'active' : ''}`}
-            onClick={() => setActiveTab('courses')}
-          >
-            <span className="ribbon-icon">📚</span>
-            <div className="ribbon-label">
-              <strong>Mis Cursos</strong>
-              <small>Estudiantes matriculados</small>
-            </div>
-          </button>
-
-          <button
-            type="button"
-            className={`ribbon-item ${activeTab === 'messages' ? 'active' : ''}`}
-            onClick={() => setActiveTab('messages')}
-          >
-            <span className="ribbon-icon">💬</span>
-            <div className="ribbon-label">
-              <strong>Mensajería Directa</strong>
-              <small>Chat con estudiantes</small>
-            </div>
-            {unreadCount > 0 && <span className="ribbon-badge">{unreadCount}</span>}
-          </button>
-
-          <button
-            type="button"
-            className={`ribbon-item ${activeTab === 'settings' ? 'active' : ''}`}
-            onClick={() => setActiveTab('settings')}
-          >
-            <span className="ribbon-icon">⚙️</span>
-            <div className="ribbon-label">
-              <strong>Configuraciones</strong>
-              <small>Evaluación y parámetros</small>
-            </div>
-          </button>
+          {navItems.map(item => (
+            <button key={item.id} type="button" className={'ribbon-item' + (activeTab === item.id ? ' active' : '')} onClick={() => setActiveTab(item.id)}>
+              <span className="ribbon-icon">{item.icon}</span>
+              <div className="ribbon-label"><strong>{item.label}</strong><small>{item.sub}</small></div>
+              {item.id === 'messages' && unreadCount > 0 && <span className="ribbon-badge">{unreadCount}</span>}
+            </button>
+          ))}
         </nav>
-
         <div className="ribbon-footer">
-          <div className="teacher-mini-profile">
-            <span className="teacher-avatar">👨‍🏫</span>
-            <div className="teacher-info">
-              <span>{user?.name ? `${user.name} ${user.lastName || ''}` : 'Profesor Titular'}</span>
-              <small>Docente de Informática</small>
-            </div>
-          </div>
+          <button className="ribbon-action-btn" onClick={() => setIsCalendarDrawerOpen(true)} title="Ver Calendario">
+            <IconCalendar size={20} /><span>Calendario</span>
+          </button>
+          <button className="ribbon-action-btn" onClick={() => setIsGoalModalOpen(true)} title="Asignar Meta">
+            <IconTarget size={20} /><span>Meta Lecciones</span>
+          </button>
+          <button className="ribbon-action-btn preview-btn" onClick={() => { enablePreview && enablePreview(); navigate('/student'); }} title="Vista Previa Estudiante">
+            <span>Vista Previa</span>
+          </button>
+          <button className="ribbon-action-btn logout-btn" onClick={() => { logout && logout(); navigate('/'); }} title="Cerrar sesion">
+            <span>Cerrar Sesion</span>
+          </button>
         </div>
       </aside>
 
-      {/* ÁREA DE CONTENIDO PRINCIPAL CON BARRA SUPERIOR */}
-      <div className="teacher-main-wrapper">
-        <header className="teacher-top-navbar">
-          <div className="top-title-breadcrumb">
-            <span className="breadcrumb-path">Gestión Académica</span>
-            <span className="breadcrumb-sep">/</span>
-            <span className="breadcrumb-current">
-              {activeTab === 'monitor' && 'Monitoreo y Análisis'}
-              {activeTab === 'editor' && 'Modo Editor de Lecciones'}
-              {activeTab === 'courses' && 'Cursos y Alumnos Matriculados'}
-              {activeTab === 'messages' && 'Mensajería con Estudiantes'}
-              {activeTab === 'settings' && 'Configuraciones de la Plataforma'}
-            </span>
+      <main className="teacher-main-area">
+        <header className="teacher-top-header">
+          <div className="teacher-welcome">
+            <h2>Bienvenido, {user?.name || user?.email || 'Docente'}</h2>
+            <p>{courses?.length || 0} cursos | {students?.length || 0} estudiantes</p>
           </div>
-
-          {/* BOTÓN MODO VISTA DE ESTUDIANTES EN LA PARTE SUPERIOR DERECHA */}
-          <div className="top-right-actions">
-            <button
-              type="button"
-              className="btn-student-view-top"
-              onClick={() => {
-                enablePreview('8');
-                navigate('/student');
-              }}
-              title="Abrir vista simulada desde la perspectiva del estudiante"
-            >
-              👁️ Modo Vista de Estudiantes
+          <div className="header-actions">
+            <button className="icon-action-btn" onClick={() => setIsCalendarDrawerOpen(!isCalendarDrawerOpen)} title="Calendario">
+              <IconCalendar size={22} />
+            </button>
+            <button className="icon-action-btn" title="Notificaciones">
+              <IconBell size={22} />
             </button>
           </div>
         </header>
-
-        {/* CONTENEDOR DEL APARTADO SELECCIONADO */}
-        <div className="teacher-content-stage">
-          {activeTab === 'monitor' && <StudentMonitor />}
-          {activeTab === 'editor' && <ContentEditor />}
-          {activeTab === 'courses' && <TeacherCourses />}
-          {activeTab === 'messages' && <TeacherMessages />}
-          {activeTab === 'settings' && <TeacherSettings />}
+        <div className="teacher-content-area">
+          {renderContent()}
         </div>
-      </div>
+      </main>
+
+      {isCalendarDrawerOpen && (
+        <div className="calendar-drawer-overlay" onClick={() => setIsCalendarDrawerOpen(false)}>
+          <div className="calendar-drawer-panel" onClick={e => e.stopPropagation()}>
+            <div className="drawer-header">
+              <h3>Calendario de Clases</h3>
+              <button className="drawer-close-btn" onClick={() => setIsCalendarDrawerOpen(false)}><IconClose size={18} /></button>
+            </div>
+            <CalendarWidget userRole="teacher" courses={courses || []} userId={user?.id} />
+          </div>
+        </div>
+      )}
+
+      {isGoalModalOpen && (
+        <LessonGoalModal
+          isOpen={isGoalModalOpen}
+          onClose={() => setIsGoalModalOpen(false)}
+          courses={courses || []}
+          students={students || []}
+        />
+      )}
     </div>
   );
 };
-
 export default TeacherDashboard;

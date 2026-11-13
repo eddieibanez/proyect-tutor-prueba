@@ -1,28 +1,25 @@
 ﻿import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
+import { IconTarget, IconCalendar, IconClock, IconClose, IconCheck, IconBook } from '../common/Icons';
+import { DateTimePicker } from '../Schedule/DateTimePicker';
 import './CourseTasksModal.css';
 
 const CourseTasksModal = ({ course, isTeacher, onClose }) => {
   const { user, students, tasks, addTask, submitTask } = useApp();
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [activeTab, setActiveTab] = useState('all'); // 'all', 'pending', 'submitted'
 
-  // Formulario de nueva tarea
   const [taskForm, setTaskForm] = useState({
     title: '',
     description: '',
-    type: 'project', // 'project', 'lesson', 'exercise'
-    targetType: 'all', // 'all', 'individual', 'group'
+    type: 'project',
+    targetType: 'all',
     assignedStudentIds: [],
-    dueDate: '',
+    dueDate: new Date(Date.now() + 5 * 24 * 3600 * 1000).toISOString().split('T')[0],
     dueTime: '23:59',
     allowLateSubmission: true
   });
 
-  // Tareas filtradas para este curso
   const courseTasks = (tasks || []).filter(t => t.courseId === course.id);
-
-  // Alumnos del curso
   const enrolledStudents = students.filter(s => (s.enrolledCourses || []).includes(course.id) || s.courseId === course.id);
 
   const handleCreateTask = (e) => {
@@ -47,7 +44,7 @@ const CourseTasksModal = ({ course, isTeacher, onClose }) => {
       type: 'project',
       targetType: 'all',
       assignedStudentIds: [],
-      dueDate: '',
+      dueDate: new Date(Date.now() + 5 * 24 * 3600 * 1000).toISOString().split('T')[0],
       dueTime: '23:59',
       allowLateSubmission: true
     });
@@ -66,7 +63,7 @@ const CourseTasksModal = ({ course, isTeacher, onClose }) => {
       <div className="tasks-modal-card" onClick={e => e.stopPropagation()}>
         <div className="tasks-modal-header">
           <div>
-            <h3>📋 Tareas, Proyectos y Lecciones Asignadas</h3>
+            <h3><IconBook size={20} color="var(--primary)" /> Tareas, Proyectos y Lecciones Asignadas</h3>
             <p>Curso: <strong>{course.name}</strong> ({course.code}) • Grado {course.grade}°</p>
           </div>
           <div className="header-actions-row">
@@ -79,15 +76,17 @@ const CourseTasksModal = ({ course, isTeacher, onClose }) => {
                 + Asignar Nueva Tarea
               </button>
             )}
-            <button type="button" className="close-btn" onClick={onClose}>✕</button>
+            <button type="button" className="close-btn" onClick={onClose}>
+              <IconClose size={18} />
+            </button>
           </div>
         </div>
 
-        {/* LISTA DE TAREAS EXISTENTES */}
+        {/* LISTA DE TAREAS */}
         <div className="tasks-list-container">
           {courseTasks.length === 0 ? (
             <div className="empty-tasks-alert">
-              <span className="empty-icon">📂</span>
+              <span className="empty-icon"><IconBook size={48} color="var(--text-muted)" /></span>
               <h4>No hay tareas asignadas en este curso todavía</h4>
               <p>{isTeacher ? 'Crea la primera tarea para tus estudiantes usando el botón "+ Asignar Nueva Tarea".' : 'Tu profesor aún no ha publicado tareas para este curso.'}</p>
             </div>
@@ -105,10 +104,10 @@ const CourseTasksModal = ({ course, isTeacher, onClose }) => {
                   <div className="task-card-main">
                     <div className="task-badge-row">
                       <span className={`task-type-badge ${t.type}`}>
-                        {t.type === 'project' ? '🚀 Proyecto' : t.type === 'lesson' ? '📖 Completar Lección' : '📝 Tarea / Ejercicio'}
+                        {t.type === 'project' ? 'Proyecto' : t.type === 'lesson' ? 'Completar Lección' : 'Ejercicio'}
                       </span>
                       <span className="task-target-badge">
-                        {t.targetType === 'all' ? '👥 Para todo el curso' : t.targetType === 'group' ? '🤝 Grupal' : '👤 Individual'}
+                        {t.targetType === 'all' ? 'Para todo el curso' : t.targetType === 'group' ? 'Grupal' : 'Individual'}
                       </span>
                       {t.allowLateSubmission ? (
                         <span className="policy-badge allowed">✓ Permite entrega tardía</span>
@@ -122,35 +121,32 @@ const CourseTasksModal = ({ course, isTeacher, onClose }) => {
 
                     <div className="task-meta-footer">
                       <span className="due-date-text">
-                        ⏰ Fecha límite: <strong>{t.dueDate}</strong> a las <strong>{t.dueTime || '23:59'}</strong>
+                        <IconClock size={14} /> Fecha límite: <strong>{t.dueDate}</strong> a las <strong>{t.dueTime || '23:59'}</strong>
                       </span>
 
-                      {/* VISTA ESTUDIANTE: ESTADO DE ENTREGA */}
                       {!isTeacher && (
                         <div className="submission-status-box">
                           {isSubmitted ? (
                             <span className={`status-pill submitted ${isLate ? 'late' : ''}`}>
-                              {isLate ? '⚠️ Entregada con retraso' : '✅ Entregada a tiempo'}
+                              {isLate ? 'Entrega tardía' : 'Entregada a tiempo ✓'}
                               <small> ({new Date(mySubmission.submittedAt).toLocaleDateString()})</small>
                             </span>
                           ) : isPastDue && !t.allowLateSubmission ? (
-                            <span className="status-pill closed">🚫 Plazo cerrado (No se admiten entregas)</span>
+                            <span className="status-pill closed">Plazo cerrado (No se admiten entregas)</span>
                           ) : (
-                            <span className="status-pill pending">⏳ Pendiente de entrega</span>
+                            <span className="status-pill pending">Pendiente de entrega</span>
                           )}
                         </div>
                       )}
 
-                      {/* VISTA DOCENTE: CONTEO DE ENTREGAS */}
                       {isTeacher && (
                         <span className="teacher-submissions-counter">
-                          📥 {(t.submissions || []).length} de {enrolledStudents.length} entregas recibidas
+                          {(t.submissions || []).length} de {enrolledStudents.length} entregas recibidas
                         </span>
                       )}
                     </div>
                   </div>
 
-                  {/* ACCIONES DE ENTREGA */}
                   {!isTeacher && (
                     <div className="task-action-col">
                       {isSubmitted ? (
@@ -166,7 +162,7 @@ const CourseTasksModal = ({ course, isTeacher, onClose }) => {
                             if (note !== null) handleStudentSubmit(t.id, note);
                           }}
                         >
-                          {isPastDue ? 'Entregar (Tardía) ⚠️' : 'Enviar Entrega 🚀'}
+                          {isPastDue ? 'Entregar (Tardía)' : 'Enviar Entrega'}
                         </button>
                       ) : (
                         <button type="button" className="btn-task-closed" disabled>
@@ -181,13 +177,15 @@ const CourseTasksModal = ({ course, isTeacher, onClose }) => {
           )}
         </div>
 
-        {/* MODAL CREAR TAREA (SOLO DOCENTE) */}
+        {/* SUBMODAL CON SELECTOR DE FECHA Y HORA INTERACTIVO */}
         {showCreateModal && (
           <div className="create-task-submodal-overlay" onClick={() => setShowCreateModal(false)}>
             <div className="create-task-submodal" onClick={e => e.stopPropagation()}>
               <div className="submodal-head">
                 <h4>Asignar Nueva Tarea o Proyecto</h4>
-                <button type="button" className="close-btn" onClick={() => setShowCreateModal(false)}>✕</button>
+                <button type="button" className="close-btn" onClick={() => setShowCreateModal(false)}>
+                  <IconClose size={16} />
+                </button>
               </div>
 
               <form onSubmit={handleCreateTask} className="task-form">
@@ -206,7 +204,7 @@ const CourseTasksModal = ({ course, isTeacher, onClose }) => {
                   <label>Instrucciones y objetivos:</label>
                   <textarea
                     rows={3}
-                    placeholder="Describe los pasos, requerimientos y rúbrica para completar la tarea..."
+                    placeholder="Describe los requerimientos y rúbrica para completar la tarea..."
                     value={taskForm.description}
                     onChange={e => setTaskForm({ ...taskForm, description: e.target.value })}
                   />
@@ -219,9 +217,9 @@ const CourseTasksModal = ({ course, isTeacher, onClose }) => {
                       value={taskForm.type}
                       onChange={e => setTaskForm({ ...taskForm, type: e.target.value })}
                     >
-                      <option value="project">🚀 Proyecto Práctico</option>
-                      <option value="lesson">📖 Completar Lección</option>
-                      <option value="exercise">📝 Ejercicio / Cuestionario</option>
+                      <option value="project">Proyecto Práctico</option>
+                      <option value="lesson">Completar Lección</option>
+                      <option value="exercise">Ejercicio / Cuestionario</option>
                     </select>
                   </div>
 
@@ -231,33 +229,24 @@ const CourseTasksModal = ({ course, isTeacher, onClose }) => {
                       value={taskForm.targetType}
                       onChange={e => setTaskForm({ ...taskForm, targetType: e.target.value })}
                     >
-                      <option value="all">👥 Todo el curso</option>
-                      <option value="group">🤝 Grupal</option>
-                      <option value="individual">👤 Individual</option>
+                      <option value="all">Todo el curso</option>
+                      <option value="group">Grupal</option>
+                      <option value="individual">Individual</option>
                     </select>
                   </div>
                 </div>
 
-                <div className="form-row">
-                  <div className="form-group">
-                    <label>Fecha Límite:</label>
-                    <input
-                      type="date"
-                      required
-                      value={taskForm.dueDate}
-                      onChange={e => setTaskForm({ ...taskForm, dueDate: e.target.value })}
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label>Hora Límite:</label>
-                    <input
-                      type="time"
-                      required
-                      value={taskForm.dueTime}
-                      onChange={e => setTaskForm({ ...taskForm, dueTime: e.target.value })}
-                    />
-                  </div>
+                {/* SELECTOR INTERACTIVO DE FECHA Y HORA */}
+                <div className="form-group">
+                  <label>Fecha y Hora Límite de Entrega:</label>
+                  <DateTimePicker
+                    initialDate={taskForm.dueDate}
+                    initialTime={taskForm.dueTime}
+                    label="Selecciona plazo límite"
+                    onChange={({ date, time }) => {
+                      setTaskForm(prev => ({ ...prev, dueDate: date, dueTime: time }));
+                    }}
+                  />
                 </div>
 
                 <div className="form-group checkbox-group">

@@ -1,210 +1,133 @@
-import React, { useState, useEffect, useRef } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import './Chatbot.css';
-import { chatbotResponses } from '../../data/chatbotResponses';
+import { IconChat, IconClose, IconSend } from '../common/Icons';
 
-const Chatbot = ({ currentLanguage = 'general', currentLevel = 'beginner' }) => {
+const Chatbot = ({ languageId = 'general', levelId = 1, lessonData = null }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef(null);
+  const apiKey = import.meta.env.VITE_CHATBOT_API_KEY || import.meta.env.VITE_GEMINI_API_KEY || '';
 
-  // Inicializar chat con saludo
   useEffect(() => {
-    if (messages.length === 0) {
-      addBotMessage(getRandomResponse(chatbotResponses.greetings));
-    }
-  }, []);
+    setMessages([{
+      id: 'welcome',
+      sender: 'bot',
+      text: 'Hola! Soy tu tutor pedagogico de IA para ' + (languageId||'') + ' (Nivel ' + levelId + '). No te dare la solucion directa, pero si te guiare con preguntas y recordatorios. En que parte tienes dudas?',
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    }]);
+  }, [languageId, levelId]);
 
-  // Auto-scroll al último mensaje
   useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
+    if (messagesEndRef.current) messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isTyping]);
 
   const toggleChat = () => setIsOpen(!isOpen);
 
-  const clearChat = () => {
-    setMessages([]);
-    setTimeout(() => {
-      addBotMessage("He limpiado nuestro chat. ¿En qué más puedo ayudarte hoy? 🤖");
-    }, 500);
+  const callGeminiAPI = async (userPrompt, chatHistory) => {
+    if (!apiKey) {
+      return 'He revisado tu consulta sobre ' + (languageId||'') + '. Recuerda verificar la sintaxis, el orden de las instrucciones y la logica de tu solucion.';
+    }
+    try {
+      const lessonTitle = lessonData?.title || '';
+      const lessonInstructions = lessonData?.practice?.instructions || '';
+      const lessonChallenge = lessonData?.challenge?.description || '';
+      const systemInstruction = 'Eres un tutor de programacion experto y pedagogico para estudiantes de primaria y secundaria en CodeCraft Academy. ' +
+        'El estudiante esta en la leccion: ' + lessonTitle + ', Nivel: ' + levelId + '. ' +
+        'Instrucciones: ' + lessonInstructions + '. Desafio: ' + lessonChallenge + '. ' +
+        'REGLAS: 1) NUNCA des el codigo resuelto ni la respuesta final. ' +
+        '2) Usa el metodo socratico: haz preguntas guia, da pistas progresivas, recuerda conceptos clave. ' +
+        '3) Se motivador, claro y breve (max 2 parrafos). 4) Responde en espanol amigable. ' +
+        '5) Si preguntan sobre sintaxis, explica la estructura general con un ejemplo DIFERENTE al del ejercicio.';
+      const contents = [
+        ...chatHistory.slice(-6).map(m => ({
+          role: m.sender === 'user' ? 'user' : 'model',
+          parts: [{ text: m.text }]
+        })),
+        { role: 'user', parts: [{ text: userPrompt }] }
+      ];
+      const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + apiKey;
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          system_instruction: { parts: [{ text: systemInstruction }] },
+          contents,
+          generationConfig: { temperature: 0.7, maxOutputTokens: 350 }
+        })
+      });
+      if (!res.ok) throw new Error('Status ' + res.status);
+      const data = await res.json();
+      return data.candidates?.[0]?.content?.parts?.[0]?.text || 'Pensemos juntos: que crees que debe ocurrir en el primer paso?';
+    } catch (err) {
+      return 'Excelente pregunta! Para ' + (languageId||'') + ', recuerda descomponer tu problema en pasos pequenos: 1) Que variables necesitas? 2) Cual es la condicion? Intenta escribir esa primera parte!';
+    }
   };
 
-  const formatTime = (date) => {
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  };
-
-  const addBotMessage = (text) => {
-    const newMessage = {
-      id: Date.now(),
-      text,
-      sender: 'bot',
-      timestamp: formatTime(new Date())
-    };
-    setMessages(prev => [...prev, newMessage]);
-  };
-
-  const addUserMessage = (text) => {
-    const newMessage = {
-      id: Date.now(),
-      text,
-      sender: 'user',
-      timestamp: formatTime(new Date())
-    };
-    setMessages(prev => [...prev, newMessage]);
-  };
-
-  const getRandomResponse = (array) => {
-    if (!array || array.length === 0) return "¡Ups! No sé qué decir, pero estoy aquí para ayudarte.";
-    const randomIndex = Math.floor(Math.random() * array.length);
-    return array[randomIndex];
-  };
-
-  const analyzeAndRespond = (userText) => {
-    const text = userText.toLowerCase();
-    
-    // 1. Saludos
-    if (text.match(/\b(hola|hi|hey|buenas|saludos)\b/)) {
-      return getRandomResponse(chatbotResponses.greetings);
-    }
-    
-    // 2. Ayuda general
-    if (text.match(/\b(ayuda|help|socorro|no se|que hago)\b/)) {
-      return getRandomResponse(chatbotResponses.guidingQuestions);
-    }
-
-    // 3. Errores y problemas
-    if (text.match(/\b(error|bug|no funciona|falla|mal|roto)\b/)) {
-      return getRandomResponse(chatbotResponses.errorHelp) + " " + getRandomResponse(chatbotResponses.debugSteps);
-    }
-
-    // 4. Temas específicos (Hints)
-    let topicFound = false;
-    let response = "";
-
-    // Revisar Arduino
-    if (text.includes('arduino') || text.includes('led') || text.includes('sensor') || text.includes('motor')) {
-      if (text.includes('led')) response = getRandomResponse(chatbotResponses.topicHints.arduino.led);
-      else if (text.includes('sensor')) response = getRandomResponse(chatbotResponses.topicHints.arduino.sensor);
-      else if (text.includes('motor')) response = getRandomResponse(chatbotResponses.topicHints.arduino.motor);
-      else response = getRandomResponse(chatbotResponses.topicHints.arduino.general);
-      topicFound = true;
-    }
-    
-    // Revisar Scratch
-    else if (text.includes('scratch') || text.includes('mover') || text.includes('sonido') || text.includes('bandera')) {
-      if (text.includes('mover') || text.includes('movimiento') || text.includes('pasos')) response = getRandomResponse(chatbotResponses.topicHints.scratch.movimiento);
-      else if (text.includes('sonido') || text.includes('musica')) response = getRandomResponse(chatbotResponses.topicHints.scratch.sonido);
-      else if (text.includes('variable')) response = getRandomResponse(chatbotResponses.topicHints.scratch.variables);
-      else response = getRandomResponse(chatbotResponses.topicHints.scratch.eventos);
-      topicFound = true;
-    }
-
-    // Revisar Python
-    else if (text.includes('python') || text.includes('variable') || text.includes('lista') || text.includes('funcion') || text.includes('if')) {
-      if (text.includes('variable')) response = getRandomResponse(chatbotResponses.topicHints.python.variables);
-      else if (text.includes('lista') || text.includes('arreglo')) response = getRandomResponse(chatbotResponses.topicHints.python.listas);
-      else if (text.includes('funcion') || text.includes('def')) response = getRandomResponse(chatbotResponses.topicHints.python.funciones);
-      else response = getRandomResponse(chatbotResponses.topicHints.python.condicionales);
-      topicFound = true;
-    }
-
-    if (topicFound) return response;
-
-    // 5. Despedidas
-    if (text.match(/\b(adios|chao|bye|nos vemos|hasta luego)\b/)) {
-      return getRandomResponse(chatbotResponses.farewell);
-    }
-
-    // 6. Aliento por defecto
-    if (Math.random() > 0.7) {
-      return getRandomResponse(chatbotResponses.encouragement);
-    }
-
-    // 7. Pregunta guía por defecto (si no encaja en nada)
-    return getRandomResponse(chatbotResponses.guidingQuestions);
-  };
-
-  const handleSend = (e) => {
-    e.preventDefault();
-    if (!inputValue.trim()) return;
-
-    const userText = inputValue;
-    addUserMessage(userText);
+  const handleSend = async (e) => {
+    e?.preventDefault();
+    const clean = inputValue.trim();
+    if (!clean || isTyping) return;
+    const userMsg = { id: 'msg-' + Date.now(), sender: 'user', text: clean, timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) };
+    setMessages(prev => [...prev, userMsg]);
     setInputValue('');
     setIsTyping(true);
-
-    // Simular tiempo de pensamiento del bot
-    setTimeout(() => {
-      const botResponse = analyzeAndRespond(userText);
-      addBotMessage(botResponse);
+    try {
+      const replyText = await callGeminiAPI(clean, messages);
+      setMessages(prev => [...prev, { id: 'bot-' + Date.now(), sender: 'bot', text: replyText, timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }]);
+    } catch {
+      setMessages(prev => [...prev, { id: 'bot-err-' + Date.now(), sender: 'bot', text: 'Hubo una breve interrupcion. Que parte de tu codigo quieres revisar?', timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }]);
+    } finally {
       setIsTyping(false);
-    }, 1000 + Math.random() * 1000); // Entre 1 y 2 segundos
+    }
   };
 
   return (
-    <div className="chatbot-container">
+    <div className="chatbot-wrapper">
+      {!isOpen && (
+        <button className="chatbot-floating-toggle" onClick={toggleChat} title="Abrir Tutor IA" aria-label="Abrir Asistente Tutor IA">
+          <IconChat size={24} color="#ffffff" />
+          <span className="chatbot-pill-label">Tutor IA</span>
+        </button>
+      )}
       {isOpen && (
-        <div className="chatbot-panel">
-          <div className="chatbot-header">
+        <div className="chatbot-window-panel">
+          <header className="chatbot-window-header">
             <div className="chatbot-header-title">
-              <span className="chatbot-robot-icon">🤖</span>
-              CodeBot - Tu Asistente
+              <span className="chatbot-ai-status-dot"></span>
+              <div>
+                <h4>Tutor Pedagogico IA</h4>
+                <p className="chatbot-header-sub">{(languageId||'').toUpperCase()} - Nivel {levelId}</p>
+              </div>
             </div>
-            <div className="chatbot-header-actions">
-              <button className="chatbot-clear-btn" onClick={clearChat} title="Limpiar Chat">
-                🗑️
-              </button>
-              <button className="chatbot-close-btn" onClick={toggleChat} title="Minimizar">
-                ✖️
-              </button>
-            </div>
-          </div>
-          
+            <button className="chatbot-close-btn" onClick={toggleChat} title="Cerrar chat">
+              <IconClose size={18} color="currentColor" />
+            </button>
+          </header>
           <div className="chatbot-messages-area">
-            {messages.map((msg) => (
-              <div key={msg.id} className={`message-wrapper ${msg.sender}`}>
-                <div className="message-bubble">
-                  {msg.text}
-                </div>
-                <div className="message-time">{msg.timestamp}</div>
+            {messages.map(m => (
+              <div key={m.id} className={'chat-bubble ' + (m.sender === 'user' ? 'bubble-user' : 'bubble-bot')}>
+                <div className="chat-bubble-content">{m.text}</div>
+                <span className="chat-bubble-time">{m.timestamp}</span>
               </div>
             ))}
             {isTyping && (
-              <div className="typing-indicator">
-                <div className="typing-dot"></div>
-                <div className="typing-dot"></div>
-                <div className="typing-dot"></div>
+              <div className="chat-bubble bubble-bot typing-indicator">
+                <span>.</span><span>.</span><span>.</span>
               </div>
             )}
             <div ref={messagesEndRef} />
           </div>
-
-          <form className="chatbot-input-area" onSubmit={handleSend}>
-            <input
-              type="text"
-              className="chatbot-input"
-              placeholder="Escribe tu mensaje aquí..."
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              disabled={isTyping}
-            />
-            <button type="submit" className="chatbot-send-btn" disabled={!inputValue.trim() || isTyping}>
-              ➤
+          <form className="chatbot-input-bar" onSubmit={handleSend}>
+            <input type="text" value={inputValue} onChange={e => setInputValue(e.target.value)} placeholder="Preguntale al tutor sobre tu algoritmo..." disabled={isTyping} />
+            <button type="submit" disabled={!inputValue.trim() || isTyping} className="chatbot-send-btn">
+              <IconSend size={18} color="#ffffff" />
             </button>
           </form>
         </div>
       )}
-
-      {!isOpen && (
-        <button className="chatbot-button" onClick={toggleChat} title="¡Habla con CodeBot!">
-          🤖
-        </button>
-      )}
     </div>
   );
 };
-
 export default Chatbot;

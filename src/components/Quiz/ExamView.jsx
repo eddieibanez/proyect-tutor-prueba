@@ -1,30 +1,20 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
+import { finalExamsByLanguage } from '../../data/quizData';
+import { IconCheck, IconAward, IconClock } from '../common/Icons';
 import './ExamView.css';
-
-// 10 Hardcoded questions to mix types
-const examQuestions = [
-  { id: 1, type: 'mc', question: '¿Qué es una variable?', options: ['Un contenedor para guardar datos', 'Un error en el código', 'Una función especial', 'Un tipo de pantalla'], answer: 0 },
-  { id: 2, type: 'tf', question: '¿El ciclo FOR se usa cuando NO sabemos cuántas veces se repetirá el código?', answer: 'Falso' },
-  { id: 3, type: 'mc', question: '¿Cuál no es un lenguaje de programación?', options: ['Python', 'Scratch', 'HTML', 'Arduino (C++)'], answer: 2 },
-  { id: 4, type: 'fill', question: 'En Python, la función para mostrar texto en pantalla es _____().', answer: 'print' },
-  { id: 5, type: 'mc', question: '¿Qué hace un bloque "Si... entonces" (if)?', options: ['Repite el código', 'Toma una decisión basada en una condición', 'Apaga el programa', 'Suma dos números'], answer: 1 },
-  { id: 6, type: 'tf', question: 'En Arduino, HIGH significa que el pin está enviando voltaje (encendido).', answer: 'Verdadero' },
-  { id: 7, type: 'mc', question: '¿Qué operador lógico significa "Y" (AND)?', options: ['||', '&&', '!', '=='], answer: 1 },
-  { id: 8, type: 'fill', question: 'Un bucle _____ se repite mientras una condición sea verdadera.', answer: 'while' },
-  { id: 9, type: 'order', question: 'Ordena el código para un Hola Mundo en Python', options: ['("Hola Mundo")', 'print'], answer: ['print', '("Hola Mundo")'] }, // simplified ordering
-  { id: 10, type: 'mc', question: '¿Cómo iniciamos un bloque en Scratch usualmente?', options: ['Al presionar bandera verde', 'Al escribir código', 'Al enchufar el cable', 'No se inicia'], answer: 0 }
-];
 
 const ExamView = () => {
   const { languageId } = useParams();
   const navigate = useNavigate();
   const { saveExamScore } = useApp();
+  const langKey = languageId?.toLowerCase() || 'arduino';
+  const questions = finalExamsByLanguage[langKey] || finalExamsByLanguage.arduino;
 
   const [currentIdx, setCurrentIdx] = useState(0);
   const [answers, setAnswers] = useState({});
-  const [timeLeft, setTimeLeft] = useState(30 * 60); // 30 minutes
+  const [timeLeft, setTimeLeft] = useState(30 * 60);
   const [isFinished, setIsFinished] = useState(false);
   const [fillValue, setFillValue] = useState('');
 
@@ -32,193 +22,114 @@ const ExamView = () => {
     if (isFinished) return;
     const timer = setInterval(() => {
       setTimeLeft(prev => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          finishExam();
-          return 0;
-        }
+        if (prev <= 1) { clearInterval(timer); setIsFinished(true); return 0; }
         return prev - 1;
       });
     }, 1000);
     return () => clearInterval(timer);
   }, [isFinished]);
 
-  const finishExam = () => {
-    setIsFinished(true);
-    // calculate score
+  const calcScore = () => {
     let score = 0;
-    examQuestions.forEach(q => {
+    questions.forEach(q => {
       if (q.type === 'mc' && answers[q.id] === q.answer) score++;
       else if (q.type === 'tf' && answers[q.id] === q.answer) score++;
-      else if (q.type === 'fill' && answers[q.id]?.toLowerCase() === q.answer.toLowerCase()) score++;
-      else if (q.type === 'order' && JSON.stringify(answers[q.id]) === JSON.stringify(q.answer)) score++;
+      else if (q.type === 'fill' && (answers[q.id]||'').toLowerCase().trim() === q.answer.toLowerCase().trim()) score++;
     });
-    
-    if (saveExamScore) {
-      saveExamScore(languageId, Math.round((score / examQuestions.length) * 100));
-    }
+    return score;
   };
 
-  const handleNext = () => {
-    const q = examQuestions[currentIdx];
-    if (q.type === 'fill') {
-      setAnswers({ ...answers, [q.id]: fillValue });
-      setFillValue('');
-    }
-
-    if (currentIdx < examQuestions.length - 1) {
-      setCurrentIdx(currentIdx + 1);
-    } else {
-      finishExam();
-    }
-  };
-
-  const handleSelectAnswer = (val) => {
-    setAnswers({ ...answers, [examQuestions[currentIdx].id]: val });
+  const handleFinish = () => {
+    setIsFinished(true);
+    const score = calcScore();
+    const percent = Math.round((score / questions.length) * 100);
+    if (saveExamScore) saveExamScore(langKey, percent);
   };
 
   const formatTime = (secs) => {
-    const m = Math.floor(secs / 60).toString().padStart(2, '0');
-    const s = (secs % 60).toString().padStart(2, '0');
-    return `${m}:${s}`;
+    const m = Math.floor(secs / 60);
+    const s = secs % 60;
+    return String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
   };
 
+  const currentQ = questions[currentIdx];
+
   if (isFinished) {
-    let score = 0;
-    examQuestions.forEach(q => {
-      if (q.type === 'mc' && answers[q.id] === q.answer) score++;
-      else if (q.type === 'tf' && answers[q.id] === q.answer) score++;
-      else if (q.type === 'fill' && answers[q.id]?.toLowerCase() === q.answer.toLowerCase()) score++;
-      else if (q.type === 'order' && JSON.stringify(answers[q.id]) === JSON.stringify(q.answer)) score++;
-    });
-    const percentage = (score / examQuestions.length) * 100;
-    const passed = percentage >= 70;
-
+    const score = calcScore();
+    const percent = Math.round((score / questions.length) * 100);
+    const passed = percent >= 70;
     return (
-      <div className="exam-results">
-        <h2>Resultados del Examen Final</h2>
-        <div className={`score-badge ${passed ? 'passed' : 'failed'}`}>
-          {percentage}%
-        </div>
-        <p>Has respondido correctamente {score} de {examQuestions.length} preguntas.</p>
-
-        {passed ? (
-          <div className="certificate">
-            <h3>🏆 Certificado de Finalización 🏆</h3>
-            <p>¡Felicidades! Has completado con éxito el curso de {languageId?.toUpperCase() || 'Programación'}.</p>
+      <div className="exam-results-container">
+        <div className={'results-card ' + (passed ? 'passed' : 'failed')}>
+          <div className="result-icon-badge"><IconAward size={48} color={passed ? '#00E676' : '#FF5252'} /></div>
+          <h2>{passed ? 'Felicitaciones! Has Aprobado el Examen Final' : 'Examen No Aprobado'}</h2>
+          <p className="exam-lang-target">Certificacion de Dominio en: {langKey.toUpperCase()}</p>
+          <div className="score-circle">
+            <span className="score-number">{percent}%</span>
+            <span className="score-total">{score} / {questions.length} respuestas correctas</span>
           </div>
-        ) : (
-          <div className="failed-msg">
-            <p>Necesitas un 70% para aprobar. ¡Sigue estudiando y vuelve a intentarlo!</p>
+          <p className="result-message">
+            {passed ? 'Has demostrado un dominio integral de la sintaxis, flujo de control y resolucion de algoritmos en este lenguaje.' : 'Te recomendamos repasar las lecciones clave y practicar en el editor interactivo antes de reintentar.'}
+          </p>
+          <div className="results-actions">
+            <button className="btn-primary" onClick={() => navigate('/student/language/' + languageId)}>Volver a la Ruta de Aprendizaje</button>
+            <button className="btn-secondary" onClick={() => navigate('/student')}>Ir al Panel Principal</button>
           </div>
-        )}
-
-        <div className="breakdown">
-          <h3>Detalle de Respuestas</h3>
-          <ul>
-            {examQuestions.map(q => {
-              let isRight = false;
-              if (q.type === 'mc' || q.type === 'tf') isRight = answers[q.id] === q.answer;
-              if (q.type === 'fill') isRight = answers[q.id]?.toLowerCase() === q.answer.toLowerCase();
-              if (q.type === 'order') isRight = JSON.stringify(answers[q.id]) === JSON.stringify(q.answer);
-
-              return (
-                <li key={q.id} className={isRight ? 'text-success' : 'text-error'}>
-                  Pregunta {q.id}: {isRight ? 'Correcta' : 'Incorrecta'}
-                </li>
-              );
-            })}
-          </ul>
         </div>
-
-        <button className="btn-primary" onClick={() => navigate('/')}>Volver al Inicio</button>
       </div>
     );
   }
 
-  const q = examQuestions[currentIdx];
-
   return (
-    <div className="exam-container">
+    <div className="exam-view-container">
       <header className="exam-header">
-        <h2>Examen Final: {languageId?.toUpperCase() || 'General'}</h2>
-        <div className={`timer ${timeLeft < 300 ? 'timer-warning' : ''}`}>
-          ⏱ {formatTime(timeLeft)}
+        <div className="exam-header-left">
+          <h2>Examen de Certificacion Final: {langKey.toUpperCase()}</h2>
+          <span className="exam-badge-count">Pregunta {currentIdx + 1} de {questions.length}</span>
+        </div>
+        <div className="exam-timer-pill">
+          <IconClock size={18} color="#FF9800" />
+          <span>Tiempo Restante: {formatTime(timeLeft)}</span>
         </div>
       </header>
-
-      <div className="exam-progress">
-        Pregunta {currentIdx + 1} de {examQuestions.length}
+      <div className="exam-progress-bar">
+        <div className="exam-progress-fill" style={{ width: (((currentIdx + 1) / questions.length) * 100) + '%' }} />
       </div>
-
-      <div className="exam-question-card">
-        <h3>{q.question}</h3>
-
-        {q.type === 'mc' && (
-          <div className="mc-options">
-            {q.options.map((opt, i) => (
-              <label key={i} className={`exam-option ${answers[q.id] === i ? 'selected' : ''}`}>
-                <input 
-                  type="radio" 
-                  name={`q-${q.id}`} 
-                  checked={answers[q.id] === i}
-                  onChange={() => handleSelectAnswer(i)}
-                />
-                {opt}
-              </label>
-            ))}
-          </div>
-        )}
-
-        {q.type === 'tf' && (
-          <div className="tf-options">
-            <button 
-              className={`tf-btn ${answers[q.id] === 'Verdadero' ? 'selected' : ''}`}
-              onClick={() => handleSelectAnswer('Verdadero')}
-            >Verdadero</button>
-            <button 
-              className={`tf-btn ${answers[q.id] === 'Falso' ? 'selected' : ''}`}
-              onClick={() => handleSelectAnswer('Falso')}
-            >Falso</button>
-          </div>
-        )}
-
-        {q.type === 'fill' && (
-          <div className="fill-options">
-            <input 
-              type="text" 
-              placeholder="Escribe tu respuesta aquí" 
-              value={fillValue}
-              onChange={(e) => setFillValue(e.target.value)}
-              className="fill-input"
-            />
-          </div>
-        )}
-
-        {q.type === 'order' && (
-          <div className="order-options">
-            <p className="order-hint">Para este demo simplificado, haz clic para seleccionar la respuesta correcta preordenada:</p>
-            <button 
-              className={`order-btn ${answers[q.id] ? 'selected' : ''}`}
-              onClick={() => handleSelectAnswer(['print', '("Hola Mundo")'])}
-            >
-              1. print<br/>2. ("Hola Mundo")
-            </button>
-          </div>
-        )}
+      <div className="exam-body-card">
+        <div className="exam-question-text"><h3>{currentQ?.question}</h3></div>
+        <div className="exam-answers-area">
+          {currentQ?.type === 'mc' && (
+            <div className="mc-options-grid">
+              {(currentQ.options||[]).map((opt, i) => (
+                <button key={i} className={'mc-opt-btn' + (answers[currentQ.id] === i ? ' selected' : '')} onClick={() => setAnswers({...answers, [currentQ.id]: i})}>
+                  <span className="mc-letter">{String.fromCharCode(65+i)}</span>
+                  <span className="mc-label">{opt}</span>
+                </button>
+              ))}
+            </div>
+          )}
+          {currentQ?.type === 'tf' && (
+            <div className="tf-options-row">
+              {['Verdadero','Falso'].map(val => (
+                <button key={val} className={'tf-btn' + (answers[currentQ.id] === val ? ' selected' : '')} onClick={() => setAnswers({...answers, [currentQ.id]: val})}>{val}</button>
+              ))}
+            </div>
+          )}
+          {currentQ?.type === 'fill' && (
+            <div className="fill-blank-row">
+              <input type="text" className="fill-input" placeholder="Escribe tu respuesta aqui..." value={answers[currentQ.id] || ''} onChange={e => setAnswers({...answers, [currentQ.id]: e.target.value})} />
+            </div>
+          )}
+        </div>
       </div>
-
-      <div className="exam-footer">
-        <button 
-          className="btn-primary exam-next" 
-          onClick={handleNext}
-          disabled={q.type === 'mc' && answers[q.id] === undefined || q.type === 'tf' && answers[q.id] === undefined || q.type === 'order' && !answers[q.id]}
-        >
-          {currentIdx === examQuestions.length - 1 ? 'Finalizar Examen' : 'Siguiente Pregunta'}
-        </button>
-      </div>
+      <footer className="exam-footer">
+        <button className="btn-secondary" onClick={() => setCurrentIdx(prev => Math.max(0, prev-1))} disabled={currentIdx === 0}>Anterior</button>
+        {currentIdx < questions.length - 1
+          ? <button className="btn-primary" onClick={() => setCurrentIdx(prev => Math.min(questions.length-1, prev+1))}>Siguiente</button>
+          : <button className="btn-finish-exam" onClick={handleFinish}>Finalizar Examen</button>
+        }
+      </footer>
     </div>
   );
 };
-
 export default ExamView;

@@ -1,5 +1,7 @@
 ﻿import React, { useState } from 'react';
 import { isColombianHoliday, DAY_NAMES } from '../../utils/colombianHolidays';
+import { IconCalendar, IconClock, IconClose, IconCheck } from '../common/Icons';
+import { DateTimePicker } from './DateTimePicker';
 import './CourseScheduleModal.css';
 
 const CourseScheduleModal = ({ course, isTeacher, onClose, onSaveSchedule, onToggleCancellation, allCourses = [] }) => {
@@ -82,24 +84,22 @@ const CourseScheduleModal = ({ course, isTeacher, onClose, onSaveSchedule, onTog
   ];
 
   const calendarCells = [];
-  for (let i = 0; i < firstDay; i++) {
-    calendarCells.push(null);
-  }
-  for (let d = 1; d <= totalDays; d++) {
-    calendarCells.push(d);
-  }
+  for (let i = 0; i < firstDay; i++) calendarCells.push(null);
+  for (let d = 1; d <= totalDays; d++) calendarCells.push(d);
 
   return (
     <div className="schedule-modal-overlay" onClick={onClose}>
       <div className="schedule-modal-content" onClick={e => e.stopPropagation()}>
         <div className="schedule-modal-header">
           <div className="modal-title-col">
-            <h3>📅 Horario y Calendario de Clases</h3>
+            <h3><IconCalendar size={22} color="var(--primary)" /> Horario y Calendario de Clases</h3>
             <p className="modal-subtitle">
               Curso: <strong>{course.name}</strong> ({course.code}) • Grado {course.grade}°
             </p>
           </div>
-          <button type="button" className="close-btn" onClick={onClose}>✕</button>
+          <button type="button" className="close-btn" onClick={onClose}>
+            <IconClose size={18} />
+          </button>
         </div>
 
         {conflicts.length > 0 && (
@@ -116,10 +116,10 @@ const CourseScheduleModal = ({ course, isTeacher, onClose, onSaveSchedule, onTog
 
         {isTeacher && (
           <form className="schedule-config-box" onSubmit={handleSave}>
-            <h4>Configurar Sesiones Semanales</h4>
+            <h4>Configurar Sesiones Semanales con Selectores Interactivos</h4>
             <div className="schedule-config-grid">
               <div className="days-picker-group">
-                <label>Días de Sesión:</label>
+                <label>Días de Sesión Semanal:</label>
                 <div className="days-chip-row">
                   {availableWeekDays.map(d => (
                     <button
@@ -134,33 +134,33 @@ const CourseScheduleModal = ({ course, isTeacher, onClose, onSaveSchedule, onTog
                 </div>
               </div>
 
-              <div className="time-picker-group">
-                <div className="time-field">
+              <div className="time-picker-row-advanced">
+                <div className="picker-col">
                   <label>Hora Inicio:</label>
-                  <input
-                    type="time"
-                    value={startTime}
-                    onChange={e => {
-                      setStartTime(e.target.value);
-                      checkOverlap(selectedDays, e.target.value, endTime);
+                  <DateTimePicker
+                    initialTime={startTime}
+                    label="Inicio de sesión"
+                    onChange={({ time }) => {
+                      setStartTime(time);
+                      checkOverlap(selectedDays, time, endTime);
                     }}
-                    required
                   />
                 </div>
-                <div className="time-field">
+
+                <div className="picker-col">
                   <label>Hora Fin:</label>
-                  <input
-                    type="time"
-                    value={endTime}
-                    onChange={e => {
-                      setEndTime(e.target.value);
-                      checkOverlap(selectedDays, startTime, e.target.value);
+                  <DateTimePicker
+                    initialTime={endTime}
+                    label="Finalización de sesión"
+                    onChange={({ time }) => {
+                      setEndTime(time);
+                      checkOverlap(selectedDays, startTime, time);
                     }}
-                    required
                   />
                 </div>
+
                 <button type="submit" className="btn-save-schedule">
-                  💾 Guardar Horario
+                  <IconCheck size={16} /> Guardar Horario
                 </button>
               </div>
             </div>
@@ -258,7 +258,7 @@ const CourseScheduleModal = ({ course, isTeacher, onClose, onSaveSchedule, onTog
 
           <div className="calendar-legend">
             <span className="legend-item"><span className="legend-dot class"></span> Día de Clase</span>
-            <span className="legend-item"><span className="legend-dot holiday"></span> Festivo Colombia (Omitida)</span>
+            <span className="legend-item"><span className="legend-dot holiday"></span> Festivo Colombia (Omitida automáticamente)</span>
             <span className="legend-item"><span className="legend-dot cancelled"></span> Cancelada por Docente</span>
           </div>
         </div>

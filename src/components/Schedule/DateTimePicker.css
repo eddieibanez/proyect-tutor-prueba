@@ -1,0 +1,350 @@
+﻿.dt-picker-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.dt-trigger-box {
+  background: var(--dark);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.5rem 0.8rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.dt-trigger-box:hover {
+  border-color: var(--primary);
+}
+
+.dt-display-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.dt-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.dt-values {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-light);
+}
+
+.dt-val {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.dt-divider {
+  color: var(--text-muted);
+}
+
+.dt-open-btn {
+  background: transparent;
+  border: none;
+  color: var(--primary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+/* MODAL DROPDOWN FLOTANTE */
+.dt-dropdown-modal {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 10500;
+  background: var(--cards);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+  width: 290px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  animation: dtFadeIn 0.2s ease-out;
+}
+
+@keyframes dtFadeIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.dt-modal-tabs {
+  display: flex;
+  background: var(--dark);
+  border-radius: 8px;
+  padding: 2px;
+}
+
+.dt-tab-btn {
+  flex: 1;
+  background: transparent;
+  border: none;
+  padding: 0.4rem;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  transition: all 0.2s;
+}
+
+.dt-tab-btn.active {
+  background: var(--cards);
+  color: var(--primary);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* VISTA CALENDARIO */
+.dt-cal-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.6rem;
+}
+
+.dt-cal-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-light);
+}
+
+.dt-cal-arrows {
+  display: flex;
+  gap: 4px;
+}
+
+.dt-cal-arrows button {
+  background: var(--dark);
+  border: 1px solid var(--border);
+  color: var(--text-light);
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  font-size: 0.65rem;
+  cursor: pointer;
+}
+
+.dt-weekdays-row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.dt-days-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+}
+
+.dt-day-cell {
+  background: transparent;
+  border: none;
+  height: 28px;
+  border-radius: 50%;
+  font-size: 0.75rem;
+  color: var(--text-light);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+
+.dt-day-cell:hover:not(.empty) {
+  background: var(--dark);
+}
+
+.dt-day-cell.selected {
+  background: var(--primary) !important;
+  color: #FFFFFF !important;
+  font-weight: 700;
+}
+
+/* VISTA RELOJ */
+.dt-time-display-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.6rem;
+}
+
+.dt-digits-box {
+  background: rgba(124, 77, 255, 0.15);
+  border: 1px solid var(--secondary);
+  border-radius: 8px;
+  padding: 0.4rem 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.dt-big-digit {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--secondary);
+}
+
+.dt-colon {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--secondary);
+  line-height: 1;
+}
+
+.dt-ampm-selector {
+  display: flex;
+  flex-direction: column;
+  background: var(--dark);
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.btn-ampm {
+  background: transparent;
+  border: none;
+  padding: 0.25rem 0.6rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.btn-ampm.active {
+  background: var(--secondary);
+  color: #FFFFFF;
+}
+
+.dt-clock-face {
+  position: relative;
+  width: 190px;
+  height: 190px;
+  border-radius: 50%;
+  background: var(--dark);
+  border: 1px solid var(--border);
+  margin: 0 auto;
+}
+
+.dt-clock-center-dot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--secondary);
+  transform: translate(-50%, -50%);
+}
+
+.dt-clock-hand {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 60px;
+  height: 2px;
+  background: var(--secondary);
+  transform-origin: 0% 50%;
+  pointer-events: none;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dt-clock-number {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: transparent;
+  border: none;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-light);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dt-clock-number:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.dt-clock-number.selected {
+  background: var(--secondary) !important;
+  color: #FFFFFF !important;
+  font-weight: 700;
+}
+
+.dt-minutes-quick-row {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  margin-top: 0.6rem;
+}
+
+.dt-min-chip {
+  background: var(--dark);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.dt-min-chip.selected {
+  background: var(--primary);
+  color: #FFFFFF;
+  border-color: var(--primary);
+}
+
+.dt-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  border-top: 1px solid var(--border);
+  padding-top: 0.6rem;
+}
+
+.dt-btn-cancel, .dt-btn-ok {
+  border-radius: 6px;
+  padding: 0.35rem 0.8rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.dt-btn-cancel {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+}
+
+.dt-btn-ok {
+  background: var(--primary);
+  border: none;
+  color: #FFFFFF;
+}

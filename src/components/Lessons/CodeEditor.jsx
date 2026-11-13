@@ -1,336 +1,191 @@
-import React, { useState, useEffect } from 'react';
-import ScratchIDE from './ScratchIDE';
-import { analyzeCode, getProgressiveHint } from '../../utils/codeAnalyzer';
-import { runSimulation } from '../../utils/simulationEngine';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import './CodeEditor.css';
 
-const CodeEditor = ({ language, initialCode, expectedOutput = '', lessonData = {} }) => {
+const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.VITE_CHATBOT_API_KEY || '';
+
+const CodeEditor = ({ language = 'arduino', initialCode = '', expectedOutput = '', lessonData = {} }) => {
   const [code, setCode] = useState(initialCode || '');
   const [output, setOutput] = useState('');
+  const [isRunning, setIsRunning] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  const [isCompiling, setIsCompiling] = useState(false);
-  const [hintLevel, setHintLevel] = useState(0);
+  const [aiGuidance, setAiGuidance] = useState('');
+  const [isAiLoading, setIsAiLoading] = useState(false);
+  const textareaRef = useRef(null);
 
-  // Estado del análisis inteligente (IA Pedagógica)
-  const [analysisResult, setAnalysisResult] = useState({
-    isCorrect: false,
-    errors: [],
-    warnings: [],
-    hints: [],
-    score: 0,
-    feedback: 'Escribe tu código y presiona "▶ Simular y Ejecutar" para analizarlo.',
-    severity: 'neutral'
-  });
+  useEffect(() => { if (initialCode !== undefined) setCode(initialCode); }, [initialCode]);
 
-  // Estados visuales de la simulación
-  const [simulationState, setSimulationState] = useState({
-    ledOn: false,
-    ledPin: 13,
-    pwmBrightness: 0,
-    serialHistory: [],
-    spriteX: 0,
-    spriteY: 0,
-    spriteRot: 90,
-    speechBubble: '',
-    spriteVisible: true,
-    spriteSize: 100,
-    pythonVars: {}
-  });
+  const getAutoIndent = (value, selectionStart) => {
+    const lines = value.substring(0, selectionStart).split('\n');
+    const lastLine = lines[lines.length - 1] || '';
+    const indentMatch = lastLine.match(/^(\s*)/);
+    let indent = indentMatch ? indentMatch[1] : '';
+    const trimmed = lastLine.trimEnd();
+    if (trimmed.endsWith(':') || trimmed.endsWith('{')) indent += '    ';
+    return indent;
+  };
 
-  // Actualizar código si cambia initialCode
-  useEffect(() => {
-    if (initialCode !== undefined) {
-      setCode(initialCode);
-    }
-  }, [initialCode]);
-
-  // Manejo de tabulación en editor de texto
   const handleKeyDown = (e) => {
+    const ta = e.target;
+    const { selectionStart, selectionEnd, value } = ta;
     if (e.key === 'Tab') {
       e.preventDefault();
-      const start = e.target.selectionStart;
-      const end = e.target.selectionEnd;
-      const newCode = code.substring(0, start) + '    ' + code.substring(end);
-      setCode(newCode);
-      setTimeout(() => {
-        e.target.selectionStart = e.target.selectionEnd = start + 4;
-      }, 0);
+      const updated = value.substring(0, selectionStart) + '    ' + value.substring(selectionEnd);
+      setCode(updated);
+      setTimeout(() => { ta.selectionStart = ta.selectionEnd = selectionStart + 4; }, 0);
+      return;
+    }
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const indent = getAutoIndent(value, selectionStart);
+      const updated = value.substring(0, selectionStart) + '\n' + indent + value.substring(selectionEnd);
+      setCode(updated);
+      setTimeout(() => { ta.selectionStart = ta.selectionEnd = selectionStart + 1 + indent.length; }, 0);
+      return;
+    }
+    const openClose = { '(': ')', '[': ']', '{': '}' };
+    if (openClose[e.key]) {
+      e.preventDefault();
+      const closing = openClose[e.key];
+      const selected = value.substring(selectionStart, selectionEnd);
+      const updated = value.substring(0, selectionStart) + e.key + selected + closing + value.substring(selectionEnd);
+      setCode(updated);
+      setTimeout(() => { ta.selectionStart = ta.selectionEnd = selectionStart + 1; }, 0);
+      return;
     }
   };
 
-  // Ejecución y simulación inteligente
+  const simulateArduino = (src) => {
+    const lines = [];
+    let ledState = false;
+    let pwm = 0;
+    if (!src.includes('void setup') || !src.includes('void loop')) {
+      return { output: '[ERROR] Se requieren las funciones setup() y loop() en Arduino.', success: false };
+    }
+    if (src.includes('Serial.begin')) lines.push('[Serial] Puerto inicializado.');
+    const printMatches = src.match(/Serial\.print(ln)?\s*\(\s*["']([^"']*)["']\s*\)/g) || [];
+    printMatches.forEach(m => { const val = m.match(/["']([^"']*)["']/); if (val) lines.push('[Serial] ' + val[1]); });
+    if (src.includes('digitalWrite') && src.includes('HIGH')) { ledState = true; lines.push('[Pin] LED ENCENDIDO (HIGH)'); }
+    if (src.includes('digitalWrite') && src.includes('LOW')) { ledState = false; lines.push('[Pin] LED APAGADO (LOW)'); }
+    const analogMatch = src.match(/analogWrite\s*\(\s*\d+\s*,\s*(\d+)\s*\)/);
+    if (analogMatch) { pwm = parseInt(analogMatch[1]); lines.push('[PWM] Valor = ' + pwm + ' (' + Math.round(pwm/255*100) + '%)'); }
+    lines.push('[OK] Simulacion completada.');
+    return { output: lines.join('\n'), success: true };
+  };
+
+  const simulatePython = (src) => {
+    const lines = [];
+    const printMatches = src.match(/print\s*\(([^)]+)\)/g) || [];
+    printMatches.forEach(m => {
+      const inner = m.replace(/^print\s*\(/, '').replace(/\)$/, '').trim();
+      const strMatch = inner.match(/^["'](.*)["']$/);
+      lines.push(strMatch ? strMatch[1] : '[expr] ' + inner);
+    });
+    if (!src.includes('def ') && src.trim() === '') return { output: '[ERROR] El archivo esta vacio.', success: false };
+    if (lines.length === 0) lines.push('[OK] Programa ejecutado. Resultado: sin salida de consola.');
+    return { output: lines.join('\n'), success: true };
+  };
+
   const handleRun = () => {
-    setIsCompiling(true);
-    setOutput('Analizando sintaxis, evaluando instrucciones de la lección y compilando simulación...');
-
+    setIsRunning(true);
+    setOutput('Compilando y simulando ' + (language||'').toUpperCase() + '...');
+    setAiGuidance('');
     setTimeout(() => {
-      // 1. Análisis con IA pedagógica
-      const analysis = analyzeCode(code, language, lessonData);
-      setAnalysisResult(analysis);
-
-      // 2. Simulación realista
-      const sim = runSimulation(code, language, lessonData);
-      setSimulationState(prev => ({ ...prev, ...sim.simState }));
-
-      setOutput(sim.output);
-      setIsSuccess(analysis.isCorrect && sim.success);
-      setIsCompiling(false);
-    }, 400);
+      let result;
+      if (language === 'arduino') result = simulateArduino(code);
+      else if (language === 'python') result = simulatePython(code);
+      else result = { output: 'Simulacion Scratch completada.', success: true };
+      setOutput(result.output);
+      setIsSuccess(result.success);
+      setIsRunning(false);
+      if (!result.success || (expectedOutput && !result.output.includes(expectedOutput.trim()))) {
+        callGeminiForGuidance(result.output);
+      }
+    }, 600);
   };
 
-  // Solicitar nueva pista pedagógica
-  const handleRequestHint = () => {
-    const nextLevel = (hintLevel + 1) % 3;
-    setHintLevel(nextLevel);
-    const newHint = getProgressiveHint(language, lessonData, nextLevel);
-    setAnalysisResult(prev => ({
-      ...prev,
-      hints: [newHint, ...(prev.hints || []).filter(h => h !== newHint)].slice(0, 3)
-    }));
+  const callGeminiForGuidance = async (executionOutput) => {
+    if (!GEMINI_API_KEY) return;
+    setIsAiLoading(true);
+    try {
+      const prompt = 'Eres un tutor de programacion pedagogico. El estudiante tiene este codigo en ' + (language||'') + ':\n' + code + '\n\nSalida obtenida:\n' + executionOutput + '\n\nInstrucciones de la leccion: ' + (lessonData?.practice?.instructions || '') + '\n\nDa una pista de maximo 2 oraciones sin revelar la solucion completa. Habla en espanol amigable.';
+      const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + GEMINI_API_KEY;
+      const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: prompt }] }], generationConfig: { temperature: 0.6, maxOutputTokens: 200 } }) });
+      if (res.ok) {
+        const data = await res.json();
+        setAiGuidance(data.candidates?.[0]?.content?.parts?.[0]?.text || '');
+      }
+    } catch {}
+    finally { setIsAiLoading(false); }
   };
 
-  const handleReset = () => {
-    setCode(initialCode || '');
-    setOutput('');
-    setIsSuccess(false);
-    setHintLevel(0);
-    setAnalysisResult({
-      isCorrect: false,
-      errors: [],
-      warnings: [],
-      hints: [],
-      score: 0,
-      feedback: 'Editor restablecido. Escribe tu solución y presiona "▶ Simular y Ejecutar".',
-      severity: 'neutral'
-    });
-    setSimulationState({
-      ledOn: false,
-      ledPin: 13,
-      pwmBrightness: 0,
-      serialHistory: [],
-      spriteX: 0,
-      spriteY: 0,
-      spriteRot: 90,
-      speechBubble: '',
-      spriteVisible: true,
-      spriteSize: 100,
-      pythonVars: {}
-    });
+  const handleReset = () => { setCode(initialCode || ''); setOutput(''); setIsSuccess(false); setAiGuidance(''); };
+
+  const lineCount = (code || '').split('\n').length;
+
+  const getPlaceholder = () => {
+    if (language === 'python') return '# Codigo Python\ndef main():\n    print("Hola Mundo")\n\nmain()';
+    return '// Codigo Arduino C++\nvoid setup() {\n  pinMode(13, OUTPUT);\n}\nvoid loop() {\n  digitalWrite(13, HIGH);\n  delay(1000);\n}';
   };
 
   return (
-    <div className="code-editor-wrapper">
-      {/* BARRA SUPERIOR DE HERRAMIENTAS */}
-      <div className="editor-toolbar">
-        <div className="toolbar-left">
-          <span className={`lang-badge ${language}`}>{language?.toUpperCase()}</span>
-          <span className="editor-hint">
-            {language === 'arduino' && 'Compilador estricto C++ & Simulación fiel de circuitos'}
-            {language === 'scratch' && 'Entorno de bloques oficial con todas las categorías & escenario interactivo'}
-            {language === 'python' && 'Intérprete Python & Análisis de indentación'}
-          </span>
+    <div className="vscode-editor-wrapper">
+      <div className="vscode-titlebar">
+        <div className="vscode-tabs">
+          <div className="vscode-tab active">
+            <span className="tab-dot"></span>
+            <span>{language === 'python' ? 'main.py' : language === 'arduino' ? 'sketch.ino' : 'program.scratch'}</span>
+          </div>
         </div>
-        <div className="editor-actions">
-          <button type="button" className="btn-icon" onClick={handleReset} title="Restablecer código">
-            🔄 Reiniciar
-          </button>
-          <button
-            type="button"
-            className={`btn-run ${isCompiling ? 'running' : ''}`}
-            onClick={handleRun}
-            disabled={isCompiling}
-          >
-            {isCompiling ? '⏳ Analizando...' : '▶ Simular y Ejecutar'}
+        <div className="vscode-toolbar-actions">
+          <button className="vsc-action-btn" onClick={handleReset} title="Reiniciar codigo">Reiniciar</button>
+          <button className={'vsc-run-btn' + (isRunning ? ' running' : '')} onClick={handleRun} disabled={isRunning}>
+            {isRunning ? 'Compilando...' : 'Ejecutar'}
           </button>
         </div>
       </div>
-
-      {/* ÁREA DE PROGRAMACIÓN + SIMULADOR INTEGRADO */}
-      <div className="editor-interactive-split">
-        {/* LADO IZQUIERDO: SCRATCH IDE O EDITOR DE TEXTO */}
-        <div className="editor-code-pane">
-          {language === 'scratch' ? (
-            <ScratchIDE code={code} onCodeChange={setCode} />
+      <div className="vscode-editor-body">
+        <div className="vscode-line-numbers">
+          {Array.from({ length: Math.max(lineCount, 1) }, (_, i) => (
+            <div key={i} className="line-num">{i + 1}</div>
+          ))}
+        </div>
+        <textarea
+          ref={textareaRef}
+          className="vscode-textarea"
+          value={code}
+          onChange={e => setCode(e.target.value)}
+          onKeyDown={handleKeyDown}
+          spellCheck="false"
+          autoCorrect="off"
+          autoCapitalize="off"
+          placeholder={getPlaceholder()}
+        />
+      </div>
+      <div className="vscode-statusbar">
+        <span>Ln {lineCount}</span>
+        <span>{(language||'').toUpperCase()}</span>
+        <span>UTF-8</span>
+        <span className={'status-dot' + (isSuccess ? ' success' : '')}>{isSuccess ? 'OK' : 'Editando'}</span>
+      </div>
+      <div className="vscode-terminal-panel">
+        <div className="terminal-header">
+          <span>CONSOLA DE SALIDA</span>
+        </div>
+        <div className="terminal-output">
+          {output ? (
+            <pre className={'terminal-text' + (output.includes('[ERROR]') ? ' error' : isSuccess ? ' success' : '')}>{output}</pre>
           ) : (
-            <div className="text-mode-container">
-              <div className="line-numbers-bar">
-                {code.split('\n').map((_, i) => <div key={i}>{i + 1}</div>)}
-              </div>
-              <textarea
-                className="strict-code-textarea"
-                value={code}
-                onChange={e => setCode(e.target.value)}
-                onKeyDown={handleKeyDown}
-                spellCheck="false"
-                placeholder={
-                  language === 'arduino'
-                    ? '// Código Arduino C++\nvoid setup() {\n  pinMode(13, OUTPUT);\n}\nvoid loop() {\n}'
-                    : '# Código Python\ndef main():\n    print("Hola Mundo")'
-                }
-              />
+            <span className="terminal-placeholder">Presiona Ejecutar para ver la salida...</span>
+          )}
+          {(isAiLoading || aiGuidance) && (
+            <div className="ai-guidance-box">
+              <span className="ai-label">Tutor IA:</span>
+              {isAiLoading ? <span className="ai-loading">Analizando tu codigo...</span> : <span className="ai-text">{aiGuidance}</span>}
             </div>
           )}
         </div>
-
-        {/* LADO DERECHO: SIMULADOR VISUAL EN VIVO */}
-        <div className="simulation-preview-pane">
-          <div className="sim-pane-header">
-            <h4>
-              {language === 'arduino' && '⚡ Circuito y Microcontrolador Arduino'}
-              {language === 'scratch' && '🎭 Escenario de Ejecución Scratch'}
-              {language === 'python' && '📊 Inspector de Memoria y Variables'}
-            </h4>
-          </div>
-
-          <div className="sim-stage-content">
-            {/* SIMULADOR ARDUINO */}
-            {language === 'arduino' && (
-              <div className="arduino-board-simulator">
-                <div className="microcontroller-chip">
-                  <span className="chip-label">ATmega328P</span>
-                  <div className="chip-legs"></div>
-                </div>
-
-                <div className="breadboard-components">
-                  <div className="component-led-box">
-                    <span className="pin-indicator">Pin Digital: #{simulationState.ledPin}</span>
-                    <div
-                      className={`simulated-led ${simulationState.ledOn ? 'lit' : 'off'}`}
-                      style={{
-                        boxShadow: simulationState.ledOn
-                          ? `0 0 25px 8px rgba(0, 230, 118, ${Math.max(0.4, simulationState.pwmBrightness / 255)})`
-                          : 'none',
-                        opacity: simulationState.ledOn
-                          ? Math.max(0.4, simulationState.pwmBrightness / 255)
-                          : 0.2
-                      }}
-                    >
-                      <div className="led-reflection"></div>
-                    </div>
-                    <span className="led-status-tag">
-                      {simulationState.ledOn
-                        ? `ENCENDIDO (${simulationState.pwmBrightness || 255} PWM / 5V)`
-                        : 'APAGADO (0V)'}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* SIMULADOR SCRATCH */}
-            {language === 'scratch' && (
-              <div className="scratch-stage-canvas">
-                <div className="canvas-grid-lines">
-                  <span className="axis-center">(0, 0)</span>
-                </div>
-                {simulationState.spriteVisible && (
-                  <div
-                    className="interactive-sprite"
-                    style={{
-                      transform: `translate(${simulationState.spriteX}px, ${-simulationState.spriteY}px) rotate(${simulationState.spriteRot - 90}deg) scale(${simulationState.spriteSize / 100})`
-                    }}
-                  >
-                    <div className="sprite-avatar">🐱</div>
-                    {simulationState.speechBubble && (
-                      <div className="sprite-speech-bubble">
-                        {simulationState.speechBubble}
-                      </div>
-                    )}
-                  </div>
-                )}
-                <div className="sprite-telemetry">
-                  <span>X: {simulationState.spriteX}</span>
-                  <span>Y: {simulationState.spriteY}</span>
-                  <span>Rot: {simulationState.spriteRot}°</span>
-                  <span>Tam: {simulationState.spriteSize}%</span>
-                </div>
-              </div>
-            )}
-
-            {/* SIMULADOR PYTHON */}
-            {language === 'python' && (
-              <div className="python-inspector-box">
-                <h5>Variables en Memoria (RAM):</h5>
-                {Object.keys(simulationState.pythonVars).length === 0 ? (
-                  <p className="empty-vars">Ejecuta el código para inspeccionar variables creadas.</p>
-                ) : (
-                  <div className="vars-table">
-                    {Object.entries(simulationState.pythonVars).map(([k, v]) => (
-                      <div key={k} className="var-row">
-                        <span className="var-name">{k}</span>
-                        <span className="var-type">({typeof v})</span>
-                        <span className="var-val">= {JSON.stringify(v)}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* PANEL DE ASISTENTE IA PEDAGÓGICO */}
-      <div className={`pedagogical-advice-banner ${analysisResult.severity}`}>
-        <div className="advice-icon">
-          {analysisResult.severity === 'error' ? '⚠️' : analysisResult.severity === 'warning' ? '💡' : analysisResult.severity === 'success' ? '🌟' : '🤖'}
-        </div>
-        <div className="advice-body" style={{ flex: 1 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <strong>Tutor IA Pedagógico — Análisis de Código</strong>
-            <button
-              type="button"
-              onClick={handleRequestHint}
-              style={{
-                background: 'transparent',
-                border: '1px solid var(--border)',
-                color: 'var(--text-primary)',
-                padding: '2px 8px',
-                borderRadius: '4px',
-                fontSize: '0.75rem',
-                cursor: 'pointer'
-              }}
-            >
-              💡 Pedir Pista ({hintLevel + 1}/3)
-            </button>
-          </div>
-          <p style={{ margin: '4px 0 0 0' }}>{analysisResult.feedback}</p>
-
-          {/* Errores con números de línea */}
-          {analysisResult.errors && analysisResult.errors.length > 0 && (
-            <ul style={{ margin: '6px 0 0 16px', padding: 0, fontSize: '0.85rem' }}>
-              {analysisResult.errors.map((err, i) => (
-                <li key={i}>{err.msg}</li>
-              ))}
-            </ul>
-          )}
-
-          {/* Pistas pedagógicas (sin dar la solución completa) */}
-          {analysisResult.hints && analysisResult.hints.length > 0 && (
-            <div style={{ marginTop: '8px', padding: '6px 10px', background: 'rgba(0,0,0,0.1)', borderRadius: '4px' }}>
-              <span style={{ fontWeight: 600, fontSize: '0.8rem' }}>Orientación Socrática:</span>
-              <ul style={{ margin: '4px 0 0 16px', padding: 0, fontSize: '0.82rem' }}>
-                {analysisResult.hints.map((h, i) => (
-                  <li key={i}>{h}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* CONSOLA DE SALIDA ESTÁNDAR */}
-      <div className={`output-panel ${isSuccess ? 'success' : output ? 'active' : ''}`}>
-        <div className="output-header">
-          <span className="output-title">Consola de Salida y Registro de Simulación:</span>
-          <span className="output-status">
-            {output ? (isSuccess ? '✅ Simulación Fiel y Correcta' : '⚠️ Revisión Requerida') : 'En espera'}
-          </span>
-        </div>
-        <pre className="output-console">{output || 'Presiona "▶ Simular y Ejecutar" para compilar tu algoritmo...'}</pre>
       </div>
     </div>
   );
 };
-
 export default CodeEditor;

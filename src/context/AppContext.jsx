@@ -17,6 +17,7 @@ export const AppProvider = ({ children }) => {
   const [students, setStudents] = useState([]);
   const [messages, setMessages] = useState([]);
   const [tasks, setTasks] = useState([]);
+  const [lessonGoals, setLessonGoals] = useState(() => { try { return JSON.parse(localStorage.getItem('codecraft_lesson_goals') || '[]'); } catch { return []; } });
   const [customContent, setCustomContent] = useState({});
   const [theme, setTheme] = useState('light');
   const [loading, setLoading] = useState(true);
@@ -919,6 +920,25 @@ export const AppProvider = ({ children }) => {
     localStorage.setItem('codecraft_tasks', JSON.stringify(updated));
   };
 
+  // ASIGNACIÓN DE METAS DE LECCIONES POR DOCENTE
+  const assignLessonGoal = (goalData) => {
+    const newGoal = {
+      ...goalData,
+      id: goalData.id || ('goal-' + Date.now()),
+      created_at: new Date().toISOString()
+    };
+    const updated = [newGoal, ...lessonGoals.filter(g => g.id !== newGoal.id)];
+    setLessonGoals(updated);
+    localStorage.setItem('codecraft_lesson_goals', JSON.stringify(updated));
+    return newGoal;
+  };
+
+  const removeLessonGoal = (goalId) => {
+    const updated = lessonGoals.filter(g => g.id !== goalId);
+    setLessonGoals(updated);
+    localStorage.setItem('codecraft_lesson_goals', JSON.stringify(updated));
+  };
+
   // FUNCIÓN PARA LIMPIAR TODOS LOS DATOS LOCALES
   const clearAllLocalData = () => {
     localStorage.removeItem('codecraft_user');
@@ -978,6 +998,9 @@ export const AppProvider = ({ children }) => {
       updateStudentNote,
       updateSettings,
       clearAllLocalData,
+      lessonGoals,
+      assignLessonGoal,
+      removeLessonGoal,
       fetchSupabaseData
     }}>
       {children}

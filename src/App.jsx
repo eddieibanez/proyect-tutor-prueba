@@ -43,7 +43,7 @@ const App = () => {
         </Routes>
       </main>
 
-      {(isStudentRoute || isTeacherRoute) && <Chatbot />}
+      {/* Chatbot is embedded exclusively in lesson practice view */}
     </div>
   );
 };
