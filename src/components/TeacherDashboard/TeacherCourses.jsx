@@ -242,12 +242,12 @@ const TeacherCourses = ({ onOpenGoalModal }) => {
       {/* MODAL CREAR CURSO */}
       {showCourseModal && (
         <div className="modal-overlay">
-          <div className="modal-content">
-            <div className="modal-header">
+          <div className="course-modal-content">
+            <div className="modal-header-row">
               <h3>Crear Nueva Asignatura</h3>
-              <button type="button" className="close-btn" onClick={() => setShowCourseModal(false)}>✕</button>
+              <button type="button" className="btn-close-modal" onClick={() => setShowCourseModal(false)}>✕</button>
             </div>
-            <form onSubmit={handleCreateCourse}>
+            <form onSubmit={handleCreateCourse} className="course-edit-form">
               <div className="form-field">
                 <label>Nombre de la Asignatura / Curso:</label>
                 <input
@@ -299,9 +299,9 @@ const TeacherCourses = ({ onOpenGoalModal }) => {
                 />
               </div>
 
-              <div className="modal-actions">
-                <button type="button" className="btn-cancel" onClick={() => setShowCourseModal(false)}>Cancelar</button>
-                <button type="submit" className="btn-submit">Guardar Curso</button>
+              <div className="modal-footer-actions">
+                <button type="button" className="btn-modal-cancel" onClick={() => setShowCourseModal(false)}>Cancelar</button>
+                <button type="submit" className="btn-modal-submit">Guardar Curso</button>
               </div>
             </form>
           </div>
@@ -311,12 +311,12 @@ const TeacherCourses = ({ onOpenGoalModal }) => {
       {/* MODAL MATRICULAR ESTUDIANTE */}
       {showStudentModal && (
         <div className="modal-overlay">
-          <div className="modal-content">
-            <div className="modal-header">
+          <div className="course-modal-content">
+            <div className="modal-header-row">
               <h3>Matricular Nuevo Alumno en [{activeCourse?.code}]</h3>
-              <button type="button" className="close-btn" onClick={() => setShowStudentModal(false)}>✕</button>
+              <button type="button" className="btn-close-modal" onClick={() => setShowStudentModal(false)}>✕</button>
             </div>
-            <form onSubmit={handleAddStudentSubmit}>
+            <form onSubmit={handleAddStudentSubmit} className="course-edit-form">
               <div className="form-row-2">
                 <div className="form-field">
                   <label>Nombre:</label>
@@ -352,9 +352,9 @@ const TeacherCourses = ({ onOpenGoalModal }) => {
                 />
               </div>
 
-              <div className="modal-actions">
-                <button type="button" className="btn-cancel" onClick={() => setShowStudentModal(false)}>Cancelar</button>
-                <button type="submit" className="btn-submit">Matricular Alumno</button>
+              <div className="modal-footer-actions">
+                <button type="button" className="btn-modal-cancel" onClick={() => setShowStudentModal(false)}>Cancelar</button>
+                <button type="submit" className="btn-modal-submit">Matricular Alumno</button>
               </div>
             </form>
           </div>
@@ -365,6 +365,7 @@ const TeacherCourses = ({ onOpenGoalModal }) => {
 };
 
 export default TeacherCourses;
+
 
 
 

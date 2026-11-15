@@ -238,3 +238,50 @@
   top: 12px;
   right: 12px;
 }
+
+
+/* ESTILOS PARA NOTIFICACIONES EMERGENTES FLOTANTES (DROPDOWN PRACTICIDAD) */
+.notifications-popover-anchor {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.notifications-dropdown-wrapper {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 10500;
+  width: 380px;
+  max-width: 90vw;
+  animation: notifPop 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes notifPop {
+  0% { transform: translateY(-8px) scale(0.96); opacity: 0; }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.notifications-dropdown-card {
+  background: var(--cards, #FFFFFF);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.22);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  color: var(--text-primary);
+  max-height: 480px;
+}
+
+.notifications-dropdown-card .notifications-modal-header {
+  padding: 0.9rem 1.2rem;
+}
+
+.notifications-dropdown-card .notifications-action-bar {
+  padding: 0.4rem 1.2rem;
+}
+
+.notifications-dropdown-card .notifications-scroll-area {
+  max-height: 380px;
+}

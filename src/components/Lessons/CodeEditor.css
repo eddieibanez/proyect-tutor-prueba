@@ -281,3 +281,108 @@
   color: #4fc1ff;
   margin-bottom: 4px;
 }
+
+
+/* STAGE DE CODIFICACIÓN CON OVERLAY DE RESALTADO DE SINTAXIS (VS CODE PRO) */
+.vscode-editor-stage {
+  position: relative;
+  flex: 1;
+  height: 100%;
+  overflow: hidden;
+  background: #1e1e1e;
+}
+
+.vscode-syntax-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: 0;
+  padding: 12px;
+  box-sizing: border-box;
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  tab-size: 4;
+  white-space: pre;
+  overflow: hidden;
+  pointer-events: none;
+  background: transparent;
+  color: #d4d4d4;
+  z-index: 1;
+}
+
+.vscode-syntax-overlay code {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.hl-line {
+  min-height: 1.5em;
+  display: block;
+}
+
+/* Colores auténticos de temas VS Code Dark+ */
+.hl-keyword {
+  color: #C586C0; /* Púrpura/Magenta para def, if, elif, else, return, etc. */
+  font-weight: 600;
+}
+
+.hl-constant {
+  color: #569CD6; /* Azul brillante para True, False, HIGH, LOW, OUTPUT */
+  font-weight: 600;
+}
+
+.hl-function {
+  color: #DCDCAA; /* Amarillo característico de funciones como print(), pinMode() */
+}
+
+.hl-string {
+  color: #CE9178; /* Naranja/marrón suave para strings */
+}
+
+.hl-number {
+  color: #B5CEA8; /* Verde menta para números enteros y flotantes */
+}
+
+.hl-comment {
+  color: #6A9955; /* Verde oliva para comentarios # y // */
+  font-style: italic;
+}
+
+.hl-operator {
+  color: #D4D4D4;
+}
+
+/* Textarea superpuesto sincronizado y transparente para permitir edición nativa */
+.vscode-textarea.transparent-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 12px;
+  box-sizing: border-box;
+  background: transparent !important;
+  color: transparent !important;
+  caret-color: #569CD6 !important;
+  border: none !important;
+  outline: none !important;
+  resize: none !important;
+  font-family: 'Consolas', 'Courier New', monospace !important;
+  font-size: 0.85rem !important;
+  line-height: 1.5 !important;
+  tab-size: 4 !important;
+  white-space: pre !important;
+  overflow: auto !important;
+  z-index: 2;
+}
+
+/* Al seleccionar texto en el editor de código, resaltar con selección sutil visible */
+.vscode-textarea.transparent-overlay::selection {
+  background-color: rgba(38, 79, 120, 0.65) !important;
+  color: transparent !important;
+}

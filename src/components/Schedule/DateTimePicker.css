@@ -23,7 +23,7 @@
 }
 
 [data-theme="dark"] .picker-card {
-  background: #1e1e2d;
+  background: var(--cards);
   color: #ffffff;
   border-color: rgba(255, 255, 255, 0.12);
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
@@ -395,3 +395,4 @@
   background: var(--primary, #00BCD4);
   color: #ffffff;
 }
+

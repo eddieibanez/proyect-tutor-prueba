@@ -178,3 +178,46 @@ option {
   background-color: var(--dark);
   border-color: var(--primary);
 }
+
+
+/* REGLAS GLOBALES ESTRICTAS: PREVENIR FONDOS NEGROS O INVISIBILIDAD EN MODO CLARO Y TEXT SELECTION */
+[data-theme="light"], :root {
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+/* Forzar que todos los campos editables respondan al tema activo y nunca queden negros en modo claro */
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+textarea,
+select {
+  background-color: var(--input-bg, #FFFFFF) !important;
+  color: var(--input-text, #1E293B) !important;
+  border-color: var(--border, #DDE3EA);
+}
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):focus,
+textarea:focus,
+select:focus {
+  background-color: var(--input-focus-bg, #FFFFFF) !important;
+  color: var(--input-text, #1E293B) !important;
+  border-color: var(--primary, #0097A7) !important;
+  box-shadow: 0 0 0 3px rgba(0, 151, 167, 0.2) !important;
+}
+
+/* Selección de texto dentro de cualquier input o textarea siempre con texto legible y fondo azul celeste */
+*::selection,
+input::selection,
+textarea::selection {
+  background-color: #00BCD4 !important;
+  color: #FFFFFF !important;
+}
+
+*::-moz-selection,
+input::-moz-selection,
+textarea::-moz-selection {
+  background-color: #00BCD4 !important;
+  color: #FFFFFF !important;
+}

@@ -187,13 +187,87 @@ const CodeEditor = ({ language = 'arduino', initialCode = '', expectedOutput = '
     };
   };
 
-  // SIMULADOR DE PYTHON
+  // RESALTADO DE SINTAXIS AUTOMÁTICO ESTILO VS CODE PARA PYTHON Y ARDUINO C++
+  const preHighlightRef = useRef(null);
+
+  const handleScrollSync = (e) => {
+    if (preHighlightRef.current) {
+      preHighlightRef.current.scrollTop = e.target.scrollTop;
+      preHighlightRef.current.scrollLeft = e.target.scrollLeft;
+    }
+  };
+
+  const renderSyntaxHighlightedCode = (rawCode) => {
+    if (!rawCode) return '\n';
+
+    // Regex tokens para VS Code Dark+:
+    // Comentarios, strings, keywords de control, funciones, números, operadores
+    const lines = rawCode.split('\n');
+
+    return lines.map((line, lIdx) => {
+      // Si la línea es comentario
+      const trimmed = line.trimStart();
+      if (trimmed.startsWith('#') || trimmed.startsWith('//')) {
+        return (
+          <div key={lIdx} className="hl-line">
+            <span className="hl-comment">{line}</span>
+          </div>
+        );
+      }
+
+      // Tokenizador regex
+      const tokenRegex = /(".*?"|'.*?'|\b(?:def|class|if|elif|else|while|for|in|return|import|from|as|try|except|with|and|or|not|True|False|None|void|int|float|char|bool|setup|loop|pinMode|digitalWrite|digitalRead|analogRead|analogWrite|Serial|delay|HIGH|LOW|OUTPUT|INPUT|INPUT_PULLUP)\b|\b\d+(?:\.\d+)?\b|[a-zA-Z_]\w*(?=\s*\()|[-+*/%<>=!&|^~]+|[^\s\w"'\-+*/%<>=!&|^~]+|\s+)/g;
+
+      const tokens = [];
+      let match;
+      let lastIndex = 0;
+
+      while ((match = tokenRegex.exec(line)) !== null) {
+        const text = match[0];
+
+        if (text.startsWith('"') || text.startsWith("'")) {
+          tokens.push(<span key={tokens.length} className="hl-string">{text}</span>);
+        } else if (/^(?:def|class|if|elif|else|while|for|in|return|import|from|as|try|except|with|void|int|float|char|bool|setup|loop)$/.test(text)) {
+          tokens.push(<span key={tokens.length} className="hl-keyword">{text}</span>);
+        } else if (/^(?:and|or|not|True|False|None|HIGH|LOW|OUTPUT|INPUT|INPUT_PULLUP)$/.test(text)) {
+          tokens.push(<span key={tokens.length} className="hl-constant">{text}</span>);
+        } else if (/^(?:print|pinMode|digitalWrite|digitalRead|analogRead|analogWrite|delay)$/.test(text) || text === 'Serial' || (match.index + text.length < line.length && line[match.index + text.length] === '(')) {
+          tokens.push(<span key={tokens.length} className="hl-function">{text}</span>);
+        } else if (/^\d+(?:\.\d+)?$/.test(text)) {
+          tokens.push(<span key={tokens.length} className="hl-number">{text}</span>);
+        } else if (/^[+\-*/%<>=!&|^~]+$/.test(text)) {
+          tokens.push(<span key={tokens.length} className="hl-operator">{text}</span>);
+        } else {
+          tokens.push(<span key={tokens.length}>{text}</span>);
+        }
+        lastIndex = tokenRegex.lastIndex;
+      }
+
+      if (tokens.length === 0) {
+        return <div key={lIdx} className="hl-line">&#8203;</div>;
+      }
+
+      return (
+        <div key={lIdx} className="hl-line">
+          {tokens}
+        </div>
+      );
+    });
+  };
+  // SIMULADOR E INTÉRPRETE DE PYTHON CON EVALUACIÓN REAL DE VARIABLES Y CONDICIONALES
   const simulatePython = (src) => {
-    const lines = [];
-    const codeLines = src.split('\n');
-    for (let i = 0; i < codeLines.length - 1; i++) {
-      if (codeLines[i].trim().endsWith(':')) {
-        const next = codeLines[i + 1];
+    if (!src || src.trim() === '') {
+      return { output: '[Error] Editor vacío. Escribe tu algoritmo antes de ejecutar.', success: false };
+    }
+
+    const lines = src.split('\n');
+    const outputs = [];
+    const scope = {};
+
+    for (let i = 0; i < lines.length - 1; i++) {
+      const trimmed = lines[i].trim();
+      if (trimmed.endsWith(':')) {
+        const next = lines[i + 1];
         if (next && next.trim() !== '' && !next.startsWith(' ') && !next.startsWith('\t')) {
           return {
             output: `[IndentationError] Línea ${i + 2}: Se esperaba un bloque indentado después de la instrucción de la línea ${i + 1}.`,
@@ -203,28 +277,136 @@ const CodeEditor = ({ language = 'arduino', initialCode = '', expectedOutput = '
       }
     }
 
-    const prints = src.match(/print\s*\(([^)]*)\)/g) || [];
-    prints.forEach(p => {
-      const inner = p.replace(/^print\s*\(/, '').replace(/\)$/, '').trim();
-      let clean = inner;
-      if ((clean.startsWith('"') && clean.endsWith('"')) || (clean.startsWith("'") && clean.endsWith("'"))) {
-        clean = clean.slice(1, -1);
-      }
-      lines.push(clean);
-    });
+    const evalPythonExpr = (expr, context) => {
+      let trimmed = expr.trim();
+      if (!trimmed) return null;
 
-    if (lines.length === 0 && src.trim() !== '') {
-      lines.push('[Python 3.11 Execution Completed] Proceso finalizado sin salida en stdout.');
-    } else if (src.trim() === '') {
-      return { output: '[Error] Editor vacío. Escribe tu algoritmo antes de ejecutar.', success: false };
+      if (trimmed === 'True') return true;
+      if (trimmed === 'False') return false;
+      if (trimmed === 'None') return null;
+
+      if ((trimmed.startsWith('"') && trimmed.endsWith('"')) || (trimmed.startsWith("'") && trimmed.endsWith("'"))) {
+        return trimmed.slice(1, -1);
+      }
+
+      let jsExpr = trimmed
+        .replace(/\band\b/g, '&&')
+        .replace(/\bor\b/g, '||')
+        .replace(/\bnot\s+/g, '!')
+        .replace(/\bTrue\b/g, 'true')
+        .replace(/\bFalse\b/g, 'false');
+
+      try {
+        const scopeKeys = Object.keys(context);
+        const scopeVals = Object.values(context);
+        const fn = new Function(...scopeKeys, `return (${jsExpr});`);
+        return fn(...scopeVals);
+      } catch (err) {
+        return trimmed;
+      }
+    };
+
+    let idx = 0;
+    let conditionalState = {
+      inIfChain: false,
+      chainSatisfied: false,
+      skippingIndentedBlock: false
+    };
+
+    while (idx < lines.length) {
+      const rawLine = lines[idx];
+      const trimmed = rawLine.trim();
+      const indentMatch = rawLine.match(/^(\s*)/);
+      const indentLen = indentMatch ? indentMatch[1].length : 0;
+
+      idx++;
+
+      if (!trimmed || trimmed.startsWith('#')) {
+        continue;
+      }
+
+      if (indentLen === 0) {
+        conditionalState.skippingIndentedBlock = false;
+
+        if (trimmed.startsWith('if ') && trimmed.endsWith(':')) {
+          conditionalState.inIfChain = true;
+          const conditionStr = trimmed.slice(3, -1);
+          const isTrue = Boolean(evalPythonExpr(conditionStr, scope));
+          conditionalState.chainSatisfied = isTrue;
+          conditionalState.skippingIndentedBlock = !isTrue;
+          continue;
+        } else if (trimmed.startsWith('elif ') && trimmed.endsWith(':')) {
+          if (!conditionalState.inIfChain) {
+            return { output: `[SyntaxError] 'elif' fuera de un bloque condicional 'if'.`, success: false };
+          }
+          if (conditionalState.chainSatisfied) {
+            conditionalState.skippingIndentedBlock = true;
+          } else {
+            const conditionStr = trimmed.slice(5, -1);
+            const isTrue = Boolean(evalPythonExpr(conditionStr, scope));
+            if (isTrue) {
+              conditionalState.chainSatisfied = true;
+              conditionalState.skippingIndentedBlock = false;
+            } else {
+              conditionalState.skippingIndentedBlock = true;
+            }
+          }
+          continue;
+        } else if (trimmed === 'else:') {
+          if (!conditionalState.inIfChain) {
+            return { output: `[SyntaxError] 'else' sin un 'if' previo correspondiente.`, success: false };
+          }
+          if (conditionalState.chainSatisfied) {
+            conditionalState.skippingIndentedBlock = true;
+          } else {
+            conditionalState.chainSatisfied = true;
+            conditionalState.skippingIndentedBlock = false;
+          }
+          continue;
+        } else {
+          conditionalState.inIfChain = false;
+          conditionalState.chainSatisfied = false;
+        }
+      } else {
+        if (conditionalState.skippingIndentedBlock) {
+          continue;
+        }
+      }
+
+      const assignMatch = trimmed.match(/^([a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*(.+)$/);
+      if (assignMatch && !trimmed.startsWith('def ') && !trimmed.startsWith('print(')) {
+        const varName = assignMatch[1];
+        const exprValue = assignMatch[2];
+        scope[varName] = evalPythonExpr(exprValue, scope);
+        continue;
+      }
+
+      if (trimmed.startsWith('print(') && trimmed.endsWith(')')) {
+        const inner = trimmed.slice(6, -1);
+        const args = inner.split(',').map(arg => {
+          const res = evalPythonExpr(arg.trim(), scope);
+          return res !== null && res !== undefined ? String(res) : '';
+        });
+        outputs.push(args.join(' '));
+        continue;
+      }
+
+      const innerPrint = trimmed.match(/print\s*\((.*)\)/);
+      if (innerPrint) {
+        const val = evalPythonExpr(innerPrint[1], scope);
+        outputs.push(String(val));
+      }
+    }
+
+    if (outputs.length === 0) {
+      outputs.push('[Python 3.11 Execution Completed] Proceso finalizado sin salida en stdout.');
     }
 
     return {
-      output: lines.join('\n'),
+      output: outputs.join('\n'),
       success: true
     };
   };
-
   // ASISTENCIA SOCRÁTICA CON GEMINI API
   const callGeminiForGuidance = async (execOutput) => {
     if (!GEMINI_API_KEY) return;
@@ -335,19 +517,27 @@ REGLAS:
             <div key={i} className="line-num">{i + 1}</div>
           ))}
         </div>
-        <textarea
-          ref={textareaRef}
-          className="vscode-textarea"
-          value={code}
-          onChange={e => setCode(e.target.value)}
-          onKeyDown={handleKeyDown}
-          spellCheck="false"
-          placeholder={
-            language === 'python'
-              ? '# Codigo Python\ndef main():\n    print("Hola Mundo")\n\nmain()'
-              : '// Codigo Arduino C++\nvoid setup() {\n  pinMode(13, OUTPUT);\n}\n\nvoid loop() {\n  digitalWrite(13, HIGH);\n  delay(1000);\n  digitalWrite(13, LOW);\n  delay(1000);\n}'
-          }
-        />
+        <div className="vscode-editor-stage">
+          <pre ref={preHighlightRef} className="vscode-syntax-overlay" aria-hidden="true">
+            <code>
+              {renderSyntaxHighlightedCode(code)}
+            </code>
+          </pre>
+          <textarea
+            ref={textareaRef}
+            className="vscode-textarea transparent-overlay"
+            value={code}
+            onChange={e => setCode(e.target.value)}
+            onKeyDown={handleKeyDown}
+            onScroll={handleScrollSync}
+            spellCheck="false"
+            placeholder={
+              language === 'python'
+                ? '# Codigo Python\ndef main():\n    print("Hola Mundo")\n\nmain()'
+                : '// Codigo Arduino C++\nvoid setup() {\n  pinMode(13, OUTPUT);\n}\n\nvoid loop() {\n  digitalWrite(13, HIGH);\n  delay(1000);\n  digitalWrite(13, LOW);\n  delay(1000);\n}'
+            }
+          />
+        </div>
 
         {/* SIMULADOR DE CIRCUITO REALISTA CON CABLEADO Y BREADBOARD */}
         {language === 'arduino' && (
@@ -479,3 +669,4 @@ REGLAS:
 };
 
 export default CodeEditor;
+

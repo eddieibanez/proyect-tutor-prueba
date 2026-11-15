@@ -1,4 +1,4 @@
-import React, { useContext, useState, useMemo } from 'react';
+﻿import React, { useContext, useState, useMemo } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AppContext } from '../../context/AppContext';
 import './Navbar.css';
@@ -48,7 +48,7 @@ const Navbar = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
-  // Cálculo de mensajes no leídos para la insignia (dot rojo)
+  // CÃ¡lculo de mensajes no leÃ­dos para la insignia (dot rojo)
   const unreadMessagesCount = useMemo(() => {
     if (!user || !messages) return 0;
     return messages.filter(m => {
@@ -59,7 +59,7 @@ const Navbar = () => {
     }).length;
   }, [messages, user]);
 
-  // Cálculo de notificaciones no leídas para la insignia (dot amarillo / rojo)
+  // CÃ¡lculo de notificaciones no leÃ­das para la insignia (dot amarillo / rojo)
   const unreadNotifsCount = useMemo(() => {
     if (!user) return 0;
     const readIds = JSON.parse(localStorage.getItem('codecraft_read_notifs') || '[]');
@@ -172,25 +172,44 @@ const Navbar = () => {
           <div className="navbar-right-cluster">
             {user && (
               <>
-                {/* BOTÓN CENTRO DE NOTIFICACIONES CON ICONO SVG */}
-                <button 
-                  type="button" 
-                  className="btn-nav-action" 
-                  onClick={() => setShowNotifications(true)} 
-                  title="Centro de Notificaciones y Plazos"
-                >
-                  <IconBell size={20} />
-                  {unreadNotifsCount > 0 && (
-                    <span className="nav-badge-dot warning" title={`${unreadNotifsCount} notificaciones nuevas`}></span>
-                  )}
-                </button>
+                {/* BOTÓN CENTRO DE NOTIFICACIONES CON CUADRO EMERGENTE FLOTANTE */}
+                <div className="notifications-popover-anchor">
+                  <button 
+                    type="button" 
+                    className="btn-nav-action" 
+                    onClick={() => setShowNotifications(!showNotifications)} 
+                    title="Centro de Notificaciones y Plazos"
+                  >
+                    <IconBell size={20} />
+                    {unreadNotifsCount > 0 && (
+                      <span className="nav-badge-dot warning" title={`${unreadNotifsCount} notificaciones nuevas`}></span>
+                    )}
+                  </button>
 
-                {/* BOTÓN MENSAJERÍA DIRECTA CON ICONO SVG */}
+                  {showNotifications && (
+                    <NotificationsCenterModal 
+                      isDropdown={true}
+                      onClose={() => setShowNotifications(false)} 
+                      onNavigateLesson={(langId, levelId) => {
+                        setShowNotifications(false);
+                        navigate(`/student/lesson/${langId}/${levelId}`);
+                      }}
+                    />
+                  )}
+                </div>
+
+                {/* BOTÓN MENSAJERÍA DIRECTA CONECTADA */}
                 <button 
                   type="button" 
                   className="btn-nav-action" 
-                  onClick={() => setShowMessenger(true)} 
-                  title="Mensajería en tiempo real"
+                  onClick={() => {
+                    if (isTeacherAccount && !previewMode?.active) {
+                      navigate('/teacher?tab=messages');
+                    } else {
+                      setShowMessenger(true);
+                    }
+                  }} 
+                  title={isTeacherAccount ? "Ir al apartado de Mensajería Docente" : "Mensajería en tiempo real"}
                 >
                   <IconChat size={20} />
                   {unreadMessagesCount > 0 && (
@@ -200,7 +219,7 @@ const Navbar = () => {
               </>
             )}
 
-            {/* BOTÓN CAMBIO DE MODO CLARO / OSCURO CON ICONOS SVG */}
+            {/* BOTÃ“N CAMBIO DE MODO CLARO / OSCURO CON ICONOS SVG */}
             <button 
               type="button" 
               className="btn-theme-toggle" 
@@ -226,7 +245,7 @@ const Navbar = () => {
                   <span 
                     className="user-name clickable-profile" 
                     onClick={() => setShowProfile(true)} 
-                    title="Clic para editar tu información personal y clave"
+                    title="Clic para editar tu informaciÃ³n personal y clave"
                   >
                     {previewMode?.active 
                       ? `${realUser?.nombre || realUser?.name || 'Profesor'} ${realUser?.apellido || realUser?.lastName || ''}`
@@ -235,8 +254,8 @@ const Navbar = () => {
                   </span>
                   <span className="user-badge">
                     {previewMode?.active 
-                      ? `Vista ${previewMode.grade}° Grado` 
-                      : isTeacherAccount ? 'Profesor' : `${user.grado || user.grade}° Grado`
+                      ? `Vista ${previewMode.grade}Â° Grado` 
+                      : isTeacherAccount ? 'Profesor' : `${user.grado || user.grade}Â° Grado`
                     }
                   </span>
                 </div>
@@ -251,15 +270,11 @@ const Navbar = () => {
 
       {/* MODALES GLOBALES */}
       {showMessenger && <UnifiedMessenger onClose={() => setShowMessenger(false)} />}
-      {showNotifications && (
-        <NotificationsCenterModal 
-          onClose={() => setShowNotifications(false)} 
-          onNavigateLesson={(langId, levelId) => navigate(`/student/lesson/${langId}/${levelId}`)}
-        />
-      )}
+
       {showProfile && <ProfileModal onClose={() => setShowProfile(false)} />}
     </>
   );
 };
 
 export default Navbar;
+
