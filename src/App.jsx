@@ -12,7 +12,6 @@ import ContentEditor from './components/TeacherDashboard/ContentEditor';
 import StudentPreview from './components/TeacherDashboard/StudentPreview';
 import Navbar from './components/common/Navbar';
 import StudentPreviewBanner from './components/common/StudentPreviewBanner';
-import Chatbot from './components/Chatbot/Chatbot';
 
 const App = () => {
   const location = useLocation();
@@ -43,8 +42,7 @@ const App = () => {
         </Routes>
       </main>
 
-      {(isStudentRoute || isTeacherRoute) && <Chatbot />}
-    </div>
+          </div>
   );
 };
 

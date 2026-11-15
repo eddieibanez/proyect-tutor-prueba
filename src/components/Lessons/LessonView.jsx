@@ -4,6 +4,9 @@ import { lessonContent } from '../../data/lessonContent';
 import { levelData } from '../../data/levelData';
 import { useApp } from '../../context/AppContext';
 import CodeEditor from './CodeEditor';
+import ScratchIDE from './ScratchIDE';
+import Chatbot from '../Chatbot/Chatbot';
+import { IconBook, IconCode, IconTarget } from '../common/Icons';
 import './LessonView.css';
 
 const LessonView = () => {
@@ -11,48 +14,40 @@ const LessonView = () => {
   const navigate = useNavigate();
   const { user, previewMode, completeLesson, customContent } = useApp();
   const [activeTab, setActiveTab] = useState('theory');
-  const [hintsUsed, setHintsUsed] = useState(0);
 
   const isPreview = previewMode?.active || user?.isPreview;
-
-  const langKey = languageId?.toLowerCase();
-  const currentNum = parseInt(levelId, 10);
-
-  // Niveles del lenguaje actual
+  const langKey = languageId?.toLowerCase() || 'arduino';
+  const currentNum = parseInt(levelId, 10) || 1;
   const allLevels = levelData[langKey]?.levels || [];
 
-  // Contenido de la lección (con soporte para personalizaciones del docente)
+  const exampleCode = languageId === 'python'
+    ? 'print("Bienvenido al Nivel ' + currentNum + '")'
+    : '// Código C++ Arduino - Nivel ' + currentNum + '\nvoid setup() {\n  pinMode(13, OUTPUT);\n}\nvoid loop() {\n  digitalWrite(13, HIGH);\n}';
+
   const defaultLesson = lessonContent[langKey]?.[currentNum] || {
-    title: allLevels.find(l => l.id === currentNum)?.title || `Nivel ${currentNum}`,
-    theory: `<p>En esta lección aprenderás los fundamentos prácticos del nivel ${currentNum} en ${languageId}. Lee los conceptos, analiza el ejemplo y resuelve el reto en el editor interactivo.</p>`,
-    example: {
-      code: languageId === 'python' ? 'print("¡Bienvenido al nivel ' + currentNum + '!")' : '// Código de ejemplo del nivel ' + currentNum,
-      explanation: 'Analiza cómo este código resuelve el problema planteado paso a paso.'
-    },
+    title: (allLevels.find(l => l.id === currentNum)?.title) || ('Nivel ' + currentNum),
+    theory: '<p>En esta lección aprenderás los fundamentos y conceptos clave del nivel ' + currentNum + ' en ' + String(languageId).toUpperCase() + '.</p>',
+    example: { code: exampleCode, explanation: 'Analiza la estructura del código de ejemplo y su lógica.' },
     practice: {
-      instructions: 'Escribe tu solución en el editor y presiona "Ejecutar Código" para verificar la salida.',
-      initialCode: languageId === 'python' ? '# Tu código aquí\n' : '// Tu código aquí\n',
+      instructions: 'Desarrolla el algoritmo en el editor interactivo y presiona Ejecutar para verificar tu solución.',
+      initialCode: languageId === 'python' ? '# Escribe tu solución aquí\n' : '// Escribe tu solución aquí\nvoid setup() {\n\n}\nvoid loop() {\n\n}\n',
       expectedOutput: ''
     },
-    challenge: {
-      description: 'Reto aplicado: Diseña un algoritmo funcional para solucionar el problema planteado en este nivel.',
-      hints: ['Analiza qué variables necesitas', 'Revisa la sintaxis del lenguaje', 'Prueba el código por partes en la consola']
-    }
+    challenge: { description: 'Reto: Diseña un algoritmo funcional para cumplir con el objetivo del nivel.' }
   };
 
-  const customLesson = customContent?.[`${langKey}-${currentNum}`];
+  const customLesson = customContent?.[langKey + '-' + currentNum];
   const lesson = customLesson || defaultLesson;
 
   useEffect(() => {
     setActiveTab('theory');
-    setHintsUsed(0);
   }, [languageId, levelId]);
 
   if (!lesson) {
     return (
       <div className="error-msg-container">
         <h2>Lección no encontrada</h2>
-        <button onClick={() => navigate(`/student/language/${languageId}`)} className="btn-primary">
+        <button onClick={() => navigate('/student/language/' + languageId)} className="btn-primary">
           Volver a la Ruta
         </button>
       </div>
@@ -60,72 +55,63 @@ const LessonView = () => {
   }
 
   const handleNext = () => {
-    if (completeLesson) {
-      completeLesson(languageId, levelId);
-    }
-    navigate(`/student/quiz/${languageId}/${levelId}`);
+    if (completeLesson) completeLesson(languageId, levelId);
+    navigate('/student/quiz/' + languageId + '/' + levelId);
   };
 
   const handlePrev = () => {
     if (currentNum > 1) {
-      navigate(`/student/lesson/${languageId}/${currentNum - 1}`);
+      navigate('/student/lesson/' + languageId + '/' + (currentNum - 1));
     } else {
-      navigate(`/student/language/${languageId}`);
+      navigate('/student/language/' + languageId);
     }
   };
 
-  // Progreso del estudiante en este lenguaje
-  const studentProgress = user?.progress?.[langKey] || { lessonsCompleted: 0, currentLevel: 1 };
-  const percentGlobal = Math.round((studentProgress.lessonsCompleted / 15) * 100);
+  const prog = user?.progress?.[langKey] || { lessonsCompleted: 0, currentLevel: 1 };
+  const pct = Math.round((prog.lessonsCompleted / 15) * 100);
+  const isScratch = langKey === 'scratch';
 
   return (
     <div className="lesson-layout">
-      {/* CINTA Y MENÚ LATERAL IZQUIERDO CON TODAS LAS LECCIONES */}
+      {/* 1. BARRA LATERAL CON ÍNDICE DE LECCIONES */}
       <aside className="lesson-sidebar">
         <div className="sidebar-header">
-          <button className="back-route-btn" onClick={() => navigate(`/student/language/${languageId}`)}>
+          <button className="back-route-btn" onClick={() => navigate('/student/language/' + languageId)}>
             ← Volver a la Ruta
           </button>
           <div className="sidebar-lang-info">
             <span className="lang-icon-badge">{levelData[langKey]?.icon || '💻'}</span>
             <div>
               <h3>{levelData[langKey]?.name || languageId}</h3>
-              <p className="global-progress-text">{studentProgress.lessonsCompleted}/15 completadas ({percentGlobal}%)</p>
+              <p>{prog.lessonsCompleted}/15 completadas ({pct}%)</p>
             </div>
           </div>
           <div className="sidebar-progress-bar">
-            <div className="sidebar-progress-fill" style={{ width: `${percentGlobal}%` }}></div>
+            <div className="sidebar-progress-fill" style={{ width: pct + '%' }} />
           </div>
         </div>
 
         <div className="sidebar-lessons-list">
           <h4>Índice de Lecciones</h4>
           {allLevels.map((lvl) => {
-            const isCompleted = lvl.id <= studentProgress.lessonsCompleted;
-            const isCurrent = lvl.id === currentNum;
-            const isLocked = !isPreview && lvl.id > (studentProgress.lessonsCompleted + 1);
-
-            // Porcentaje de completación por lección (100% completada, 50% en curso, 0% bloqueada)
-            const completionPercent = isCompleted ? 100 : isCurrent ? 50 : 0;
-
+            const done = lvl.id <= prog.lessonsCompleted;
+            const cur = lvl.id === currentNum;
+            const lk = !isPreview && lvl.id > prog.lessonsCompleted + 1;
+            const p2 = done ? 100 : cur ? 50 : 0;
             return (
               <div
                 key={lvl.id}
-                className={`sidebar-lesson-item ${isCurrent ? 'current' : ''} ${isCompleted ? 'completed' : ''} ${isLocked ? 'locked' : ''}`}
-                onClick={() => !isLocked && navigate(`/student/lesson/${languageId}/${lvl.id}`)}
+                className={'sidebar-lesson-item' + (cur ? ' current' : '') + (done ? ' completed' : '') + (lk ? ' locked' : '')}
+                onClick={() => !lk && navigate('/student/lesson/' + languageId + '/' + lvl.id)}
               >
                 <div className="item-row">
                   <span className="lesson-badge-num">Nivel {lvl.id}</span>
-                  <span className="lesson-status-icon">
-                    {isCompleted ? '✅' : isCurrent ? '📍' : isLocked ? '🔒' : '🔓'}
-                  </span>
+                  <span className="lesson-status-icon">{done ? '✓' : cur ? '▶' : lk ? '🔒' : '○'}</span>
                 </div>
                 <div className="lesson-item-title">{lvl.title}</div>
                 <div className="lesson-completion-indicator">
-                  <div className="completion-bar">
-                    <div className="completion-fill" style={{ width: `${completionPercent}%` }}></div>
-                  </div>
-                  <span className="completion-text">{completionPercent}%</span>
+                  <div className="completion-bar"><div className="completion-fill" style={{ width: p2 + '%' }} /></div>
+                  <span className="completion-text">{p2}%</span>
                 </div>
               </div>
             );
@@ -133,7 +119,7 @@ const LessonView = () => {
         </div>
       </aside>
 
-      {/* CONTENIDO PRINCIPAL DE LA LECCIÓN */}
+      {/* 2. CONTENIDO PRINCIPAL: 3 PESTAÑAS (SIN PESTAÑA DE PISTAS) */}
       <main className="lesson-main-content">
         <header className="lesson-top-bar">
           <div className="lesson-title-area">
@@ -142,44 +128,51 @@ const LessonView = () => {
           </div>
           <div className="lesson-quick-actions">
             <button className="nav-btn-secondary" onClick={handlePrev} disabled={currentNum === 1}>
-              ← Anterior
+              Anterior
             </button>
             <button className="nav-btn-primary" onClick={handleNext}>
-              Ir al Quiz Formatizado →
+              Ir al Quiz →
             </button>
           </div>
         </header>
 
-        {/* PESTAÑAS DE CONTENIDO */}
+        {/* 3 Pestañas limpias: Teoría, Ejemplo, Práctica */}
         <div className="lesson-tabs">
-          <button className={`tab-btn ${activeTab === 'theory' ? 'active' : ''}`} onClick={() => setActiveTab('theory')}>
-            📖 Teoría y Concepto
+          <button
+            className={'tab-btn' + (activeTab === 'theory' ? ' active' : '')}
+            onClick={() => setActiveTab('theory')}
+          >
+            <IconBook size={16} />
+            <span>Teoría y Concepto</span>
           </button>
-          <button className={`tab-btn ${activeTab === 'example' ? 'active' : ''}`} onClick={() => setActiveTab('example')}>
-            💡 Código de Ejemplo
+          <button
+            className={'tab-btn' + (activeTab === 'example' ? ' active' : '')}
+            onClick={() => setActiveTab('example')}
+          >
+            <IconTarget size={16} />
+            <span>Código de Ejemplo</span>
           </button>
-          <button className={`tab-btn ${activeTab === 'practice' ? 'active' : ''}`} onClick={() => setActiveTab('practice')}>
-            💻 Práctica Interactiva
-          </button>
-          <button className={`tab-btn ${activeTab === 'challenge' ? 'active' : ''}`} onClick={() => setActiveTab('challenge')}>
-            🏆 Reto con Pistas
+          <button
+            className={'tab-btn' + (activeTab === 'practice' ? ' active' : '')}
+            onClick={() => setActiveTab('practice')}
+          >
+            <IconCode size={16} />
+            <span>Práctica Interactiva</span>
           </button>
         </div>
 
         <div className="lesson-content-body">
           {activeTab === 'theory' && (
             <div className="tab-pane theory-pane">
-              <div className="theory-card" dangerouslySetInnerHTML={{ __html: lesson.theory }}></div>
+              <div className="theory-card" dangerouslySetInnerHTML={{ __html: lesson.theory }} />
             </div>
           )}
 
           {activeTab === 'example' && (
             <div className="tab-pane example-pane">
               <div className="example-card">
-                <p className="example-desc">{lesson.example.explanation}</p>
-                <pre className="example-code-block">
-                  <code>{lesson.example.code}</code>
-                </pre>
+                <p>{lesson.example?.explanation}</p>
+                <pre className="example-code-block"><code>{lesson.example?.code}</code></pre>
               </div>
             </div>
           )}
@@ -187,56 +180,28 @@ const LessonView = () => {
           {activeTab === 'practice' && (
             <div className="tab-pane practice-pane">
               <div className="instructions-box">
-                <strong>📋 Instrucción de Práctica:</strong>
-                <p>{lesson.practice.instructions}</p>
+                <strong>Instrucción de Práctica:</strong>
+                <p>{lesson.practice?.instructions}</p>
               </div>
-              <CodeEditor
-                language={langKey}
-                initialCode={lesson.practice.initialCode}
-                expectedOutput={lesson.practice.expectedOutput}
-                lessonData={lesson}
-              />
-            </div>
-          )}
-
-          {activeTab === 'challenge' && (
-            <div className="tab-pane challenge-pane">
-              <div className="challenge-card">
-                <h3>🎯 Desafío Práctico de Programación</h3>
-                <p>{lesson.challenge.description}</p>
-
-                {lesson.challenge.hints && lesson.challenge.hints.length > 0 && (
-                  <div className="hints-container">
-                    <div className="hints-header">
-                      <span>💡 Sistema de Pistas Pedagógicas ({hintsUsed}/{lesson.challenge.hints.length} reveladas):</span>
-                      <button
-                        className="reveal-hint-btn"
-                        onClick={() => setHintsUsed(Math.min(hintsUsed + 1, lesson.challenge.hints.length))}
-                        disabled={hintsUsed >= lesson.challenge.hints.length}
-                      >
-                        {hintsUsed >= lesson.challenge.hints.length ? 'Todas las pistas reveladas' : '+ Revelar siguiente pista'}
-                      </button>
-                    </div>
-                    <ul className="hints-unlocked-list">
-                      {lesson.challenge.hints.slice(0, hintsUsed).map((hint, idx) => (
-                        <li key={idx} className="hint-pill">
-                          <strong>Pista #{idx + 1}:</strong> {hint}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
-
-              <CodeEditor
-                language={langKey}
-                initialCode={lesson.practice.initialCode || ''}
-                lessonData={lesson}
-              />
+              {isScratch ? (
+                <ScratchIDE
+                  lessonData={lesson}
+                />
+              ) : (
+                <CodeEditor
+                  language={langKey}
+                  initialCode={lesson.practice?.initialCode}
+                  expectedOutput={lesson.practice?.expectedOutput}
+                  lessonData={lesson}
+                />
+              )}
             </div>
           )}
         </div>
       </main>
+
+      {/* CHATBOT INTEGRADO EXCLUSIVAMENTE DENTRO DE LAS LECCIONES */}
+      <Chatbot languageId={langKey} levelId={currentNum} lessonData={lesson} />
     </div>
   );
 };

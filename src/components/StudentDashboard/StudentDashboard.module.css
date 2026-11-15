@@ -726,3 +726,79 @@
 .btnModalClose:hover {
   background: var(--border);
 }
+
+
+/* DISPOSICIÓN DIVIDIDA: CURSOS A LA IZQUIERDA Y CALENDARIO FIJO A LA DERECHA */
+.mainLayoutSplit {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 1024px) {
+  .mainLayoutSplit {
+    grid-template-columns: 1fr;
+  }
+}
+
+.leftContentCol {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.rightCalendarSidebar {
+  position: relative;
+}
+
+.stickyCalendarBox {
+  position: sticky;
+  top: 85px;
+}
+
+/* BANNER DE METAS DE LECCIONES ASIGNADAS */
+.goalsBannerSection {
+  margin-bottom: 24px;
+}
+
+.goalCardRow {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.goalCardItem {
+  background: linear-gradient(135deg, rgba(0, 188, 212, 0.12), rgba(0, 230, 118, 0.08));
+  border: 1px solid rgba(0, 188, 212, 0.35);
+  border-radius: 12px;
+  padding: 14px 18px;
+}
+
+.goalCardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.goalLangBadge {
+  background: var(--primary, #00BCD4);
+  color: #000;
+  font-weight: 700;
+  font-size: 0.72rem;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.goalDeadlineText {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #ffab40;
+}
+
+.goalCardDesc {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-primary, #ffffff);
+}

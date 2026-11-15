@@ -1,514 +1,346 @@
-.code-editor-wrapper {
-  background-color: var(--cards);
-  border-radius: 12px;
-  border: 1px solid var(--border);
-  overflow: hidden;
+/* CodeEditor.css - VS Code Dark Theme */
+.vscode-editor-wrapper {
   display: flex;
   flex-direction: column;
-  margin-top: 1rem;
-  box-shadow: var(--card-shadow);
-  transition: all 0.3s ease;
+  background: #1e1e1e;
+  color: #d4d4d4;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid #333333;
+  font-family: 'Consolas', 'Fira Code', 'Courier New', monospace;
+  height: 640px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
 
-.editor-toolbar {
-  background-color: var(--dark);
-  padding: 0.75rem 1.2rem;
+.vscode-titlebar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid var(--border);
-  flex-wrap: wrap;
-  gap: 0.8rem;
+  background: #252526;
+  border-bottom: 1px solid #1e1e1e;
+  padding: 0 8px;
+  min-height: 40px;
 }
 
-.toolbar-left {
+.vscode-tabs-bar {
+  display: flex;
+  height: 100%;
+}
+
+.vscode-tab {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 8px;
+  background: #1e1e1e;
+  color: #ffffff;
+  padding: 8px 16px;
+  font-size: 0.85rem;
+  border-top: 2px solid #00BCD4;
+  cursor: default;
 }
 
-.lang-badge {
-  font-size: 0.75rem;
-  font-weight: 800;
-  padding: 0.3rem 0.8rem;
-  border-radius: 6px;
-  letter-spacing: 0.5px;
-}
-
-.lang-badge.arduino { background: rgba(0, 188, 212, 0.15); color: var(--primary); border: 1px solid var(--primary); }
-.lang-badge.scratch { background: rgba(255, 171, 0, 0.15); color: #FFB300; border: 1px solid #FFB300; }
-.lang-badge.python { background: rgba(0, 230, 118, 0.15); color: var(--accent); border: 1px solid var(--accent); }
-
-.editor-hint {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-}
-
-.editor-actions {
+.vscode-toolbar-actions {
   display: flex;
-  gap: 0.6rem;
+  gap: 8px;
+  align-items: center;
 }
 
-.btn-icon {
-  background: var(--medium);
-  border: 1px solid var(--border);
-  color: var(--text-light);
-  padding: 0.45rem 0.85rem;
+.vsc-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   border-radius: 6px;
-  cursor: pointer;
-  font-size: 0.85rem;
+  padding: 6px 14px;
+  font-size: 0.82rem;
   font-weight: 600;
-  transition: all 0.2s;
-}
-
-.btn-icon:hover {
-  border-color: var(--primary);
-  color: var(--primary);
-}
-
-.btn-run {
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
-  color: white;
-  border: none;
-  padding: 0.5rem 1.3rem;
-  border-radius: 6px;
-  font-weight: 700;
-  font-size: 0.85rem;
   cursor: pointer;
   transition: all 0.2s;
+  border: none;
 }
 
-.btn-run:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(0, 188, 212, 0.4);
+.vsc-btn.secondary {
+  background: rgba(255, 255, 255, 0.08);
+  color: #cccccc;
+  border: 1px solid #444444;
 }
 
-.btn-run.running {
-  opacity: 0.6;
+.vsc-btn.secondary:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+}
+
+.vsc-btn.run {
+  background: #00BCD4;
+  color: #000000;
+}
+
+.vsc-btn.run:hover {
+  background: #00E5FF;
+}
+
+.vsc-btn.run.running {
+  background: #555555;
+  color: #aaaaaa;
   cursor: wait;
 }
 
-/* ÁREA DIVIDIDA: EDITOR + SIMULADOR */
-.editor-interactive-split {
+.vscode-editor-body {
   display: flex;
-  min-height: 320px;
-  border-bottom: 1px solid var(--border);
-  flex-wrap: wrap;
+  flex: 1;
+  overflow: hidden;
+  position: relative;
 }
 
-.editor-code-pane {
-  flex: 3;
-  min-width: 380px;
-  background-color: var(--code-bg);
-  display: flex;
-  border-right: 1px solid var(--border);
-}
-
-/* MODO TEXTO (PYTHON / ARDUINO) */
-.text-mode-container {
-  display: flex;
-  width: 100%;
-}
-
-.line-numbers-bar {
-  width: 45px;
-  background-color: rgba(0, 0, 0, 0.25);
-  color: #64748B;
-  padding: 0.8rem 0;
-  text-align: right;
-  user-select: none;
-  font-family: 'Fira Code', monospace;
+.vscode-line-numbers {
+  background: #1e1e1e;
+  color: #5a5a5a;
+  padding: 12px 8px 12px 6px;
   font-size: 0.85rem;
   line-height: 1.6;
-  border-right: 1px solid var(--border);
+  user-select: none;
+  min-width: 42px;
+  text-align: right;
+  border-right: 1px solid #2d2d2d;
 }
 
-.line-numbers-bar div {
-  padding-right: 0.5rem;
+.line-num {
+  line-height: 1.6;
 }
 
-.strict-code-textarea {
+.vscode-textarea {
   flex: 1;
-  background: transparent;
+  background: #1e1e1e;
+  color: #9cdcfe;
   border: none;
-  color: var(--code-text);
-  font-family: 'Fira Code', monospace;
+  outline: none;
+  resize: none;
+  font-family: 'Consolas', 'Fira Code', monospace;
   font-size: 0.9rem;
   line-height: 1.6;
-  padding: 0.8rem 1rem;
-  resize: none;
-  outline: none;
-  white-space: pre;
-  overflow-y: auto;
+  padding: 12px 14px;
+  tab-size: 4;
+  caret-color: #ffffff;
 }
 
-/* MODO SCRATCH INTERACTIVO */
-.scratch-ide-container {
-  display: flex;
-  width: 100%;
-}
-
-.scratch-palette-column {
-  width: 260px;
-  background-color: var(--dark);
-  border-right: 1px solid var(--border);
-  padding: 0.8rem;
+.arduino-live-sim-panel {
+  width: 220px;
+  background: #181818;
+  border-left: 1px solid #2d2d2d;
+  padding: 14px;
   display: flex;
   flex-direction: column;
+  gap: 12px;
 }
 
-.scratch-palette-column h4 {
+.sim-panel-title {
   font-size: 0.8rem;
+  font-weight: 700;
+  color: #888888;
   text-transform: uppercase;
-  color: var(--text-muted);
-  margin-bottom: 0.6rem;
+  letter-spacing: 0.5px;
 }
 
-.palette-categories-scroll {
-  flex: 1;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 0.8rem;
-}
-
-.cat-header {
-  display: block;
-  font-size: 0.75rem;
-  font-weight: 700;
-  margin-bottom: 0.3rem;
-}
-
-.cat-blocks-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-}
-
-.draggable-block {
-  color: white;
-  padding: 0.45rem 0.7rem;
-  border-radius: 6px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  cursor: pointer;
-  user-select: none;
-  transition: transform 0.15s ease, filter 0.15s ease;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.draggable-block:hover {
-  transform: translateX(4px);
-  filter: brightness(1.15);
-}
-
-.draggable-block.hat {
-  border-top-left-radius: 12px;
-  border-top-right-radius: 12px;
-}
-
-.draggable-block.container {
-  border-left: 4px solid #D97706;
-}
-
-.scratch-script-column {
-  flex: 1;
-  background-color: var(--code-bg);
-  padding: 0.8rem;
-  display: flex;
-  flex-direction: column;
-}
-
-.script-column-head {
-  font-size: 0.8rem;
-  color: var(--primary);
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-}
-
-.scratch-code-area {
-  flex: 1;
-  background-color: rgba(0, 0, 0, 0.2);
-  border: 1px solid var(--border);
-  color: #FCD34D;
-  font-family: 'Fira Code', monospace;
-  font-size: 0.85rem;
-  line-height: 1.5;
-  padding: 0.8rem;
-  border-radius: 6px;
-  outline: none;
-  resize: none;
-}
-
-/* LADO DERECHO: PANEL DE SIMULACIÓN */
-.simulation-preview-pane {
-  flex: 2;
-  min-width: 280px;
-  background-color: var(--cards);
-  display: flex;
-  flex-direction: column;
-}
-
-.sim-pane-header {
-  padding: 0.7rem 1rem;
-  background-color: var(--dark);
-  border-bottom: 1px solid var(--border);
-}
-
-.sim-pane-header h4 {
-  font-size: 0.85rem;
-  margin: 0;
-  color: var(--text-light);
-}
-
-.sim-stage-content {
-  flex: 1;
-  padding: 1.2rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 220px;
-  position: relative;
-}
-
-/* SIMULADOR ARDUINO */
-.arduino-board-simulator {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1.5rem;
-}
-
-.microcontroller-chip {
-  background: #1E293B;
-  color: #94A3B8;
-  border: 2px solid #475569;
-  padding: 0.6rem 1.8rem;
-  border-radius: 4px;
-  font-family: 'Fira Code', monospace;
-  font-size: 0.8rem;
-  position: relative;
-}
-
-.component-led-box {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.6rem;
-}
-
-.pin-indicator {
-  font-size: 0.75rem;
-  color: var(--primary);
-  font-weight: bold;
-}
-
-.simulated-led {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background: #00E676;
-  border: 2px solid rgba(255, 255, 255, 0.4);
-  position: relative;
-  transition: all 0.3s ease;
-}
-
-.simulated-led.off {
-  background: #334155;
-  border-color: #475569;
-}
-
-.led-reflection {
-  position: absolute;
-  top: 6px;
-  left: 10px;
-  width: 12px;
-  height: 8px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.5);
-}
-
-.led-status-tag {
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: var(--text-light);
-}
-
-/* SIMULADOR SCRATCH */
-.scratch-stage-canvas {
-  width: 100%;
-  height: 100%;
-  min-height: 220px;
-  background-color: #E2E8F0;
+.board-representation {
+  background: #0d2818;
+  border: 1px solid #1b4d3e;
   border-radius: 8px;
-  border: 2px solid #CBD5E1;
-  position: relative;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mcu-chip {
+  background: #2b2b2b;
+  color: #cccccc;
+  text-align: center;
+  padding: 6px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border: 1px dashed #555555;
+}
+
+.led-indicator-box {
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 8px;
+  font-size: 0.78rem;
+  color: #ffffff;
+}
+
+.led-bulb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.2s;
+}
+
+.led-bulb.off {
+  background: #333333;
+}
+
+.led-bulb.on {
+  background: #00E676;
+  box-shadow: 0 0 10px #00E676;
+}
+
+.pwm-indicator-box {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.75rem;
+  color: #aaaaaa;
+}
+
+.pwm-bar-bg {
+  background: #222222;
+  height: 6px;
+  border-radius: 3px;
   overflow: hidden;
 }
 
-[data-theme="dark"] .scratch-stage-canvas {
-  background-color: #1E293B;
-  border-color: #334155;
+.pwm-bar-fill {
+  background: #00BCD4;
+  height: 100%;
 }
 
-.axis-center {
-  position: absolute;
-  font-size: 0.7rem;
-  color: #94A3B8;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
-
-.interactive-sprite {
-  position: absolute;
-  transition: all 0.3s ease;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.sprite-avatar {
-  font-size: 2.8rem;
-}
-
-.sprite-speech-bubble {
-  background: white;
-  color: #1E293B;
-  padding: 0.35rem 0.75rem;
-  border-radius: 12px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  position: absolute;
-  bottom: 100%;
-  white-space: nowrap;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-  border: 1px solid #CBD5E1;
-}
-
-.sprite-telemetry {
-  position: absolute;
-  bottom: 8px;
-  right: 10px;
-  display: flex;
-  gap: 0.8rem;
-  font-size: 0.75rem;
-  color: #64748B;
-  font-weight: bold;
-}
-
-/* SIMULADOR PYTHON */
-.python-inspector-box {
-  width: 100%;
-}
-
-.python-inspector-box h5 {
-  font-size: 0.85rem;
-  margin: 0 0 0.8rem 0;
-  color: var(--accent);
-}
-
-.empty-vars {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-}
-
-.vars-table {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-}
-
-.var-row {
-  background: var(--dark);
-  padding: 0.4rem 0.8rem;
-  border-radius: 6px;
-  font-family: 'Fira Code', monospace;
-  font-size: 0.8rem;
-  display: flex;
-  gap: 0.6rem;
-}
-
-.var-name { font-weight: bold; color: var(--primary); }
-.var-type { color: var(--text-muted); }
-.var-val { color: var(--accent); }
-
-/* ASISTENTE PEDAGÓGICO */
-.pedagogical-advice-banner {
-  padding: 0.9rem 1.2rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  border-bottom: 1px solid var(--border);
-  background-color: var(--dark);
-}
-
-.pedagogical-advice-banner.error {
-  background-color: rgba(239, 68, 68, 0.1);
-  border-left: 4px solid var(--error);
-}
-
-.pedagogical-advice-banner.success {
-  background-color: rgba(16, 185, 129, 0.1);
-  border-left: 4px solid var(--success);
-}
-
-.pedagogical-advice-banner.neutral {
-  border-left: 4px solid var(--primary);
-}
-
-.advice-icon {
-  font-size: 1.5rem;
-}
-
-.advice-body strong {
-  display: block;
-  font-size: 0.85rem;
-  color: var(--text-light);
-}
-
-.advice-body p {
-  margin: 0;
-  font-size: 0.8rem;
-  color: var(--text-muted);
-}
-
-/* CONSOLA DE SALIDA */
-.output-panel {
-  background-color: var(--code-bg);
-  padding: 0.9rem 1.2rem;
-  min-height: 100px;
-}
-
-.output-header {
+.vscode-statusbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.4rem;
-}
-
-.output-title {
-  color: var(--primary);
-  font-size: 0.85rem;
-  font-weight: bold;
-}
-
-.output-status {
+  background: #007acc;
+  color: #ffffff;
+  padding: 3px 12px;
   font-size: 0.75rem;
-  color: var(--text-muted);
 }
 
-.output-console {
-  font-family: 'Fira Code', monospace;
-  font-size: 0.85rem;
-  color: var(--code-text);
-  white-space: pre-wrap;
-  margin: 0;
-  line-height: 1.4;
-  max-height: 120px;
+.status-left {
+  display: flex;
+  gap: 16px;
+}
+
+.status-pill.ok {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 1px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.vscode-terminal-panel {
+  background: #141414;
+  border-top: 1px solid #2d2d2d;
+  display: flex;
+  flex-direction: column;
+  height: 190px;
+}
+
+.terminal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #1e1e1e;
+  padding: 6px 14px;
+  border-bottom: 1px solid #2d2d2d;
+}
+
+.terminal-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #aaaaaa;
+  letter-spacing: 0.5px;
+}
+
+.terminal-success-tag {
+  background: rgba(0, 230, 118, 0.15);
+  color: #00E676;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.terminal-output-area {
+  flex: 1;
   overflow-y: auto;
+  padding: 10px 14px;
+}
+
+.terminal-text {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: #cccccc;
+  white-space: pre-wrap;
+}
+
+.terminal-text.error-text {
+  color: #f44747;
+}
+
+.terminal-text.success-text {
+  color: #4ec9b0;
+}
+
+.terminal-placeholder {
+  color: #666666;
+  font-size: 0.82rem;
+}
+
+.console-ai-box {
+  margin-top: 10px;
+  background: rgba(0, 188, 212, 0.1);
+  border-left: 3px solid #00BCD4;
+  border-radius: 4px;
+  padding: 8px 12px;
+}
+
+.ai-box-title {
+  font-size: 0.78rem;
+  color: #00BCD4;
+  margin-bottom: 4px;
+}
+
+.ai-analysing {
+  font-size: 0.78rem;
+  color: #888888;
+}
+
+.ai-guidance-content {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: #e0e0e0;
+}
+
+/* MODO CLARO PARA CODE EDITOR */
+[data-theme="light"] .vscode-editor-wrapper {
+  background: #ffffff;
+  border-color: #e0e0e0;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+[data-theme="light"] .vscode-titlebar {
+  background: #f3f3f3;
+  border-bottom-color: #e0e0e0;
+}
+[data-theme="light"] .vscode-tab {
+  background: #ffffff;
+  color: #333333;
+}
+[data-theme="light"] .vscode-line-numbers {
+  background: #fafafa;
+  color: #999999;
+  border-right-color: #eeeeee;
+}
+[data-theme="light"] .vscode-textarea {
+  background: #ffffff;
+  color: #001080;
+  caret-color: #000000;
+}
+[data-theme="light"] .vscode-terminal-panel {
+  background: #1e1e1e;
 }

@@ -376,3 +376,40 @@
   margin: auto;
   color: var(--text-muted);
 }
+
+
+/* SEPARADORES DE DÍAS Y ACCIONES */
+.day-separator-row {
+  display: flex;
+  justify-content: center;
+  margin: 14px 0 8px;
+}
+
+.day-separator-pill {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.1));
+  color: var(--text-secondary, #b0bec5);
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 12px;
+  border-radius: 12px;
+  letter-spacing: 0.3px;
+}
+
+.header-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.edit-message-input {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid var(--primary, #00BCD4);
+  color: #ffffff;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  outline: none;
+  margin-bottom: 6px;
+}

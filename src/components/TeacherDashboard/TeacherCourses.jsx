@@ -6,7 +6,7 @@ import CourseScheduleModal from '../Schedule/CourseScheduleModal';
 import CourseTasksModal from '../Tasks/CourseTasksModal';
 import StudentScheduleView from '../Schedule/StudentScheduleView';
 
-const TeacherCourses = () => {
+const TeacherCourses = ({ onOpenGoalModal }) => {
   const { courses, students, addCourse, deleteCourse, addStudent, deleteStudent, updateCourseSchedule, toggleCourseDateCancellation } = useApp();
   const [showCourseModal, setShowCourseModal] = useState(false);
   const [showStudentModal, setShowStudentModal] = useState(false);
