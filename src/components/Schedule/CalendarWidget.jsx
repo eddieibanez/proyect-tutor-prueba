@@ -1,29 +1,11 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { isColombianHoliday } from '../../utils/colombianHolidays';
-import { IconCalendar } from '../common/Icons';
 import './CalendarWidget.css';
 
-const CalendarWidget = ({
-  courses = [],
-  userRole = 'student',
-  userId = null,
-  onSelectDate,
-  customTitle = null
-}) => {
+const CalendarWidget = ({ courses = [], onSelectDate, customTitle = 'Calendario Académico y Festivos Colombia' }) => {
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
-
-  // Si es docente: filtrar cursos donde el docente es el creador/líder (o todos si no tiene filtro específico)
-  // Si es estudiante: mostrar los cursos en los que está matriculado
-  const displayCourses = courses.filter(c => {
-    if (userRole === 'teacher' || userRole === 'profesor') {
-      if (userId && c.teacherId) return c.teacherId === userId;
-      return true; // Si no hay teacherId especificado, muestra los cursos disponibles
-    }
-    // Para estudiantes: si tiene lista de enrolledStudents o grade coincidente
-    return true;
-  });
 
   const monthNames = [
     'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
@@ -45,25 +27,19 @@ const CalendarWidget = ({
   }
 
   // Clases y festivos para el día seleccionado
-  const selectedDObj = new Date(selectedDate + 'T00:00:00');
+  const selectedDObj = new Date(selectedDate);
   const selectedDayOfWeek = String(selectedDObj.getDay());
   const selectedHoliday = isColombianHoliday(selectedDate);
-  const coursesOnSelectedDate = displayCourses.filter(c => {
+  const coursesOnSelectedDate = courses.filter(c => {
     const isClassDay = (c.scheduleDays || []).includes(selectedDayOfWeek);
     const isCancelled = (c.cancelledDates || []).includes(selectedDate);
     return isClassDay && !isCancelled && !selectedHoliday.isHoliday;
   });
 
-  const titleText = customTitle || (
-    userRole === 'teacher' || userRole === 'profesor'
-      ? 'Calendario Docente (Mis Cursos)'
-      : 'Horario y Clases Matriculadas'
-  );
-
   return (
     <div className="calendar-widget-card">
       <div className="widget-head">
-        <h4><IconCalendar size={18} /> {titleText}</h4>
+        <h4>📅 {customTitle}</h4>
         <div className="widget-month-nav">
           <button
             type="button"
@@ -76,7 +52,6 @@ const CalendarWidget = ({
                 setCurrentMonth(currentMonth - 1);
               }
             }}
-            title="Mes anterior"
           >
             ◀
           </button>
@@ -92,7 +67,6 @@ const CalendarWidget = ({
                 setCurrentMonth(currentMonth + 1);
               }
             }}
-            title="Mes siguiente"
           >
             ▶
           </button>
@@ -113,11 +87,7 @@ const CalendarWidget = ({
           const dObj = new Date(currentYear, currentMonth, dayNum);
           const dow = String(dObj.getDay());
           const holiday = isColombianHoliday(dateStr);
-          const hasClasses = displayCourses.some(c =>
-            (c.scheduleDays || []).includes(dow) &&
-            !(c.cancelledDates || []).includes(dateStr) &&
-            !holiday.isHoliday
-          );
+          const hasClasses = courses.some(c => (c.scheduleDays || []).includes(dow) && !(c.cancelledDates || []).includes(dateStr) && !holiday.isHoliday);
           const isSelected = selectedDate === dateStr;
 
           return (
@@ -129,7 +99,7 @@ const CalendarWidget = ({
                 setSelectedDate(dateStr);
                 if (onSelectDate) onSelectDate(dateStr);
               }}
-              title={holiday.isHoliday ? `Festivo: ${holiday.name}` : hasClasses ? 'Día con clases programadas' : 'Sin clases'}
+              title={holiday.isHoliday ? `${holiday.name}` : hasClasses ? 'Día con sesiones de clase' : 'Sin clases'}
             >
               <span className="day-number">{dayNum}</span>
               {holiday.isHoliday && <span className="cell-mini-dot holiday"></span>}
@@ -150,8 +120,7 @@ const CalendarWidget = ({
           <div className="courses-mini-list">
             {coursesOnSelectedDate.map(c => (
               <div key={c.id} className="course-mini-item" style={{ borderLeftColor: c.color || 'var(--primary)' }}>
-                <strong>{c.name}</strong> ({c.code || 'CC'}) • {c.startTime || '08:00'} a {c.endTime || '09:30'}
-                {c.room && <span className="course-room-badge">Aula: {c.room}</span>}
+                <strong>{c.name}</strong> ({c.code}) • {c.startTime || '08:00'} a {c.endTime || '09:30'}
               </div>
             ))}
           </div>

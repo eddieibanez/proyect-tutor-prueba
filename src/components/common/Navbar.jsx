@@ -1,18 +1,10 @@
-import React, { useContext, useState, useMemo } from 'react';
+﻿import React, { useContext, useState, useMemo } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AppContext } from '../../context/AppContext';
 import './Navbar.css';
 import UnifiedMessenger from '../Messaging/UnifiedMessenger';
 import NotificationsCenterModal from '../Notifications/NotificationsCenterModal';
 import ProfileModal from '../ProfileModal/ProfileModal';
-import {
-  IconBell,
-  IconChat,
-  IconSun,
-  IconMoon,
-  IconEye,
-  IconBook
-} from '../common/Icons';
 
 const Navbar = () => {
   const { 
@@ -66,6 +58,7 @@ const Navbar = () => {
     let count = 0;
 
     // Tareas pendientes
+    const now = new Date();
     (tasks || []).forEach(t => {
       const id = `task-alert-${t.id}`;
       if (!readIds.includes(id)) count++;
@@ -151,8 +144,7 @@ const Navbar = () => {
                         className="nav-links view-switch-btn" 
                         onClick={handleStudentViewClick}
                       >
-                        <IconEye size={16} />
-                        <span>{previewMode?.active ? 'Volver a Docente' : 'Vista Estudiante'}</span>
+                        {previewMode?.active ? '🏫 Volver a Docente' : '👁️ Vista Estudiante'}
                       </button>
                     </li>
                   </>
@@ -172,27 +164,27 @@ const Navbar = () => {
           <div className="navbar-right-cluster">
             {user && (
               <>
-                {/* BOTÓN CENTRO DE NOTIFICACIONES CON ICONO SVG */}
+                {/* BOTÓN CENTRO DE NOTIFICACIONES */}
                 <button 
                   type="button" 
                   className="btn-nav-action" 
                   onClick={() => setShowNotifications(true)} 
                   title="Centro de Notificaciones y Plazos"
                 >
-                  <IconBell size={20} />
+                  <span className="nav-icon-text">🔔</span>
                   {unreadNotifsCount > 0 && (
                     <span className="nav-badge-dot warning" title={`${unreadNotifsCount} notificaciones nuevas`}></span>
                   )}
                 </button>
 
-                {/* BOTÓN MENSAJERÍA DIRECTA CON ICONO SVG */}
+                {/* BOTÓN MENSAJERÍA DIRECTA */}
                 <button 
                   type="button" 
                   className="btn-nav-action" 
                   onClick={() => setShowMessenger(true)} 
                   title="Mensajería en tiempo real"
                 >
-                  <IconChat size={20} />
+                  <span className="nav-icon-text">💬</span>
                   {unreadMessagesCount > 0 && (
                     <span className="nav-badge-dot danger" title={`${unreadMessagesCount} mensajes no leídos`}></span>
                   )}
@@ -200,24 +192,14 @@ const Navbar = () => {
               </>
             )}
 
-            {/* BOTÓN CAMBIO DE MODO CLARO / OSCURO CON ICONOS SVG */}
+            {/* BOTÓN CAMBIO DE MODO CLARO / OSCURO */}
             <button 
               type="button" 
               className="btn-theme-toggle" 
               onClick={toggleTheme} 
               title={theme === 'light' ? 'Cambiar a Modo Oscuro' : 'Cambiar a Modo Claro'}
             >
-              {theme === 'light' ? (
-                <>
-                  <IconMoon size={16} />
-                  <span>Modo Oscuro</span>
-                </>
-              ) : (
-                <>
-                  <IconSun size={16} />
-                  <span>Modo Claro</span>
-                </>
-              )}
+              {theme === 'light' ? '🌙 Modo Oscuro' : '☀️ Modo Claro'}
             </button>
 
             {user && (
@@ -235,7 +217,7 @@ const Navbar = () => {
                   </span>
                   <span className="user-badge">
                     {previewMode?.active 
-                      ? `Vista ${previewMode.grade}° Grado` 
+                      ? `👁️ Vista ${previewMode.grade}° Grado` 
                       : isTeacherAccount ? 'Profesor' : `${user.grado || user.grade}° Grado`
                     }
                   </span>
@@ -249,7 +231,7 @@ const Navbar = () => {
         </div>
       </nav>
 
-      {/* MODALES GLOBALES */}
+      {/* MODALES GLOBALES CON RENDER FUERA DEL NAV PARA EVITAR STACKING CONTEXT */}
       {showMessenger && <UnifiedMessenger onClose={() => setShowMessenger(false)} />}
       {showNotifications && (
         <NotificationsCenterModal 

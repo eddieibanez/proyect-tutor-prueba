@@ -1,7 +1,5 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { isColombianHoliday, DAY_NAMES } from '../../utils/colombianHolidays';
-import { TimePickerModal } from './DateTimePicker';
-import { IconClock, IconCalendar, IconCheck, IconClose } from '../common/Icons';
 import './CourseScheduleModal.css';
 
 const CourseScheduleModal = ({ course, isTeacher, onClose, onSaveSchedule, onToggleCancellation, allCourses = [] }) => {
@@ -11,9 +9,6 @@ const CourseScheduleModal = ({ course, isTeacher, onClose, onSaveSchedule, onTog
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
   const [conflicts, setConflicts] = useState([]);
-
-  // Estados para TimePicker interactivo estilo Material
-  const [pickingTimeField, setPickingTimeField] = useState(null); // 'start' o 'end'
 
   const availableWeekDays = [
     { id: '1', name: 'Lunes' },
@@ -25,41 +20,50 @@ const CourseScheduleModal = ({ course, isTeacher, onClose, onSaveSchedule, onTog
   ];
 
   const handleDayToggle = (dayId) => {
-    let next;
-    if (selectedDays.includes(dayId)) {
-      next = selectedDays.filter(d => d !== dayId);
-    } else {
-      next = [...selectedDays, dayId];
+    if (!isTeacher) return;
+    const updated = selectedDays.includes(dayId)
+      ? selectedDays.filter(d => d !== dayId)
+      : [...selectedDays, dayId];
+    setSelectedDays(updated);
+    checkOverlap(updated, startTime, endTime);
+  };
+
+  const checkOverlap = (days, start, end) => {
+    if (!days.length) {
+      setConflicts([]);
+      return;
     }
-    setSelectedDays(next);
-    validateConflicts(next, startTime, endTime);
-  };
-
-  const validateConflicts = (days, start, end) => {
-    const found = [];
-    const otherCourses = allCourses.filter(c => c.id !== course.id);
-
-    days.forEach(d => {
-      otherCourses.forEach(oc => {
-        if ((oc.scheduleDays || []).includes(d)) {
-          const ocStart = oc.startTime || '08:00';
-          const ocEnd = oc.endTime || '09:30';
-          if (start < ocEnd && end > ocStart) {
-            found.push({
-              day: DAY_NAMES[d] || d,
-              otherCourse: oc.name,
-              otherTime: `${ocStart} - ${ocEnd}`
-            });
-          }
+    const detected = [];
+    allCourses.forEach(c => {
+      if (c.id === course.id) return;
+      const cDays = c.scheduleDays || [];
+      const commonDays = days.filter(d => cDays.includes(d));
+      if (commonDays.length > 0) {
+        const cStart = c.startTime || '08:00';
+        const cEnd = c.endTime || '09:30';
+        if ((start < cEnd && end > cStart)) {
+          const dayLabels = commonDays.map(d => availableWeekDays.find(w => w.id === d)?.name).join(', ');
+          detected.push(`Cruce detectado con el curso "${c.name}" (${c.code}) los días ${dayLabels} de ${cStart} a ${cEnd}.`);
         }
-      });
+      }
     });
-
-    setConflicts(found);
+    setConflicts(detected);
   };
 
-  const handleSave = () => {
-    onSaveSchedule(course.id, {
+  const handleSave = (e) => {
+    e.preventDefault();
+    if (!selectedDays.length) {
+      alert('Selecciona al menos un día de clase por semana.');
+      return;
+    }
+    const dayNamesStr = selectedDays
+      .map(d => availableWeekDays.find(w => w.id === d)?.name)
+      .join(' y ');
+    const scheduleStr = `${dayNamesStr} ${startTime} - ${endTime}`;
+
+    onSaveSchedule({
+      courseId: course.id,
+      schedule: scheduleStr,
       scheduleDays: selectedDays,
       startTime,
       endTime
@@ -67,228 +71,197 @@ const CourseScheduleModal = ({ course, isTeacher, onClose, onSaveSchedule, onTog
     onClose();
   };
 
-  const getDaysInMonth = (y, m) => new Date(y, m + 1, 0).getDate();
-  const getFirstDay = (y, m) => new Date(y, m, 1).getDay();
+  const getDaysInMonth = (year, month) => new Date(year, month + 1, 0).getDate();
+  const getFirstDayOfMonth = (year, month) => new Date(year, month, 1).getDay();
 
   const totalDays = getDaysInMonth(currentYear, currentMonth);
-  const firstDay = getFirstDay(currentYear, currentMonth);
+  const firstDay = getFirstDayOfMonth(currentYear, currentMonth);
   const monthNames = [
     'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
     'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
   ];
 
-  const cells = [];
-  for (let i = 0; i < firstDay; i++) cells.push(null);
-  for (let d = 1; d <= totalDays; d++) cells.push(d);
+  const calendarCells = [];
+  for (let i = 0; i < firstDay; i++) {
+    calendarCells.push(null);
+  }
+  for (let d = 1; d <= totalDays; d++) {
+    calendarCells.push(d);
+  }
 
   return (
     <div className="schedule-modal-overlay" onClick={onClose}>
-      <div className="schedule-modal-card" onClick={e => e.stopPropagation()}>
+      <div className="schedule-modal-content" onClick={e => e.stopPropagation()}>
         <div className="schedule-modal-header">
-          <div>
-            <h3>Horario de Clases: {course.name}</h3>
-            <p className="subtext">Código: {course.code} • Ajusta días, horas y gestiona cancelaciones</p>
+          <div className="modal-title-col">
+            <h3>📅 Horario y Calendario de Clases</h3>
+            <p className="modal-subtitle">
+              Curso: <strong>{course.name}</strong> ({course.code}) • Grado {course.grade}°
+            </p>
           </div>
-          <button type="button" className="close-btn" onClick={onClose}><IconClose size={20} /></button>
+          <button type="button" className="close-btn" onClick={onClose}>✕</button>
         </div>
 
-        <div className="schedule-modal-body">
-          {/* SECCIÓN 1: DÍAS Y HORARIOS (SOLO DOCENTE) */}
-          {isTeacher ? (
-            <div className="schedule-config-section">
-              <h4>1. Configuración de Días y Horas</h4>
-              <div className="days-selector-row">
-                {availableWeekDays.map(d => (
-                  <button
-                    key={d.id}
-                    type="button"
-                    className={`day-pill ${selectedDays.includes(d.id) ? 'active' : ''}`}
-                    onClick={() => handleDayToggle(d.id)}
-                  >
-                    {d.name}
-                  </button>
-                ))}
+        {conflicts.length > 0 && (
+          <div className="schedule-conflict-banner">
+            <span className="conflict-icon">⚠️</span>
+            <div>
+              <strong>¡Advertencia de Conflicto de Horario!</strong>
+              <ul>
+                {conflicts.map((c, i) => <li key={i}>{c}</li>)}
+              </ul>
+            </div>
+          </div>
+        )}
+
+        {isTeacher && (
+          <form className="schedule-config-box" onSubmit={handleSave}>
+            <h4>Configurar Sesiones Semanales</h4>
+            <div className="schedule-config-grid">
+              <div className="days-picker-group">
+                <label>Días de Sesión:</label>
+                <div className="days-chip-row">
+                  {availableWeekDays.map(d => (
+                    <button
+                      type="button"
+                      key={d.id}
+                      className={`day-chip ${selectedDays.includes(d.id) ? 'selected' : ''}`}
+                      onClick={() => handleDayToggle(d.id)}
+                    >
+                      {d.name}
+                    </button>
+                  ))}
+                </div>
               </div>
 
-              {/* Selector interactivo de Hora de Inicio y Fin con Reloj Material */}
-              <div className="time-pickers-row">
+              <div className="time-picker-group">
                 <div className="time-field">
                   <label>Hora Inicio:</label>
-                  <button
-                    type="button"
-                    className="time-picker-trigger-btn"
-                    onClick={() => setPickingTimeField('start')}
-                  >
-                    <IconClock size={16} />
-                    <span>{startTime}</span>
-                  </button>
+                  <input
+                    type="time"
+                    value={startTime}
+                    onChange={e => {
+                      setStartTime(e.target.value);
+                      checkOverlap(selectedDays, e.target.value, endTime);
+                    }}
+                    required
+                  />
                 </div>
                 <div className="time-field">
                   <label>Hora Fin:</label>
-                  <button
-                    type="button"
-                    className="time-picker-trigger-btn"
-                    onClick={() => setPickingTimeField('end')}
-                  >
-                    <IconClock size={16} />
-                    <span>{endTime}</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* ALERTA DE CRUCE DE HORARIOS */}
-              {conflicts.length > 0 && (
-                <div className="conflict-alert-box">
-                  <strong>⚠️ ¡Atención! Cruce de horarios detectado:</strong>
-                  <ul>
-                    {conflicts.map((c, i) => (
-                      <li key={i}>El {c.day} colisiona con <strong>{c.otherCourse}</strong> ({c.otherTime})</li>
-                    ))}
-                  </ul>
-                  <small>Te recomendamos cambiar la hora o los días para evitar cruces con otros cursos.</small>
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="student-schedule-summary">
-              <h4>📅 Horario de Clase Establecido</h4>
-              <p>
-                <strong>Días:</strong> {selectedDays.map(d => DAY_NAMES[d] || d).join(', ') || 'Por definir'}
-              </p>
-              <p>
-                <strong>Horario:</strong> {startTime} a {endTime}
-              </p>
-            </div>
-          )}
-
-          {/* SECCIÓN 2: CALENDARIO DE CLASES Y CANCELACIONES */}
-          <div className="schedule-calendar-section">
-            <div className="calendar-header-nav">
-              <h4>2. Calendario Mensual y Excepciones</h4>
-              <div className="month-nav-controls">
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (currentMonth === 0) {
-                      setCurrentMonth(11);
-                      setCurrentYear(currentYear - 1);
-                    } else {
-                      setCurrentMonth(currentMonth - 1);
-                    }
-                  }}
-                >
-                  ◀
-                </button>
-                <span>{monthNames[currentMonth]} {currentYear}</span>
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (currentMonth === 11) {
-                      setCurrentMonth(0);
-                      setCurrentYear(currentYear + 1);
-                    } else {
-                      setCurrentMonth(currentMonth + 1);
-                    }
-                  }}
-                >
-                  ▶
-                </button>
-              </div>
-            </div>
-
-            <p className="calendar-instruction">
-              {isTeacher
-                ? 'Los días festivos en Colombia omiten automáticamente la clase. Haz clic sobre un día con clase programada para cancelarlo individualmente si surge un imprevisto.'
-                : 'Consulta los días de clase del mes. Los días en rojo representan festivos nacionales donde no habrá sesión.'}
-            </p>
-
-            <div className="schedule-weekdays-strip">
-              {['D', 'L', 'M', 'M', 'J', 'V', 'S'].map((w, i) => (
-                <span key={i}>{w}</span>
-              ))}
-            </div>
-
-            <div className="schedule-days-grid">
-              {cells.map((d, i) => {
-                if (!d) return <div key={`empty-${i}`} className="sched-cell empty"></div>;
-
-                const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-                const dObj = new Date(currentYear, currentMonth, d);
-                const dow = String(dObj.getDay());
-                const isSelectedDay = selectedDays.includes(dow);
-                const holiday = isColombianHoliday(dateStr);
-                const isCancelled = (course.cancelledDates || []).includes(dateStr);
-
-                let cellClass = 'sched-cell';
-                let tooltip = '';
-
-                if (holiday.isHoliday) {
-                  cellClass += ' holiday';
-                  tooltip = `Festivo en Colombia: ${holiday.name} (Clase omitida automáticamente)`;
-                } else if (isCancelled) {
-                  cellClass += ' cancelled';
-                  tooltip = 'Clase cancelada por el docente';
-                } else if (isSelectedDay) {
-                  cellClass += ' class-active';
-                  tooltip = `Clase programada: ${startTime} a ${endTime}`;
-                }
-
-                return (
-                  <button
-                    key={`day-${d}`}
-                    type="button"
-                    className={cellClass}
-                    title={tooltip}
-                    onClick={() => {
-                      if (isTeacher && isSelectedDay && !holiday.isHoliday && onToggleCancellation) {
-                        onToggleCancellation(course.id, dateStr);
-                      }
+                  <input
+                    type="time"
+                    value={endTime}
+                    onChange={e => {
+                      setEndTime(e.target.value);
+                      checkOverlap(selectedDays, startTime, e.target.value);
                     }}
-                  >
-                    <span className="cell-day-num">{d}</span>
-                    {holiday.isHoliday && <span className="cell-tag-dot holiday-dot"></span>}
-                    {isCancelled && <span className="cell-tag-dot cancelled-dot"></span>}
-                    {isSelectedDay && !holiday.isHoliday && !isCancelled && <span className="cell-tag-dot active-dot"></span>}
-                  </button>
-                );
-              })}
+                    required
+                  />
+                </div>
+                <button type="submit" className="btn-save-schedule">
+                  💾 Guardar Horario
+                </button>
+              </div>
             </div>
+          </form>
+        )}
 
-            <div className="calendar-legend-row">
-              <span className="legend-item"><span className="legend-dot active-dot"></span> Clase Normal</span>
-              <span className="legend-item"><span className="legend-dot holiday-dot"></span> Festivo Colombia (Omitida)</span>
-              <span className="legend-item"><span className="legend-dot cancelled-dot"></span> Cancelada por Docente</span>
-            </div>
+        <div className="monthly-calendar-section">
+          <div className="cal-header-controls">
+            <button
+              type="button"
+              className="cal-nav-btn"
+              onClick={() => {
+                if (currentMonth === 0) {
+                  setCurrentMonth(11);
+                  setCurrentYear(currentYear - 1);
+                } else {
+                  setCurrentMonth(currentMonth - 1);
+                }
+              }}
+            >
+              ◀ Mes Anterior
+            </button>
+            <h4 className="cal-month-title">
+              {monthNames[currentMonth]} {currentYear}
+            </h4>
+            <button
+              type="button"
+              className="cal-nav-btn"
+              onClick={() => {
+                if (currentMonth === 11) {
+                  setCurrentMonth(0);
+                  setCurrentYear(currentYear + 1);
+                } else {
+                  setCurrentMonth(currentMonth + 1);
+                }
+              }}
+            >
+              Mes Siguiente ▶
+            </button>
+          </div>
+
+          <div className="calendar-weekdays-row">
+            {['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'].map((wd, i) => (
+              <span key={i} className="cal-weekday-label">{wd}</span>
+            ))}
+          </div>
+
+          <div className="calendar-days-grid">
+            {calendarCells.map((dayNum, idx) => {
+              if (!dayNum) {
+                return <div key={`empty-${idx}`} className="cal-cell empty"></div>;
+              }
+
+              const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
+              const dObj = new Date(currentYear, currentMonth, dayNum);
+              const dayOfWeek = String(dObj.getDay());
+              const isClassDay = (course.scheduleDays || selectedDays).includes(dayOfWeek);
+              const holidayInfo = isColombianHoliday(dateStr, course.cancelledDates || []);
+              const isCancelled = (course.cancelledDates || []).includes(dateStr);
+
+              return (
+                <div
+                  key={`day-${dayNum}`}
+                  className={`cal-cell ${isClassDay ? 'has-class' : ''} ${holidayInfo.isHoliday ? 'holiday' : ''} ${isCancelled ? 'cancelled' : ''}`}
+                >
+                  <span className="cell-day-num">{dayNum}</span>
+
+                  {isClassDay && !holidayInfo.isHoliday && (
+                    <div className="class-badge">
+                      <span>Clase</span>
+                      <small>{course.startTime || startTime}</small>
+                    </div>
+                  )}
+
+                  {holidayInfo.isHoliday && (
+                    <div className="holiday-badge" title={holidayInfo.name}>
+                      <span>🇨🇴 Festivo</span>
+                      <small className="holiday-name-text">{holidayInfo.name}</small>
+                    </div>
+                  )}
+
+                  {isTeacher && isClassDay && !holidayInfo.isColombianHoliday && (
+                    <button
+                      type="button"
+                      className="btn-toggle-cancel"
+                      onClick={() => onToggleCancellation(course.id, dateStr)}
+                    >
+                      {isCancelled ? '↩️ Reactivar' : '🚫 Cancelar'}
+                    </button>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="calendar-legend">
+            <span className="legend-item"><span className="legend-dot class"></span> Día de Clase</span>
+            <span className="legend-item"><span className="legend-dot holiday"></span> Festivo Colombia (Omitida)</span>
+            <span className="legend-item"><span className="legend-dot cancelled"></span> Cancelada por Docente</span>
           </div>
         </div>
-
-        <div className="schedule-modal-footer">
-          <button type="button" className="btn-secondary" onClick={onClose}>Cerrar</button>
-          {isTeacher && (
-            <button type="button" className="btn-primary" onClick={handleSave}>
-              Guardar Cambios de Horario
-            </button>
-          )}
-        </div>
-
-        {/* TIME PICKER MODAL INTERACTIVO */}
-        {pickingTimeField && (
-          <TimePickerModal
-            isOpen={!!pickingTimeField}
-            onClose={() => setPickingTimeField(null)}
-            initialTime={pickingTimeField === 'start' ? startTime : endTime}
-            onSelectTime={(newTime) => {
-              if (pickingTimeField === 'start') {
-                setStartTime(newTime);
-                validateConflicts(selectedDays, newTime, endTime);
-              } else {
-                setEndTime(newTime);
-                validateConflicts(selectedDays, startTime, newTime);
-              }
-              setPickingTimeField(null);
-            }}
-          />
-        )}
       </div>
     </div>
   );
