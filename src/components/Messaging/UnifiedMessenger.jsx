@@ -3,7 +3,7 @@ import { useApp } from '../../context/AppContext';
 import { IconChat, IconClose, IconSend, IconEdit, IconCheck } from '../common/Icons';
 import './UnifiedMessenger.css';
 
-const UnifiedMessenger = ({ onClose }) => {
+const UnifiedMessenger = ({ onClose, isEmbedded = false }) => {
   const { user, students, courses, messages, sendMessage, editMessage } = useApp();
   const [activeTab, setActiveTab] = useState('teachers'); // 'teachers' o 'students'
   const [selectedContactId, setSelectedContactId] = useState(null);

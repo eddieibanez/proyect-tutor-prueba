@@ -519,3 +519,62 @@
   opacity: 0.92;
   transform: translateY(-1px);
 }
+
+/* APARTADO DE MENSAJERÍA */
+.embeddedMessengerApartado {
+  width: 100%;
+  margin-top: 1rem;
+  background: var(--bg-secondary, #1e293b);
+  border-radius: 16px;
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
+  padding: 1.5rem;
+}
+
+.apartadoHeaderRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
+}
+
+.apartadoHeaderInfo h2 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--text-primary, #f8fafc);
+  margin-bottom: 0.25rem;
+}
+
+.apartadoHeaderInfo p {
+  font-size: 0.9rem;
+  color: var(--text-secondary, #94a3b8);
+}
+
+.btnCloseApartado {
+  background: var(--bg-primary, #0f172a);
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.15));
+  color: var(--text-primary, #f8fafc);
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btnCloseApartado:hover {
+  background: var(--primary, #6366f1);
+  color: #ffffff;
+  border-color: var(--primary, #6366f1);
+}
+
+.activeTabBtn {
+  background: var(--primary, #6366f1) !important;
+  color: #ffffff !important;
+  border-color: var(--primary, #6366f1) !important;
+}
+
+.embeddedMessengerWrapper {
+  width: 100%;
+}

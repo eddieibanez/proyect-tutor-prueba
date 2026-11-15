@@ -223,3 +223,22 @@
   font-weight: 600;
 }
 
+
+/* SELECTOR DESPLEGABLE DE NIVEL */
+.goal-select-dropdown {
+  width: 100%;
+  padding: 10px 14px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  border-radius: 8px;
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.15));
+  background: var(--bg-secondary, #1e293b);
+  color: var(--text-primary, #f8fafc);
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.goal-select-dropdown:focus {
+  border-color: var(--primary, #6366f1);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}

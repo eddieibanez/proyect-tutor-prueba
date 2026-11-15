@@ -51,6 +51,7 @@ const StudentDashboard = () => {
   const [selectedCourseForTasks, setSelectedCourseForTasks] = useState(null);
   const [showAllTasksModal, setShowAllTasksModal] = useState(false);
   const [isMessengerOpen, setIsMessengerOpen] = useState(false);
+  const [activeSectionTab, setActiveSectionTab] = useState('overview'); // 'overview' o 'messages'
 
   const getProgress = (langId) => {
     if (!user || !user.progress || !user.progress[langId]) {
@@ -93,22 +94,14 @@ const StudentDashboard = () => {
             </span>
             <span className={styles.statLabel}>Lecciones Superadas</span>
           </div>
-          <button
+                    <button
             type="button"
-            className={styles.btnQuickHeaderAction}
-            onClick={() => setShowAllTasksModal(true)}
-            title="Ver todas las tareas asignadas con filtros por fecha límite y curso"
-          >
-            📋 Mis Tareas Asignadas
-          </button>
-          <button
-            type="button"
-            className={styles.btnQuickHeaderAction + ' ' + styles.chatBtn}
-            onClick={() => setIsMessengerOpen(true)}
-            title="Abrir mensajería del curso"
+            className={`${styles.btnQuickHeaderAction} ${activeSectionTab === 'messages' ? styles.activeTabBtn : ''}`}
+            onClick={() => setActiveSectionTab(activeSectionTab === 'messages' ? 'overview' : 'messages')}
+            title="Ir al apartado de Mensajería"
           >
             <IconChat size={16} />
-            <span>Mensajería del Curso</span>
+            <span>{activeSectionTab === 'messages' ? 'Ver Mis Cursos' : 'Apartado de Mensajería'}</span>
           </button>
         </div>
       </header>
@@ -133,7 +126,27 @@ const StudentDashboard = () => {
       )}
 
       {/* DISPOSICIÃ“N EN REJILLA: CURSOS A LA IZQUIERDA Y CALENDARIO FIJO ABIERTO A LA DERECHA */}
-      <div className={styles.mainLayoutSplit}>
+      {activeSectionTab === 'messages' ? (
+        <section className={styles.embeddedMessengerApartado}>
+          <div className={styles.apartadoHeaderRow}>
+            <div className={styles.apartadoHeaderInfo}>
+              <h2>💬 Apartado de Mensajería y Canales de Comunicación</h2>
+              <p>Comunícate en tiempo real con tus compañeros matriculados en tus cursos y consulta a tus docentes.</p>
+            </div>
+            <button
+              type="button"
+              className={styles.btnCloseApartado}
+              onClick={() => setActiveSectionTab('overview')}
+            >
+              ← Volver a Mis Cursos
+            </button>
+          </div>
+          <div className={styles.embeddedMessengerWrapper}>
+            <UnifiedMessenger isEmbedded={true} />
+          </div>
+        </section>
+      ) : (
+        <div className={styles.mainLayoutSplit}>
         <div className={styles.leftContentCol}>
           {/* SECCIÃ“N 1: CURSOS Y CLASES MATRICULADAS */}
           <section className={styles.coursesSection}>
@@ -259,9 +272,9 @@ const StudentDashboard = () => {
             <button
               type="button"
               className={styles.btnOpenCourseMessenger}
-              onClick={() => setIsMessengerOpen(true)}
+              onClick={() => setActiveSectionTab('messages')}
             >
-              Abrir Chat del Curso
+              {activeSectionTab === 'messages' ? '✓ Estás en Mensajería' : 'Abrir Apartado de Mensajes →'}
             </button>
           </div>
 
@@ -278,6 +291,7 @@ const StudentDashboard = () => {
           </div>
         </aside>
       </div>
+      )}
 
       {/* MODAL DE HORARIO DEL CURSO */}
       {selectedCourseForSchedule && (

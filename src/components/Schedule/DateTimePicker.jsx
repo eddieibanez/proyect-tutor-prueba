@@ -76,6 +76,38 @@ export const DatePickerModal = ({ isOpen, onClose, onSelectDate, initialDate }) 
           </div>
         </div>
 
+        <div className="picker-dropdowns-row">
+          <div className="picker-dropdown-group">
+            <label className="picker-dropdown-label">Día:</label>
+            <select className="picker-select-inline" value={selectedDay} onChange={e => setSelectedDay(parseInt(e.target.value, 10))}>
+              {Array.from({ length: totalDays }, (_, i) => i + 1).map(d => (
+                <option key={d} value={d}>Día {d}</option>
+              ))}
+            </select>
+          </div>
+          <div className="picker-dropdown-group">
+            <label className="picker-dropdown-label">Mes:</label>
+            <select className="picker-select-inline" value={viewMonth} onChange={e => {
+              const newM = parseInt(e.target.value, 10);
+              setViewMonth(newM);
+              const maxD = getDaysInMonth(viewYear, newM);
+              if (selectedDay > maxD) setSelectedDay(maxD);
+            }}>
+              {monthNames.map((name, i) => (
+                <option key={i} value={i}>{name}</option>
+              ))}
+            </select>
+          </div>
+          <div className="picker-dropdown-group">
+            <label className="picker-dropdown-label">Año:</label>
+            <select className="picker-select-inline" value={viewYear} onChange={e => setViewYear(parseInt(e.target.value, 10))}>
+              {Array.from({ length: 10 }, (_, i) => 2024 + i).map(y => (
+                <option key={y} value={y}>{y}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
         <div className="weekdays-strip">
           {['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sá'].map((w, i) => (
             <span key={i} className="weekday-header">{w}</span>

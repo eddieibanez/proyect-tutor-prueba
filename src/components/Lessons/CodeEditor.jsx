@@ -409,6 +409,58 @@ const CodeEditor = ({ language = 'arduino', initialCode = '', expectedOutput = '
       success: true
     };
   };
+  // VERIFICADOR SINTÁCTICO Y CONSOLA DE EJECUCIÓN CON MOTOR GEMINI API
+  const executeWithGeminiEngine = async (userCode, currentLang) => {
+    if (!GEMINI_API_KEY) return null;
+
+    const systemPrompt = `Eres el motor de compilación, verificación sintáctica y terminal en tiempo real de CodeCraft Academy para ${currentLang.toUpperCase()}.
+Tu labor es ser la consola exacta del lenguaje.
+Analiza estrictamente el siguiente código:
+Código:
+${userCode}
+
+REGLAS ESTRICTAS:
+1) Si hay errores de sintaxis, tipos, sangría o estructura (por ejemplo en Arduino: funciones mal escritas como 'pinmode' en vez de 'pinMode', falta de setup/loop, puntos y coma omitidos, variables no declaradas; en Python: falta de dos puntos :, mala indentación, errores de nombre o tipo):
+   - Imprime el encabezado y el error exacto en formato de compilador estándar:
+     Arduino C++: "sketch.ino:[LÍNEA]: error: [descripción técnica breve en español]"
+     Python: "File \"main.py\", line [LÍNEA]\nSyntaxError: [descripción técnica breve en español]"
+   - Al final escribe una línea: "[ESTADO]: ERROR_SINTAXIS"
+
+2) Si el código es 100% sintácticamente correcto:
+   - Simula la ejecución y entrega la salida exacta que arrojaría stdout / Serial.println().
+   - Si no produce salida por pantalla (ej: solo asigna variables), imprime: "[Proceso finalizado exitosamente - Salida 0]"
+   - Al final escribe una línea: "[ESTADO]: EXITO"
+
+Responde ÚNICAMENTE con la salida que aparecería en la consola de comandos, sin explicaciones ni rodeos Markdown adicionales.`;
+
+    try {
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${GEMINI_API_KEY}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ role: 'user', parts: [{ text: systemPrompt }] }],
+          generationConfig: { temperature: 0.1, maxOutputTokens: 350 }
+        })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (text) {
+          const isErr = text.includes('[ESTADO]: ERROR_SINTAXIS') || text.includes('error:') || text.includes('SyntaxError');
+          const cleanOutput = text.replace(/\[ESTADO\]:\s*(EXITO|ERROR_SINTAXIS)/g, '').trim();
+          return {
+            success: !isErr,
+            output: cleanOutput
+          };
+        }
+      }
+    } catch (e) {
+      console.warn('Gemini Console Engine fallback to local:', e);
+    }
+    return null;
+  };
+
   // ASISTENCIA SOCRÁTICA CON GEMINI API
   const callGeminiForGuidance = async (execOutput) => {
     if (!GEMINI_API_KEY) return;
@@ -426,7 +478,7 @@ REGLAS:
 2) Explica el error exacto en 2 oraciones sencillas en español.
 3) Haz una pregunta guía socrática para que el estudiante lo corrija.`;
 
-      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${GEMINI_API_KEY}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -449,9 +501,30 @@ REGLAS:
 
   const handleRun = async () => {
     setIsRunning(true);
-    setOutput(`[Compilador] Iniciando verificación de código...`);
+    setOutput(`[Consola Gemini] Verificando sintaxis y ejecutando código...`);
     setAiGuidance('');
 
+    // 1. Intentar verificación y ejecución con Gemini AI como consola
+    const aiEngineResult = await executeWithGeminiEngine(code, language);
+
+    if (aiEngineResult) {
+      setOutput(aiEngineResult.output);
+      setIsSuccess(aiEngineResult.success);
+
+      // Si es Arduino y tuvo éxito, actualizar el circuito simulado
+      if (language === 'arduino' && aiEngineResult.success) {
+        simulateArduinoWithDelay(code).catch(() => {});
+      }
+
+      setIsRunning(false);
+
+      if (!aiEngineResult.success) {
+        callGeminiForGuidance(aiEngineResult.output);
+      }
+      return;
+    }
+
+    // 2. Fallback local si la API está fuera de línea o sin conectividad
     if (language === 'arduino') {
       const result = await simulateArduinoWithDelay(code);
       setOutput(result.output);
