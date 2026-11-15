@@ -358,3 +358,125 @@
   opacity: 0.9;
   transform: translateY(-1px);
 }
+
+
+/* ESTILOS PARA ALL TASKS MODAL CON FILTROS */
+.tasks-modal-card.wide-all-tasks {
+  max-width: 820px !important;
+}
+
+.tasks-filter-toolbar {
+  display: flex;
+  gap: 14px;
+  padding: 14px 24px;
+  background: var(--dark);
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+.filter-pill-box {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 180px;
+}
+
+.filter-pill-box label {
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.tasks-filter-select {
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--input-bg, #FFFFFF);
+  color: var(--input-text, #1E293B);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.task-status-pill.done {
+  background: rgba(46, 125, 50, 0.15);
+  color: var(--success);
+}
+
+.task-status-pill.late {
+  background: rgba(211, 47, 47, 0.15);
+  color: var(--error);
+}
+
+.task-status-pill.urgent {
+  background: rgba(239, 108, 0, 0.15);
+  color: #EF6C00;
+}
+
+.task-status-pill.open {
+  background: rgba(0, 151, 167, 0.15);
+  color: var(--primary);
+}
+
+.btn-deliver-task {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: #FFFFFF;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.84rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-deliver-task:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 188, 212, 0.35);
+}
+
+.task-submit-box {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.task-submit-box textarea {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  font-family: inherit;
+  font-size: 0.85rem;
+  background: var(--input-bg, #FFFFFF);
+  color: var(--input-text, #1E293B);
+}
+
+.submit-box-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.btn-cancel-submit {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.btn-confirm-submit {
+  background: var(--primary);
+  color: #FFFFFF;
+  border: none;
+  padding: 6px 16px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.8rem;
+  cursor: pointer;
+}

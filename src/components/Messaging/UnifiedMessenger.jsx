@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { IconChat, IconClose, IconSend, IconEdit, IconCheck } from '../common/Icons';
 import './UnifiedMessenger.css';
@@ -15,11 +15,23 @@ const UnifiedMessenger = ({ onClose }) => {
 
   // 1. Docentes disponibles
   const teacherContacts = [
-    { id: 'teacher-main', name: 'Profesor Titular', role: 'profesor', sub: 'Docente de Informática & Robótica' }
+    { id: 'teacher-main', name: 'Profesor Titular', role: 'profesor', sub: 'Docente de InformÃ¡tica & RobÃ³tica' }
   ];
 
-  // 2. Estudiantes registrados
-  const studentContacts = (students || []).filter(s => s.id !== user?.id);
+  // 2. Estudiantes registrados (habilitados si comparten cursos matriculados o en su grado escolar)
+  const userEnrolled = user?.enrolledCourses || [];
+  const studentContacts = (students || []).filter(s => {
+    if (s.id === user?.id) return false;
+    if (isTeacher) return true;
+    // Si el usuario tiene cursos matriculados, mostrar compañeros de esos mismos cursos
+    if (userEnrolled.length > 0) {
+      const studentCourses = s.enrolledCourses || (s.courseId ? [s.courseId] : []);
+      const shareCourse = studentCourses.some(cId => userEnrolled.includes(cId));
+      if (shareCourse) return true;
+    }
+    // Si no tienen cursos asignados explícitamente, habilitar compañeros de su mismo grado
+    return String(s.grade || s.grado) === String(user?.grade || user?.grado || '6');
+  });
 
   const contactList = isTeacher
     ? studentContacts
@@ -27,7 +39,7 @@ const UnifiedMessenger = ({ onClose }) => {
 
   const activeContact = contactList.find(c => c.id === selectedContactId) || contactList[0];
 
-  // Filtrado bidireccional fiel con soporte de deserialización JSON de student_name
+  // Filtrado bidireccional fiel con soporte de deserializaciÃ³n JSON de student_name
   const conversation = (messages || []).filter(m => {
     if (!activeContact) return false;
 
@@ -81,7 +93,7 @@ const UnifiedMessenger = ({ onClose }) => {
     setEditText('');
   };
 
-  // Helper para dividir mensajes por días ("Hoy", "Ayer", o fecha completa)
+  // Helper para dividir mensajes por dÃ­as ("Hoy", "Ayer", o fecha completa)
   const getDayDividerLabel = (dateStr) => {
     if (!dateStr) return 'Hoy';
     const msgDate = new Date(dateStr);
@@ -106,16 +118,16 @@ const UnifiedMessenger = ({ onClose }) => {
           <div className="header-info">
             <div className="header-title-row">
               <IconChat size={22} color="#00BCD4" />
-              <h3>Mensajería y Tutoría en Tiempo Real</h3>
+              <h3>MensajerÃ­a y TutorÃ­a en Tiempo Real</h3>
             </div>
-            <p>Comunícate con docentes y compañeros de clase</p>
+            <p>ComunÃ­cate con docentes y compaÃ±eros de clase</p>
           </div>
-          <button type="button" className="close-btn" onClick={onClose} title="Cerrar mensajería">
+          <button type="button" className="close-btn" onClick={onClose} title="Cerrar mensajerÃ­a">
             <IconClose size={20} />
           </button>
         </div>
 
-        {/* PESTAÑAS PARA ESTUDIANTES */}
+        {/* PESTAÃ‘AS PARA ESTUDIANTES */}
         {!isTeacher && (
           <div className="messenger-tabs-row">
             <button
@@ -130,7 +142,7 @@ const UnifiedMessenger = ({ onClose }) => {
               className={`msg-tab-btn ${activeTab === 'students' ? 'active' : ''}`}
               onClick={() => { setActiveTab('students'); setSelectedContactId(null); }}
             >
-              Compañeros de Clase ({studentContacts.length})
+              CompaÃ±eros de Clase ({studentContacts.length})
             </button>
           </div>
         )}
@@ -139,7 +151,7 @@ const UnifiedMessenger = ({ onClose }) => {
           {/* LISTA LATERAL DE CONTACTOS */}
           <div className="messenger-contacts-list">
             <div className="contacts-head">
-              <span>{isTeacher ? 'Alumnos' : activeTab === 'teachers' ? 'Docentes' : 'Compañeros'}</span>
+              <span>{isTeacher ? 'Alumnos' : activeTab === 'teachers' ? 'Docentes' : 'CompaÃ±eros'}</span>
             </div>
             <div className="contacts-scroll">
               {contactList.map(c => {
@@ -155,7 +167,7 @@ const UnifiedMessenger = ({ onClose }) => {
                     </div>
                     <div className="contact-meta">
                       <span className="contact-name">{c.name} {c.lastName || ''}</span>
-                      <small className="contact-sub">{c.grade ? `${c.grade}° Grado` : c.sub || 'Usuario'}</small>
+                      <small className="contact-sub">{c.grade ? `${c.grade}Â° Grado` : c.sub || 'Usuario'}</small>
                     </div>
                   </div>
                 );
@@ -173,14 +185,14 @@ const UnifiedMessenger = ({ onClose }) => {
                   </div>
                   <div>
                     <strong>{activeContact.name} {activeContact.lastName || ''}</strong>
-                    <span className="online-pill">● En línea</span>
+                    <span className="online-pill">â— En lÃ­nea</span>
                   </div>
                 </div>
 
                 <div className="chat-messages-container">
                   {conversation.length === 0 ? (
                     <div className="empty-chat-hint">
-                      <p>No hay mensajes previos en esta conversación. ¡Escribe un mensaje para comenzar!</p>
+                      <p>No hay mensajes previos en esta conversaciÃ³n. Â¡Escribe un mensaje para comenzar!</p>
                     </div>
                   ) : (
                     conversation.map((msg, index) => {
@@ -192,7 +204,7 @@ const UnifiedMessenger = ({ onClose }) => {
                         ? new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
                         : msg.time || 'Ahora';
 
-                      // Separador de días
+                      // Separador de dÃ­as
                       const showDayDivider = index === 0 || (
                         new Date(msg.created_at || Date.now()).toDateString() !==
                         new Date(conversation[index - 1].created_at || Date.now()).toDateString()
@@ -212,7 +224,7 @@ const UnifiedMessenger = ({ onClose }) => {
                             <div className="bubble-content">
                               <div className="bubble-header-row">
                                 <span className="bubble-author">
-                                  {isMine ? 'Tú' : (msg.senderName || activeContact.name)}
+                                  {isMine ? 'TÃº' : (msg.senderName || activeContact.name)}
                                 </span>
                                 {msg.edited && <span className="edited-indicator">(editado)</span>}
                               </div>
@@ -283,7 +295,7 @@ const UnifiedMessenger = ({ onClose }) => {
               </>
             ) : (
               <div className="no-contact-selected">
-                <p>Selecciona un contacto para iniciar la conversación.</p>
+                <p>Selecciona un contacto para iniciar la conversaciÃ³n.</p>
               </div>
             )}
           </div>
@@ -294,3 +306,4 @@ const UnifiedMessenger = ({ onClose }) => {
 };
 
 export default UnifiedMessenger;
+

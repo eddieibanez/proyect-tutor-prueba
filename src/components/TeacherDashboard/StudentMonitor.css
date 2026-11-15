@@ -245,3 +245,61 @@
   font-size: 0.82rem;
   resize: none;
 }
+
+
+/* ELEVACIÓN Y DETALLES PRO EN STUDENT MONITOR */
+.monitor-header {
+  border-left: 5px solid var(--primary) !important;
+  background: linear-gradient(135deg, rgba(0, 151, 167, 0.05), rgba(94, 53, 177, 0.05)), var(--cards) !important;
+}
+
+.monitor-metrics-bar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.metric-box {
+  background: var(--cards);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 20px;
+  box-shadow: var(--card-shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.metric-box:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--card-shadow-hover);
+}
+
+.metric-box.blue { border-left: 4px solid #00BCD4; }
+.metric-box.green { border-left: 4px solid #00C853; }
+.metric-box.red { border-left: 4px solid #FF5252; }
+
+.metric-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.metric-val {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1.1;
+}
+
+.student-row:hover {
+  background-color: var(--dark) !important;
+}
+
+.student-row.row-expanded {
+  background-color: rgba(0, 151, 167, 0.06) !important;
+}

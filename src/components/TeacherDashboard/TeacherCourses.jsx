@@ -20,9 +20,12 @@ const TeacherCourses = ({ onOpenGoalModal }) => {
     code: '',
     grade: '6',
     description: '',
-    schedule: 'Lunes y Miércoles 08:00 - 09:30',
+    scheduleDays: ['1', '3'],
+    startTime: '08:00',
+    endTime: '09:30',
     color: '#00838F'
   });
+  const [createTimePickerField, setCreateTimePickerField] = useState(null); // 'start' | 'end'
 
   const [newStudent, setNewStudent] = useState({
     name: '',
@@ -37,7 +40,14 @@ const TeacherCourses = ({ onOpenGoalModal }) => {
       alert('Por favor completa el nombre y código del curso.');
       return;
     }
-    const created = addCourse(newCourse);
+    const scheduleStr = `${newCourse.scheduleDays.map(d => DAY_NAMES[d] || d).join(', ')} • ${newCourse.startTime} a ${newCourse.endTime}`;
+    const courseToCreate = {
+      ...newCourse,
+      schedule: scheduleStr,
+      teacherId: user?.id || 'teacher-main',
+      teacherName: user?.nombre || user?.name || 'Profesor Titular'
+    };
+    const created = addCourse(courseToCreate);
     setShowCourseModal(false);
     setSelectedCourseId(created.id);
     setNewCourse({
@@ -45,7 +55,9 @@ const TeacherCourses = ({ onOpenGoalModal }) => {
       code: '',
       grade: '6',
       description: '',
-      schedule: 'Lunes y Miércoles 08:00 - 09:30',
+      scheduleDays: ['1', '3'],
+      startTime: '08:00',
+      endTime: '09:30',
       color: '#00838F'
     });
   };
@@ -281,12 +293,61 @@ const TeacherCourses = ({ onOpenGoalModal }) => {
               </div>
 
               <div className="form-field">
-                <label>Horario Semanal:</label>
-                <input
-                  type="text"
-                  value={newCourse.schedule}
-                  onChange={e => setNewCourse({ ...newCourse, schedule: e.target.value })}
-                />
+                <label>Días de Clase Semanal:</label>
+                <div className="days-picker-row">
+                  {[
+                    { id: '1', name: 'Lun' },
+                    { id: '2', name: 'Mar' },
+                    { id: '3', name: 'Mié' },
+                    { id: '4', name: 'Jue' },
+                    { id: '5', name: 'Vie' },
+                    { id: '6', name: 'Sáb' }
+                  ].map(day => {
+                    const isSelected = (newCourse.scheduleDays || []).includes(day.id);
+                    return (
+                      <button
+                        type="button"
+                        key={day.id}
+                        className={`btn-day-pill ${isSelected ? 'active' : ''}`}
+                        onClick={() => {
+                          const currentDays = newCourse.scheduleDays || [];
+                          const updated = isSelected 
+                            ? currentDays.filter(d => d !== day.id)
+                            : [...currentDays, day.id];
+                          setNewCourse({ ...newCourse, scheduleDays: updated });
+                        }}
+                      >
+                        {day.name}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="form-row-2">
+                <div className="form-field">
+                  <label>Hora de Inicio:</label>
+                  <button
+                    type="button"
+                    className="time-picker-trigger-btn"
+                    onClick={() => setCreateTimePickerField('start')}
+                  >
+                    <IconClock size={16} />
+                    <span>{newCourse.startTime}</span>
+                  </button>
+                </div>
+
+                <div className="form-field">
+                  <label>Hora de Finalización:</label>
+                  <button
+                    type="button"
+                    className="time-picker-trigger-btn"
+                    onClick={() => setCreateTimePickerField('end')}
+                  >
+                    <IconClock size={16} />
+                    <span>{newCourse.endTime}</span>
+                  </button>
+                </div>
               </div>
 
               <div className="form-field">
@@ -306,6 +367,23 @@ const TeacherCourses = ({ onOpenGoalModal }) => {
             </form>
           </div>
         </div>
+      )}
+
+      {/* TIME PICKER MODAL INTERACTIVO PARA CREAR CURSO */}
+      {createTimePickerField && (
+        <TimePickerModal
+          isOpen={!!createTimePickerField}
+          onClose={() => setCreateTimePickerField(null)}
+          initialTime={createTimePickerField === 'start' ? newCourse.startTime : newCourse.endTime}
+          onSelectTime={(newTime) => {
+            if (createTimePickerField === 'start') {
+              setNewCourse(prev => ({ ...prev, startTime: newTime }));
+            } else {
+              setNewCourse(prev => ({ ...prev, endTime: newTime }));
+            }
+            setCreateTimePickerField(null);
+          }}
+        />
       )}
 
       {/* MODAL MATRICULAR ESTUDIANTE */}
@@ -365,6 +443,7 @@ const TeacherCourses = ({ onOpenGoalModal }) => {
 };
 
 export default TeacherCourses;
+
 
 
 

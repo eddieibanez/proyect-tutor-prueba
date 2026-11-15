@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { isColombianHoliday } from '../../utils/colombianHolidays';
 import { IconCalendar } from '../common/Icons';
 import './CalendarWidget.css';
@@ -8,14 +8,17 @@ const CalendarWidget = ({
   userRole = 'student',
   userId = null,
   onSelectDate,
-  customTitle = null
+  customTitle = null,
+  enrolledCourseIds = [],
+  lessonGoals = [],
+  tasks = []
 }) => {
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
 
-  // Si es docente: filtrar cursos donde el docente es el creador/líder (o todos si no tiene filtro específico)
-  // Si es estudiante: mostrar los cursos en los que está matriculado
+  // Si es docente: filtrar cursos donde el docente es el creador/lÃ­der (o todos si no tiene filtro especÃ­fico)
+  // Si es estudiante: mostrar los cursos en los que estÃ¡ matriculado
   const displayCourses = courses.filter(c => {
     if (userRole === 'teacher' || userRole === 'profesor') {
       if (userId && c.teacherId) return c.teacherId === userId;
@@ -44,7 +47,7 @@ const CalendarWidget = ({
     cells.push(d);
   }
 
-  // Clases y festivos para el día seleccionado
+  // Clases y festivos para el dÃ­a seleccionado
   const selectedDObj = new Date(selectedDate + 'T00:00:00');
   const selectedDayOfWeek = String(selectedDObj.getDay());
   const selectedHoliday = isColombianHoliday(selectedDate);
@@ -78,7 +81,7 @@ const CalendarWidget = ({
             }}
             title="Mes anterior"
           >
-            ◀
+            â—€
           </button>
           <span className="widget-month-label">{monthNames[currentMonth]} {currentYear}</span>
           <button
@@ -94,7 +97,7 @@ const CalendarWidget = ({
             }}
             title="Mes siguiente"
           >
-            ▶
+            â–¶
           </button>
         </div>
       </div>
@@ -129,7 +132,7 @@ const CalendarWidget = ({
                 setSelectedDate(dateStr);
                 if (onSelectDate) onSelectDate(dateStr);
               }}
-              title={holiday.isHoliday ? `Festivo: ${holiday.name}` : hasClasses ? 'Día con clases programadas' : 'Sin clases'}
+              title={holiday.isHoliday ? `Festivo: ${holiday.name}` : hasClasses ? 'DÃ­a con clases programadas' : 'Sin clases'}
             >
               <span className="day-number">{dayNum}</span>
               {holiday.isHoliday && <span className="cell-mini-dot holiday"></span>}
@@ -139,18 +142,18 @@ const CalendarWidget = ({
         })}
       </div>
 
-      {/* DETALLES DEL DÍA SELECCIONADO */}
+      {/* DETALLES DEL DÃA SELECCIONADO */}
       <div className="widget-selected-info">
         <span className="selected-date-title">Detalle del {selectedDate}:</span>
         {selectedHoliday.isHoliday ? (
           <div className="holiday-info-pill">
-            🇨🇴 <strong>Festivo Nacional:</strong> {selectedHoliday.name} (Clase omitida)
+            ðŸ‡¨ðŸ‡´ <strong>Festivo Nacional:</strong> {selectedHoliday.name} (Clase omitida)
           </div>
         ) : coursesOnSelectedDate.length > 0 ? (
           <div className="courses-mini-list">
             {coursesOnSelectedDate.map(c => (
               <div key={c.id} className="course-mini-item" style={{ borderLeftColor: c.color || 'var(--primary)' }}>
-                <strong>{c.name}</strong> ({c.code || 'CC'}) • {c.startTime || '08:00'} a {c.endTime || '09:30'}
+                <strong>{c.name}</strong> ({c.code || 'CC'}) â€¢ {c.startTime || '08:00'} a {c.endTime || '09:30'}
                 {c.room && <span className="course-room-badge">Aula: {c.room}</span>}
               </div>
             ))}
@@ -164,3 +167,5 @@ const CalendarWidget = ({
 };
 
 export default CalendarWidget;
+
+

@@ -360,3 +360,33 @@
   background-color: var(--input-focus-bg, #FFFFFF);
   box-shadow: 0 0 0 3px rgba(0, 151, 167, 0.15);
 }
+
+
+/* ELEVACIÓN Y PROFUNDIDAD EN CONTENT EDITOR */
+.content-editor-header {
+  border-left: 5px solid #FF9800 !important;
+  background: linear-gradient(135deg, rgba(255, 152, 0, 0.05), rgba(0, 151, 167, 0.05)), var(--cards) !important;
+}
+
+.lesson-selector-panel {
+  box-shadow: var(--card-shadow) !important;
+  border-radius: 14px !important;
+}
+
+.editor-card {
+  box-shadow: var(--card-shadow) !important;
+  border-radius: 14px !important;
+  border: 1px solid var(--border) !important;
+}
+
+.lesson-item.selected {
+  background: linear-gradient(90deg, rgba(0, 151, 167, 0.15), rgba(94, 53, 177, 0.08)) !important;
+  border-left: 4px solid var(--primary) !important;
+  box-shadow: 0 2px 8px rgba(0, 151, 167, 0.15);
+}
+
+.editor-card-header {
+  background: var(--dark) !important;
+  border-bottom: 1px solid var(--border) !important;
+  padding: 1.4rem 1.8rem !important;
+}

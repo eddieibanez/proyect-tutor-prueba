@@ -215,18 +215,19 @@ const CodeEditor = ({ language = 'arduino', initialCode = '', expectedOutput = '
         );
       }
 
-      // Tokenizador regex
-      const tokenRegex = /(".*?"|'.*?'|\b(?:def|class|if|elif|else|while|for|in|return|import|from|as|try|except|with|and|or|not|True|False|None|void|int|float|char|bool|setup|loop|pinMode|digitalWrite|digitalRead|analogRead|analogWrite|Serial|delay|HIGH|LOW|OUTPUT|INPUT|INPUT_PULLUP)\b|\b\d+(?:\.\d+)?\b|[a-zA-Z_]\w*(?=\s*\()|[-+*/%<>=!&|^~]+|[^\s\w"'\-+*/%<>=!&|^~]+|\s+)/g;
+      // Tokenizador regex exhaustivo estilo VS Code: captura strings, comentarios, palabras clave, funciones, identificadores, números, operadores y espacios
+      const tokenRegex = /(".*?"|'.*?'|\/\/[^\n]*|#[^\n]*|\b(?:def|class|if|elif|else|while|for|in|return|import|from|as|try|except|with|and|or|not|True|False|None|void|int|float|char|bool|setup|loop|pinMode|digitalWrite|digitalRead|analogRead|analogWrite|Serial|delay|HIGH|LOW|OUTPUT|INPUT|INPUT_PULLUP)\b|\b\d+(?:\.\d+)?\b|[a-zA-Z_]\w*(?=\s*\()|[a-zA-Z_]\w*|[-+*/%<>=!&|^~]+|[^\s\w"'\-+*/%<>=!&|^~]+|\s+)/g;
 
       const tokens = [];
       let match;
-      let lastIndex = 0;
 
       while ((match = tokenRegex.exec(line)) !== null) {
         const text = match[0];
 
         if (text.startsWith('"') || text.startsWith("'")) {
           tokens.push(<span key={tokens.length} className="hl-string">{text}</span>);
+        } else if (text.startsWith('//') || text.startsWith('#')) {
+          tokens.push(<span key={tokens.length} className="hl-comment">{text}</span>);
         } else if (/^(?:def|class|if|elif|else|while|for|in|return|import|from|as|try|except|with|void|int|float|char|bool|setup|loop)$/.test(text)) {
           tokens.push(<span key={tokens.length} className="hl-keyword">{text}</span>);
         } else if (/^(?:and|or|not|True|False|None|HIGH|LOW|OUTPUT|INPUT|INPUT_PULLUP)$/.test(text)) {
@@ -235,12 +236,13 @@ const CodeEditor = ({ language = 'arduino', initialCode = '', expectedOutput = '
           tokens.push(<span key={tokens.length} className="hl-function">{text}</span>);
         } else if (/^\d+(?:\.\d+)?$/.test(text)) {
           tokens.push(<span key={tokens.length} className="hl-number">{text}</span>);
-        } else if (/^[+\-*/%<>=!&|^~]+$/.test(text)) {
+        } else if (/^[-+*/%<>=!&|^~]+$/.test(text)) {
           tokens.push(<span key={tokens.length} className="hl-operator">{text}</span>);
+        } else if (/^[a-zA-Z_]\w*$/.test(text)) {
+          tokens.push(<span key={tokens.length} className="hl-identifier">{text}</span>);
         } else {
-          tokens.push(<span key={tokens.length}>{text}</span>);
+          tokens.push(<span key={tokens.length} className="hl-text">{text}</span>);
         }
-        lastIndex = tokenRegex.lastIndex;
       }
 
       if (tokens.length === 0) {
@@ -669,4 +671,5 @@ REGLAS:
 };
 
 export default CodeEditor;
+
 

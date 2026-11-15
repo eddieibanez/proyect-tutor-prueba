@@ -386,3 +386,12 @@
   background-color: rgba(38, 79, 120, 0.65) !important;
   color: transparent !important;
 }
+
+
+.hl-identifier {
+  color: #9CDCFE; /* Azul claro característico de variables e identificadores en VS Code */
+}
+
+.hl-text {
+  color: #D4D4D4; /* Color de texto base nítido */
+}

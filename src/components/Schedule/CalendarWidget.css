@@ -182,3 +182,55 @@
   align-items: center;
   gap: 4px;
 }
+
+
+/* SELECTORES DE MES Y AÑO EN EL CALENDARIO */
+.widget-select-month, .widget-select-year {
+  background: var(--dark) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 6px !important;
+  padding: 3px 6px !important;
+  font-size: 0.76rem !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+}
+
+.cell-mini-dot.goal {
+  background: #FF9800; /* Naranja para metas de lecciones */
+}
+
+.cell-mini-dot.task {
+  background: #7C4DFF; /* Morado para entregas de tareas */
+}
+
+.widget-cell-btn.has-goal {
+  border-color: #FF9800 !important;
+}
+
+.date-reminder-pill {
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 0.74rem;
+  margin-bottom: 6px;
+}
+
+.date-reminder-pill.goal-pill {
+  background: rgba(255, 152, 0, 0.15);
+  border: 1px solid #FF9800;
+  color: var(--text-primary);
+}
+
+.date-reminder-pill.task-pill {
+  background: rgba(124, 77, 255, 0.15);
+  border: 1px solid #7C4DFF;
+  color: var(--text-primary);
+}
+
+.leader-name-tag {
+  font-size: 0.7rem;
+  color: var(--primary);
+  font-weight: 700;
+  display: block;
+  margin-top: 2px;
+}

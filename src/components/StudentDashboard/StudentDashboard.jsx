@@ -1,10 +1,12 @@
-import React, { useContext, useState } from 'react';
+﻿import React, { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppContext } from '../../context/AppContext';
 import styles from './StudentDashboard.module.css';
 import CalendarWidget from '../Schedule/CalendarWidget';
 import CourseScheduleModal from '../Schedule/CourseScheduleModal';
 import CourseTasksModal from '../Tasks/CourseTasksModal';
+import AllTasksModal from '../Tasks/AllTasksModal';
+import UnifiedMessenger from '../Messaging/UnifiedMessenger';
 import {
   IconCalendar,
   IconClock,
@@ -12,14 +14,15 @@ import {
   IconAward,
   IconCpu,
   IconLayers,
-  IconTerminal
+  IconTerminal,
+  IconChat
 } from '../common/Icons';
 
 const languageInfo = [
   {
     id: 'arduino',
     name: 'C++ Arduino',
-    description: 'Aprende a programar hardware, microcontroladores y sensores con rigor sintáctico.',
+    description: 'Aprende a programar hardware, microcontroladores y sensores con rigor sintÃ¡ctico.',
     icon: <IconCpu size={32} color="#00BCD4" />,
     colorClass: 'cardArduino'
   },
@@ -33,19 +36,21 @@ const languageInfo = [
   {
     id: 'python',
     name: 'Python 3',
-    description: 'Domina lógica pura, estructuras de datos, scripts y algoritmos modernos.',
+    description: 'Domina lÃ³gica pura, estructuras de datos, scripts y algoritmos modernos.',
     icon: <IconTerminal size={32} color="#4CAF50" />,
     colorClass: 'cardPython'
   }
 ];
 
 const StudentDashboard = () => {
-  const { user, courses, lessonGoals = [] } = useContext(AppContext);
+  const { user, courses, lessonGoals = [], tasks = [] } = useContext(AppContext);
   const navigate = useNavigate();
 
-  // Estados para modales de horario y tareas por curso
+  // Estados para modales de horario, tareas por curso, centro de tareas y mensajería
   const [selectedCourseForSchedule, setSelectedCourseForSchedule] = useState(null);
   const [selectedCourseForTasks, setSelectedCourseForTasks] = useState(null);
+  const [showAllTasksModal, setShowAllTasksModal] = useState(false);
+  const [isMessengerOpen, setIsMessengerOpen] = useState(false);
 
   const getProgress = (langId) => {
     if (!user || !user.progress || !user.progress[langId]) {
@@ -73,8 +78,8 @@ const StudentDashboard = () => {
     <div className={styles.dashboardContainer}>
       <header className={styles.dashboardHeader}>
         <div className={styles.welcomeText}>
-          <h1>¡Hola, {user ? (user.nombre || user.name) : 'Estudiante'}!</h1>
-          <p>Explora tus cursos matriculados, consulta tu calendario de clases y continúa tu ruta de aprendizaje.</p>
+          <h1>Â¡Hola, {user ? (user.nombre || user.name) : 'Estudiante'}!</h1>
+          <p>Explora tus cursos matriculados, consulta tu calendario de clases y continÃºa tu ruta de aprendizaje.</p>
         </div>
 
         <div className={styles.statsSummary}>
@@ -88,6 +93,23 @@ const StudentDashboard = () => {
             </span>
             <span className={styles.statLabel}>Lecciones Superadas</span>
           </div>
+          <button
+            type="button"
+            className={styles.btnQuickHeaderAction}
+            onClick={() => setShowAllTasksModal(true)}
+            title="Ver todas las tareas asignadas con filtros por fecha límite y curso"
+          >
+            📋 Mis Tareas Asignadas
+          </button>
+          <button
+            type="button"
+            className={styles.btnQuickHeaderAction + ' ' + styles.chatBtn}
+            onClick={() => setIsMessengerOpen(true)}
+            title="Abrir mensajería del curso"
+          >
+            <IconChat size={16} />
+            <span>Mensajería del Curso</span>
+          </button>
         </div>
       </header>
 
@@ -102,7 +124,7 @@ const StudentDashboard = () => {
                   <span className={styles.goalDeadlineText}>Plazo: {g.deadline}</span>
                 </div>
                 <p className={styles.goalCardDesc}>
-                  Tu docente estableció la meta de llegar hasta la <strong>Lección Nivel {g.targetLevel}</strong> antes de la fecha límite.
+                  Tu docente estableciÃ³ la meta de llegar hasta la <strong>LecciÃ³n Nivel {g.targetLevel}</strong> antes de la fecha lÃ­mite.
                 </p>
               </div>
             ))}
@@ -110,10 +132,10 @@ const StudentDashboard = () => {
         </section>
       )}
 
-      {/* DISPOSICIÓN EN REJILLA: CURSOS A LA IZQUIERDA Y CALENDARIO FIJO ABIERTO A LA DERECHA */}
+      {/* DISPOSICIÃ“N EN REJILLA: CURSOS A LA IZQUIERDA Y CALENDARIO FIJO ABIERTO A LA DERECHA */}
       <div className={styles.mainLayoutSplit}>
         <div className={styles.leftContentCol}>
-          {/* SECCIÓN 1: CURSOS Y CLASES MATRICULADAS */}
+          {/* SECCIÃ“N 1: CURSOS Y CLASES MATRICULADAS */}
           <section className={styles.coursesSection}>
             <div className={styles.sectionHeader}>
               <h2>Mis Cursos Matriculados</h2>
@@ -126,7 +148,7 @@ const StudentDashboard = () => {
                   <div className={styles.courseCardTop}>
                     <div className={styles.courseMeta}>
                       <span className={styles.courseCodeBadge}>{course.code}</span>
-                      <span className={styles.courseGradeText}>{course.grade}° Grado</span>
+                      <span className={styles.courseGradeText}>{course.grade}Â° Grado</span>
                     </div>
                     <h3 className={styles.courseName}>{course.name}</h3>
                     <p className={styles.courseDesc}>{course.description}</p>
@@ -164,11 +186,11 @@ const StudentDashboard = () => {
             </div>
           </section>
 
-          {/* SECCIÓN 2: RUTAS DE APRENDIZAJE POR LENGUAJE */}
+          {/* SECCIÃ“N 2: RUTAS DE APRENDIZAJE POR LENGUAJE */}
           <section className={styles.languagesSection}>
             <div className={styles.sectionHeader}>
-              <h2>Rutas de Programación Interactivas</h2>
-              <span className={styles.sectionSub}>Completa tus niveles y rinde el examen final de certificación</span>
+              <h2>Rutas de ProgramaciÃ³n Interactivas</h2>
+              <span className={styles.sectionSub}>Completa tus niveles y rinde el examen final de certificaciÃ³n</span>
             </div>
 
             <div className={styles.cardsGrid}>
@@ -211,7 +233,7 @@ const StudentDashboard = () => {
                         navigate('/student/language/' + lang.id);
                       }}
                     >
-                      Continuar Ruta →
+                      Continuar Ruta â†’
                     </button>
                   </div>
                 );
@@ -220,14 +242,38 @@ const StudentDashboard = () => {
           </section>
         </div>
 
-        {/* LADO DERECHO: CALENDARIO FIJO Y ABIERTO */}
+        {/* LADO DERECHO: CINTA LATERAL CON MENSAJERÍA Y CALENDARIO FIJO */}
         <aside className={styles.rightCalendarSidebar}>
+          {/* CINTA LATERAL: MENSAJERÍA DIRECTA CON COMPAÑEROS DEL CURSO */}
+          <div className={styles.sidebarMessengerCard}>
+            <div className={styles.messengerCardHeader}>
+              <div className={styles.messengerHeaderTitle}>
+                <IconChat size={18} color="var(--primary)" />
+                <h4>Mensajería del Curso</h4>
+              </div>
+              <span className={styles.chatActiveBadge}>En vivo</span>
+            </div>
+            <p className={styles.messengerCardDesc}>
+              Conéctate y chatea con los estudiantes matriculados en tus mismos cursos y con tu docente.
+            </p>
+            <button
+              type="button"
+              className={styles.btnOpenCourseMessenger}
+              onClick={() => setIsMessengerOpen(true)}
+            >
+              Abrir Chat del Curso
+            </button>
+          </div>
+
           <div className={styles.stickyCalendarBox}>
             <CalendarWidget
               courses={courses}
               userRole="student"
               userId={user?.id}
-              customTitle="Calendario de Clases y Festivos"
+              enrolledCourseIds={user?.enrolledCourses || []}
+              lessonGoals={lessonGoals}
+              tasks={tasks}
+              customTitle="Calendario de Clases Matriculadas"
             />
           </div>
         </aside>
@@ -240,6 +286,20 @@ const StudentDashboard = () => {
           isTeacher={false}
           allCourses={courses}
           onClose={() => setSelectedCourseForSchedule(null)}
+        />
+      )}
+
+      {/* MODAL GENERAL DE TODAS LAS TAREAS CON FILTROS */}
+      {showAllTasksModal && (
+        <AllTasksModal
+          onClose={() => setShowAllTasksModal(false)}
+        />
+      )}
+
+      {/* MODAL DE MENSAJERÍA DEL CURSO */}
+      {isMessengerOpen && (
+        <UnifiedMessenger
+          onClose={() => setIsMessengerOpen(false)}
         />
       )}
 
@@ -256,3 +316,6 @@ const StudentDashboard = () => {
 };
 
 export default StudentDashboard;
+
+
+

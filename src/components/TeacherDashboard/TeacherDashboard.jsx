@@ -1,6 +1,7 @@
 ﻿import React, { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
+import TeacherOverview from './TeacherOverview';
 import StudentMonitor from './StudentMonitor';
 import ContentEditor from './ContentEditor';
 import TeacherCourses from './TeacherCourses';
@@ -9,6 +10,7 @@ import TeacherSettings from './TeacherSettings';
 import CalendarWidget from '../Schedule/CalendarWidget';
 import LessonGoalModal from '../Schedule/LessonGoalModal';
 import {
+  IconLayers,
   IconUsers,
   IconCode,
   IconBook,
@@ -27,7 +29,7 @@ const TeacherDashboard = () => {
   const { user, messages, enablePreview, courses, students } = useApp();
 
   const [searchParams, setSearchParams] = useSearchParams();
-  const initialTab = searchParams.get('tab') || 'monitor';
+  const initialTab = searchParams.get('tab') || 'dashboard';
   const [activeTab, setActiveTabState] = useState(initialTab);
 
   const setActiveTab = (tab) => {
@@ -61,7 +63,20 @@ const TeacherDashboard = () => {
           </div>
         </div>
 
-        <nav className="ribbon-nav">
+                <nav className="ribbon-nav">
+          <button
+            type="button"
+            className={`ribbon-item ${activeTab === 'dashboard' ? 'active' : ''}`}
+            onClick={() => setActiveTab('dashboard')}
+          >
+            <span className="ribbon-icon">
+              <IconLayers size={20} />
+            </span>
+            <div className="ribbon-label">
+              <strong>Dashboard General</strong>
+              <small>Resumen global e indicadores</small>
+            </div>
+          </button>
           <button
             type="button"
             className={`ribbon-item ${activeTab === 'monitor' ? 'active' : ''}`}
@@ -175,6 +190,12 @@ const TeacherDashboard = () => {
 
       {/* ÃREA DE CONTENIDO PRINCIPAL */}
       <main className="teacher-main-viewport">
+        {activeTab === 'dashboard' && (
+          <TeacherOverview
+            onNavigateTab={setActiveTab}
+            onOpenGoalModal={() => setIsGoalModalOpen(true)}
+          />
+        )}
         {activeTab === 'monitor' && <StudentMonitor />}
         {activeTab === 'editor' && <ContentEditor />}
         {activeTab === 'courses' && <TeacherCourses onOpenGoalModal={() => setIsGoalModalOpen(true)} />}
@@ -206,6 +227,8 @@ const TeacherDashboard = () => {
                 courses={courses}
                 userRole="teacher"
                 userId={user?.id}
+                lessonGoals={lessonGoals}
+                tasks={tasks}
                 customTitle="Clases de mis cursos a cargo"
               />
             </div>
@@ -225,4 +248,6 @@ const TeacherDashboard = () => {
 };
 
 export default TeacherDashboard;
+
+
 
