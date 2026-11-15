@@ -1,8 +1,7 @@
-import React, { useState, useRef } from 'react';
+﻿import React, { useState, useRef } from 'react';
 import './ScratchIDE.css';
-import { IconPlay, IconClose } from '../common/Icons';
+import { IconClose } from '../common/Icons';
 
-// Definición oficial de categorías y colores auténticos de Scratch
 export const SCRATCH_CATEGORIES = [
   { id: 'motion', name: 'Movimiento', color: '#4C97FF' },
   { id: 'looks', name: 'Apariencia', color: '#9966FF' },
@@ -11,11 +10,9 @@ export const SCRATCH_CATEGORIES = [
   { id: 'control', name: 'Control', color: '#FFAB19' },
   { id: 'sensing', name: 'Sensores', color: '#5CB1D6' },
   { id: 'operators', name: 'Operadores', color: '#59C059' },
-  { id: 'variables', name: 'Variables', color: '#FF8C1A' },
-  { id: 'myblocks', name: 'Mis Bloques', color: '#FF6680' }
+  { id: 'variables', name: 'Variables', color: '#FF8C1A' }
 ];
 
-// Bloques detallados extraídos de las capturas del usuario
 export const OFFICIAL_BLOCKS = {
   motion: [
     { id: 'm_move', shape: 'stack', text: 'mover', params: [{ id: 'steps', val: '10' }], suffix: 'pasos' },
@@ -23,97 +20,91 @@ export const OFFICIAL_BLOCKS = {
     { id: 'm_turn_left', shape: 'stack', text: 'girar ↶', params: [{ id: 'deg', val: '15' }], suffix: 'grados' },
     { id: 'm_goto_rand', shape: 'stack', text: 'ir a posición aleatoria' },
     { id: 'm_gotoxy', shape: 'stack', text: 'ir a x:', params: [{ id: 'x', val: '0' }], suffix: 'y:', params2: [{ id: 'y', val: '0' }] },
-    { id: 'm_glide', shape: 'stack', text: 'deslizar en', params: [{ id: 'secs', val: '1' }], suffix: 'segs a posición aleatoria' },
     { id: 'm_point_dir', shape: 'stack', text: 'apuntar en dirección', params: [{ id: 'dir', val: '90' }] },
-    { id: 'm_point_towards', shape: 'stack', text: 'apuntar hacia puntero del ratón' },
-    { id: 'm_bounce', shape: 'stack', text: 'si toca un borde, rebotar' },
-    { id: 'm_set_x', shape: 'stack', text: 'dar a x el valor', params: [{ id: 'val', val: '0' }] },
-    { id: 'm_change_x', shape: 'stack', text: 'sumar a x', params: [{ id: 'val', val: '10' }] },
-    { id: 'm_set_y', shape: 'stack', text: 'dar a y el valor', params: [{ id: 'val', val: '0' }] },
-    { id: 'm_change_y', shape: 'stack', text: 'sumar a y', params: [{ id: 'val', val: '10' }] }
+    { id: 'm_bounce', shape: 'stack', text: 'si toca un borde, rebotar' }
   ],
   looks: [
     { id: 'l_say_sec', shape: 'stack', text: 'decir', params: [{ id: 'msg', val: '¡Hola!' }], suffix: 'durante', params2: [{ id: 'sec', val: '2' }], suffix2: 'segundos' },
     { id: 'l_say', shape: 'stack', text: 'decir', params: [{ id: 'msg', val: '¡Hola!' }] },
-    { id: 'l_think_sec', shape: 'stack', text: 'pensar', params: [{ id: 'msg', val: 'Umm...' }], suffix: 'durante', params2: [{ id: 'sec', val: '2' }], suffix2: 'segundos' },
-    { id: 'l_think', shape: 'stack', text: 'pensar', params: [{ id: 'msg', val: 'Umm...' }] },
-    { id: 'l_costume', shape: 'stack', text: 'cambiar disfraz a costume2' },
-    { id: 'l_next_costume', shape: 'stack', text: 'siguiente disfraz' },
-    { id: 'l_change_size', shape: 'stack', text: 'cambiar tamaño por', params: [{ id: 'val', val: '10' }] },
-    { id: 'l_set_size', shape: 'stack', text: 'fijar tamaño al', params: [{ id: 'val', val: '100' }], suffix: '%' },
     { id: 'l_show', shape: 'stack', text: 'mostrar' },
     { id: 'l_hide', shape: 'stack', text: 'esconder' }
   ],
   sound: [
-    { id: 's_play_until', shape: 'stack', text: 'tocar sonido Miau hasta que termine' },
-    { id: 's_play', shape: 'stack', text: 'iniciar sonido Miau' },
-    { id: 's_stop', shape: 'stack', text: 'detener todos los sonidos' },
-    { id: 's_change_vol', shape: 'stack', text: 'cambiar volumen en', params: [{ id: 'val', val: '-10' }] },
-    { id: 's_set_vol', shape: 'stack', text: 'fijar volumen al', params: [{ id: 'val', val: '100' }], suffix: '%' }
+    { id: 's_play_miau', shape: 'stack', text: 'tocar sonido Miau hasta que termine' },
+    { id: 's_stop', shape: 'stack', text: 'detener todos los sonidos' }
   ],
   events: [
     { id: 'e_when_flag', shape: 'hat', text: 'al hacer clic en ⚑' },
     { id: 'e_when_key', shape: 'hat', text: 'al presionar tecla espacio' },
-    { id: 'e_when_click', shape: 'hat', text: 'al hacer clic en este objeto' },
-    { id: 'e_when_backdrop', shape: 'hat', text: 'cuando el fondo cambie a fondo1' },
-    { id: 'e_broadcast', shape: 'stack', text: 'enviar mensaje1' },
-    { id: 'e_broadcast_wait', shape: 'stack', text: 'enviar mensaje1 y esperar' }
+    { id: 'e_when_click', shape: 'hat', text: 'al hacer clic en este objeto' }
   ],
   control: [
     { id: 'c_wait', shape: 'stack', text: 'esperar', params: [{ id: 'sec', val: '1' }], suffix: 'segundos' },
-    { id: 'c_repeat', shape: 'c-block', text: 'repetir', params: [{ id: 'times', val: '10' }] },
-    { id: 'c_forever', shape: 'c-block', text: 'por siempre' },
-    { id: 'c_if', shape: 'c-block', text: 'si <condición> entonces' },
-    { id: 'c_if_else', shape: 'c-block', text: 'si <condición> entonces / si no' },
-    { id: 'c_wait_until', shape: 'stack', text: 'esperar hasta que <condición>' },
+    { id: 'c_repeat', shape: 'c-block', text: 'repetir', params: [{ id: 'times', val: '10' }], body: [] },
+    { id: 'c_forever', shape: 'c-block', text: 'por siempre', body: [] },
+    { id: 'c_if', shape: 'c-block', text: 'si', hasCondition: true, condition: null, suffix: 'entonces', body: [] },
+    { id: 'c_if_else', shape: 'e-block', text: 'si', hasCondition: true, condition: null, suffix: 'entonces', body: [], elseBody: [] },
     { id: 'c_stop', shape: 'stack', text: 'detener todos' }
   ],
   sensing: [
     { id: 'sn_touch_mouse', shape: 'boolean', text: '¿tocando el puntero del ratón?' },
-    { id: 'sn_touch_color', shape: 'boolean', text: '¿tocando el color verde?' },
-    { id: 'sn_ask', shape: 'stack', text: 'preguntar ¿Cómo te llamas? y esperar' },
-    { id: 'sn_answer', shape: 'reporter', text: 'respuesta' },
     { id: 'sn_key_pressed', shape: 'boolean', text: '¿tecla espacio presionada?' },
     { id: 'sn_mouse_x', shape: 'reporter', text: 'posición x del ratón' },
     { id: 'sn_mouse_y', shape: 'reporter', text: 'posición y del ratón' }
   ],
   operators: [
-    { id: 'op_add', shape: 'reporter', text: '( ) + ( )' },
-    { id: 'op_sub', shape: 'reporter', text: '( ) - ( )' },
-    { id: 'op_mul', shape: 'reporter', text: '( ) * ( )' },
-    { id: 'op_div', shape: 'reporter', text: '( ) / ( )' },
-    { id: 'op_random', shape: 'reporter', text: 'número aleatorio entre (1) y (10)' },
-    { id: 'op_gt', shape: 'boolean', text: '( ) > 50' },
-    { id: 'op_lt', shape: 'boolean', text: '( ) < 50' },
-    { id: 'op_eq', shape: 'boolean', text: '( ) = 50' },
-    { id: 'op_and', shape: 'boolean', text: '< > y < >' },
-    { id: 'op_or', shape: 'boolean', text: '< > o < >' },
-    { id: 'op_not', shape: 'boolean', text: 'no < >' },
-    { id: 'op_join', shape: 'reporter', text: 'unir manzana plátano' }
+    { id: 'op_add', shape: 'reporter', text: '', isOp: true, op: '+', leftVal: '', rightVal: '' },
+    { id: 'op_sub', shape: 'reporter', text: '', isOp: true, op: '-', leftVal: '', rightVal: '' },
+    { id: 'op_mul', shape: 'reporter', text: '', isOp: true, op: '*', leftVal: '', rightVal: '' },
+    { id: 'op_div', shape: 'reporter', text: '', isOp: true, op: '/', leftVal: '', rightVal: '' },
+    { id: 'op_random', shape: 'reporter', text: 'elegir número al azar entre', params: [{ id: 'min', val: '1' }], suffix: 'y', params2: [{ id: 'max', val: '10' }] },
+    { id: 'op_gt', shape: 'boolean', text: '', isCmp: true, cmp: '>', leftVal: '', rightVal: '50' },
+    { id: 'op_lt', shape: 'boolean', text: '', isCmp: true, cmp: '<', leftVal: '', rightVal: '50' },
+    { id: 'op_eq', shape: 'boolean', text: '', isCmp: true, cmp: '=', leftVal: '', rightVal: '50' },
+    { id: 'op_and', shape: 'boolean', text: '', isLogic: true, logic: 'y' },
+    { id: 'op_or', shape: 'boolean', text: '', isLogic: true, logic: 'o' },
+    { id: 'op_not', shape: 'boolean', text: 'no', isLogic: true }
   ],
   variables: [
-    { id: 'v_val', shape: 'reporter', text: 'mi variable' },
-    { id: 'v_set', shape: 'stack', text: 'dar a mi variable el valor', params: [{ id: 'v', val: '0' }] },
-    { id: 'v_change', shape: 'stack', text: 'sumar a mi variable', params: [{ id: 'v', val: '1' }] },
-    { id: 'v_show', shape: 'stack', text: 'mostrar variable mi variable' },
-    { id: 'v_hide', shape: 'stack', text: 'esconder variable mi variable' }
-  ],
-  myblocks: [
-    { id: 'mb_custom', shape: 'hat', text: 'definir bloque personalizado' }
+    { id: 'v_my_var', shape: 'reporter', text: 'mi variable' },
+    { id: 'v_set_var', shape: 'stack', text: 'dar a mi variable el valor', params: [{ id: 'val', val: '0' }] },
+    { id: 'v_change_var', shape: 'stack', text: 'sumar a mi variable', params: [{ id: 'val', val: '1' }] }
   ]
 };
 
-const ScratchIDE = ({ lessonData = {} }) => {
-  const [activeCategory, setActiveCategory] = useState('motion');
-  const [workspaceBlocks, setWorkspaceBlocks] = useState([]);
-  const [zoom, setZoom] = useState(1);
-  const [draggingBlock, setDraggingBlock] = useState(null);
+const ScratchIDE = () => {
+  const [activeCategory, setActiveCategory] = useState('events');
+  const [workspaceBlocks, setWorkspaceBlocks] = useState([
+    {
+      instanceId: 'inst_start_flag',
+      id: 'e_when_flag',
+      shape: 'hat',
+      text: 'al hacer clic en ⚑',
+      color: '#FFBF00',
+      x: 60,
+      y: 40
+    },
+    {
+      instanceId: 'inst_start_move',
+      id: 'm_move',
+      shape: 'stack',
+      text: 'mover',
+      color: '#4C97FF',
+      params: [{ id: 'steps', val: '10' }],
+      suffix: 'pasos',
+      x: 60,
+      y: 95
+    }
+  ]);
 
-  // Estados fieles de simulación del gato de Scratch
+  const [zoom, setZoom] = useState(1);
+  const [activeDragId, setActiveDragId] = useState(null);
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+
   const [catState, setCatState] = useState({
     x: 0,
     y: 0,
-    direction: 90, // 90° = apuntando a la derecha
+    direction: 90,
     visible: true,
     size: 100,
     saying: '',
@@ -125,84 +116,178 @@ const ScratchIDE = ({ lessonData = {} }) => {
   const curCat = SCRATCH_CATEGORIES.find(c => c.id === activeCategory) || SCRATCH_CATEGORIES[0];
   const categoryBlocks = OFFICIAL_BLOCKS[activeCategory] || [];
 
-  // Drag and drop desde la paleta
-  const handlePaletteDragStart = (e, b) => {
-    setDraggingBlock({
-      ...b,
-      instanceId: `inst-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
+  // ARRASTRE DESDE LA PALETA DE BLOQUES
+  const handlePaletteDragStart = (e, block) => {
+    e.dataTransfer.setData('text/plain', JSON.stringify({
+      ...block,
       color: curCat.color,
-      x: 30,
-      y: 30
-    });
-    e.dataTransfer.effectAllowed = 'copy';
+      isNew: true
+    }));
   };
 
+  // SOLTAR EN EL CANVAS O DENTRO DE UNA RANURA C/E
   const handleCanvasDrop = (e) => {
     e.preventDefault();
-    if (!draggingBlock) return;
+    const rawData = e.dataTransfer.getData('text/plain');
+    if (!rawData) return;
 
-    const rect = canvasRef.current.getBoundingClientRect();
-    const dropX = (e.clientX - rect.left) / zoom;
-    const dropY = (e.clientY - rect.top) / zoom;
+    try {
+      const data = JSON.parse(rawData);
+      if (data.isNew) {
+        const rect = canvasRef.current.getBoundingClientRect();
+        const dropX = Math.round((e.clientX - rect.left) / zoom);
+        const dropY = Math.round((e.clientY - rect.top) / zoom);
 
-    // COMPORTAMIENTO MAGNÉTICO: Si se suelta cerca del final de una pila previa, se acopla magnéticamente
-    let finalX = dropX;
-    let finalY = dropY;
+        // IMÁN MAGNÉTICO: Si se suelta cerca del último bloque, encajar verticalmente
+        let finalX = dropX;
+        let finalY = dropY;
 
-    if (workspaceBlocks.length > 0) {
-      const lastBlock = workspaceBlocks[workspaceBlocks.length - 1];
-      const dist = Math.hypot(dropX - lastBlock.x, dropY - (lastBlock.y + 44));
-      if (dist < 40) {
-        finalX = lastBlock.x;
-        finalY = lastBlock.y + 44;
+        if (workspaceBlocks.length > 0 && data.shape !== 'reporter' && data.shape !== 'boolean') {
+          const last = workspaceBlocks[workspaceBlocks.length - 1];
+          const dist = Math.hypot(dropX - last.x, dropY - (last.y + 44));
+          if (dist < 50) {
+            finalX = last.x;
+            finalY = last.y + 46;
+          }
+        }
+
+        const newInst = {
+          ...data,
+          instanceId: 'inst_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+          x: finalX,
+          y: finalY,
+          body: data.body ? [] : undefined,
+          elseBody: data.elseBody ? [] : undefined,
+          condition: data.condition || null
+        };
+
+        setWorkspaceBlocks(prev => [...prev, newInst]);
       }
+    } catch (err) {
+      console.warn('Error al soltar bloque:', err);
     }
-
-    const updated = workspaceBlocks.filter(b => b.instanceId !== draggingBlock.instanceId);
-    setWorkspaceBlocks([...updated, { ...draggingBlock, x: finalX, y: finalY }]);
-    setDraggingBlock(null);
   };
 
   const handleCanvasDragOver = (e) => {
     e.preventDefault();
   };
 
+  // MOVILIDAD LIBRE DE BLOQUES DENTRO DE LA MESA DE TRABAJO (Drag & Move en Canvas)
+  const handleBlockMouseDown = (e, instId) => {
+    if (e.target.tagName === 'INPUT' || e.target.closest('button')) return;
+    e.stopPropagation();
+
+    const targetBlock = workspaceBlocks.find(b => b.instanceId === instId);
+    if (!targetBlock) return;
+
+    const rect = canvasRef.current.getBoundingClientRect();
+    const mouseX = (e.clientX - rect.left) / zoom;
+    const mouseY = (e.clientY - rect.top) / zoom;
+
+    setActiveDragId(instId);
+    setDragOffset({
+      x: mouseX - targetBlock.x,
+      y: mouseY - targetBlock.y
+    });
+  };
+
+  const handleCanvasMouseMove = (e) => {
+    if (!activeDragId) return;
+    const rect = canvasRef.current.getBoundingClientRect();
+    const mouseX = (e.clientX - rect.left) / zoom;
+    const mouseY = (e.clientY - rect.top) / zoom;
+
+    let newX = Math.round(mouseX - dragOffset.x);
+    let newY = Math.round(mouseY - dragOffset.y);
+
+    // Detección magnética con otros bloques
+    workspaceBlocks.forEach(other => {
+      if (other.instanceId !== activeDragId && other.shape !== 'reporter' && other.shape !== 'boolean') {
+        const dist = Math.hypot(newX - other.x, newY - (other.y + 46));
+        if (dist < 28) {
+          newX = other.x;
+          newY = other.y + 46;
+        }
+      }
+    });
+
+    setWorkspaceBlocks(prev =>
+      prev.map(b => b.instanceId === activeDragId ? { ...b, x: newX, y: newY } : b)
+    );
+  };
+
+  const handleCanvasMouseUp = () => {
+    setActiveDragId(null);
+  };
+
   const removeBlock = (instId) => {
     setWorkspaceBlocks(prev => prev.filter(b => b.instanceId !== instId));
   };
 
-  // EJECUCIÓN FIEL SEGÚN REGLAS DE SCRATCH
+  // INSERCIÓN DE CÁPSULAS DENTRO DE RANURAS C/E O ENTRADAS
+  const handleSlotDrop = (e, targetBlockId, targetSlot) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const rawData = e.dataTransfer.getData('text/plain');
+    if (!rawData) return;
+    try {
+      const data = JSON.parse(rawData);
+      setWorkspaceBlocks(prev => prev.map(b => {
+        if (b.instanceId === targetBlockId) {
+          if (targetSlot === 'condition') {
+            return { ...b, condition: data.text || data.id };
+          }
+          if (targetSlot === 'body') {
+            const nested = { ...data, instanceId: 'inst_n_' + Date.now() };
+            return { ...b, body: [...(b.body || []), nested] };
+          }
+          if (targetSlot === 'elseBody') {
+            const nested = { ...data, instanceId: 'inst_ne_' + Date.now() };
+            return { ...b, elseBody: [...(b.elseBody || []), nested] };
+          }
+        }
+        return b;
+      }));
+    } catch (err) {
+      console.warn('Error en inserción en ranura:', err);
+    }
+  };
+
+  // EJECUCIÓN OFICIAL DE SCRATCH CON MOVIMIENTO, GIROS Y BUCLES
   const handleRunGreenFlag = () => {
     let nextX = catState.x;
     let nextY = catState.y;
     let nextDir = catState.direction;
     let nextSay = '';
 
-    // Ejecutar la secuencia de bloques encadenados
-    workspaceBlocks.forEach(blk => {
-      if (blk.id === 'm_move') {
-        const steps = parseInt(blk.params?.[0]?.val || 10, 10);
-        // Si el gato mira a nextDir (90 = derecha, 0 = arriba, 180 = abajo, -90 = izquierda)
-        const rad = (nextDir - 90) * (Math.PI / 180);
-        nextX += Math.round(steps * Math.cos(rad));
-        nextY += Math.round(steps * Math.sin(rad));
-      } else if (blk.id === 'm_turn_right') {
-        const deg = parseInt(blk.params?.[0]?.val || 15, 10);
-        nextDir = (nextDir + deg) % 360;
-      } else if (blk.id === 'm_turn_left') {
-        const deg = parseInt(blk.params?.[0]?.val || 15, 10);
-        nextDir = (nextDir - deg + 360) % 360;
-      } else if (blk.id === 'm_gotoxy') {
-        nextX = parseInt(blk.params?.[0]?.val || 0, 10);
-        nextY = parseInt(blk.params2?.[0]?.val || 0, 10);
-      } else if (blk.id === 'm_point_dir') {
-        nextDir = parseInt(blk.params?.[0]?.val || 90, 10);
-      } else if (blk.id === 'l_say_sec' || blk.id === 'l_say') {
-        nextSay = blk.params?.[0]?.val || '¡Hola!';
-      }
-    });
+    const executeSeq = (blocks) => {
+      blocks.forEach(blk => {
+        if (blk.id === 'm_move') {
+          const steps = parseInt(blk.params?.[0]?.val || 10, 10);
+          const rad = (nextDir - 90) * (Math.PI / 180);
+          nextX += Math.round(steps * Math.cos(rad));
+          nextY += Math.round(steps * Math.sin(rad));
+        } else if (blk.id === 'm_turn_right') {
+          const deg = parseInt(blk.params?.[0]?.val || 15, 10);
+          nextDir = (nextDir + deg) % 360;
+        } else if (blk.id === 'm_turn_left') {
+          const deg = parseInt(blk.params?.[0]?.val || 15, 10);
+          nextDir = (nextDir - deg + 360) % 360;
+        } else if (blk.id === 'm_gotoxy') {
+          nextX = parseInt(blk.params?.[0]?.val || 0, 10);
+          nextY = parseInt(blk.params2?.[0]?.val || 0, 10);
+        } else if (blk.id === 'm_point_dir') {
+          nextDir = parseInt(blk.params?.[0]?.val || 90, 10);
+        } else if (blk.id === 'l_say_sec' || blk.id === 'l_say') {
+          nextSay = blk.params?.[0]?.val || '¡Hola!';
+        } else if (blk.shape === 'c-block' && blk.body) {
+          executeSeq(blk.body);
+        }
+      });
+    };
 
-    // Límites del escenario de Scratch (-240 a 240 en X, -180 a 180 en Y)
+    executeSeq(workspaceBlocks);
+
     nextX = Math.max(-230, Math.min(230, nextX));
     nextY = Math.max(-170, Math.min(170, nextY));
 
@@ -217,11 +302,7 @@ const ScratchIDE = ({ lessonData = {} }) => {
   };
 
   const handleStopAll = () => {
-    setCatState(prev => ({
-      ...prev,
-      saying: '',
-      isRunning: false
-    }));
+    setCatState(prev => ({ ...prev, saying: '', isRunning: false }));
   };
 
   const handleResetStage = () => {
@@ -238,7 +319,7 @@ const ScratchIDE = ({ lessonData = {} }) => {
 
   return (
     <div className="scratch-pro-ide-wrapper">
-      {/* 1. BARRA LATERAL DE CATEGORÍAS AUTÉNTICAS */}
+      {/* 1. BARRA LATERAL DE CATEGORÍAS */}
       <aside className="scratch-categories-rail">
         {SCRATCH_CATEGORIES.map(cat => (
           <button
@@ -254,7 +335,7 @@ const ScratchIDE = ({ lessonData = {} }) => {
         ))}
       </aside>
 
-      {/* 2. PALETA DE BLOQUES CON FORMA ORIGINAL */}
+      {/* 2. PALETA DE BLOQUES CON FORMAS RÍGIDAS DE SCRATCH */}
       <section className="scratch-blocks-palette-area">
         <div className="palette-section-header" style={{ color: curCat.color }}>
           {curCat.name}
@@ -268,29 +349,69 @@ const ScratchIDE = ({ lessonData = {} }) => {
               draggable
               onDragStart={e => handlePaletteDragStart(e, block)}
             >
-              {/* Orejas de gato / curva superior para sombreros */}
-              {block.shape === 'hat' && <div className="hat-notch-top" style={{ backgroundColor: curCat.color }} />}
               {block.shape !== 'reporter' && block.shape !== 'boolean' && block.shape !== 'hat' && (
                 <div className="puzzle-tab-top" />
               )}
 
-              <div className="block-content-row">
-                <span>{block.text}</span>
-                {(block.params || []).map((p, i) => (
-                  <span key={i} className="block-param-pill">{p.val}</span>
-                ))}
-                {block.suffix && <span>{block.suffix}</span>}
-                {(block.params2 || []).map((p, i) => (
-                  <span key={`p2-${i}`} className="block-param-pill">{p.val}</span>
-                ))}
-                {block.suffix2 && <span>{block.suffix2}</span>}
-              </div>
-
-              {block.shape === 'c-block' && (
-                <div className="c-mouth-inner" />
+              {/* Contenido condicional C / E / Reporter / Stack */}
+              {block.shape === 'c-block' ? (
+                <>
+                  <div className="c-block-header">
+                    <span>{block.text}</span>
+                    {block.hasCondition && (
+                      <span className="block-slot-capsule hex-slot">
+                        {block.condition || '<condición>'}
+                      </span>
+                    )}
+                    {(block.params || []).map((p, i) => (
+                      <span key={i} className="block-param-pill">{p.val}</span>
+                    ))}
+                    {block.suffix && <span>{block.suffix}</span>}
+                  </div>
+                  <div className="c-mouth-inner" style={{ borderColor: curCat.color }}>
+                    <span className="c-mouth-placeholder">bloques dentro</span>
+                  </div>
+                  <div className="c-block-bottom" />
+                </>
+              ) : block.shape === 'e-block' ? (
+                <>
+                  <div className="c-block-header">
+                    <span>si</span>
+                    <span className="block-slot-capsule hex-slot">{'<condición>'}</span>
+                    <span>entonces</span>
+                  </div>
+                  <div className="c-mouth-inner" style={{ borderColor: curCat.color }}>
+                    <span className="c-mouth-placeholder">si es verdadero</span>
+                  </div>
+                  <div className="e-block-middle">
+                    <span>si no</span>
+                  </div>
+                  <div className="e-mouth-inner" style={{ borderColor: curCat.color }}>
+                    <span className="c-mouth-placeholder">si es falso</span>
+                  </div>
+                  <div className="e-block-bottom" />
+                </>
+              ) : block.isOp || block.isCmp ? (
+                <div className="block-content-row">
+                  <span className="block-slot-capsule" />
+                  <span>{block.op || block.cmp}</span>
+                  <span className="block-slot-capsule" />
+                </div>
+              ) : (
+                <div className="block-content-row">
+                  <span>{block.text}</span>
+                  {(block.params || []).map((p, i) => (
+                    <span key={i} className="block-param-pill">{p.val}</span>
+                  ))}
+                  {block.suffix && <span>{block.suffix}</span>}
+                  {(block.params2 || []).map((p, i) => (
+                    <span key={`p2-${i}`} className="block-param-pill">{p.val}</span>
+                  ))}
+                  {block.suffix2 && <span>{block.suffix2}</span>}
+                </div>
               )}
 
-              {block.shape !== 'reporter' && block.shape !== 'boolean' && (
+              {block.shape !== 'reporter' && block.shape !== 'boolean' && block.shape !== 'c-block' && block.shape !== 'e-block' && (
                 <div className="puzzle-tab-bottom" />
               )}
             </div>
@@ -298,7 +419,7 @@ const ScratchIDE = ({ lessonData = {} }) => {
         </div>
       </section>
 
-      {/* 3. ESPACIO DE TRABAJO AMPLIO CON ZOOM Y MAGNÉTICA */}
+      {/* 3. ESPACIO DE TRABAJO AMPLIO (CANVAS CON MOVILIDAD LIBRE Y ENCAJE C/E) */}
       <main className="scratch-workspace-main">
         <div className="workspace-controls-bar">
           <div className="zoom-btn-group">
@@ -317,6 +438,8 @@ const ScratchIDE = ({ lessonData = {} }) => {
           className="scratch-canvas-plane"
           onDrop={handleCanvasDrop}
           onDragOver={handleCanvasDragOver}
+          onMouseMove={handleCanvasMouseMove}
+          onMouseUp={handleCanvasMouseUp}
         >
           <div
             className="canvas-zoom-container"
@@ -324,49 +447,167 @@ const ScratchIDE = ({ lessonData = {} }) => {
           >
             {workspaceBlocks.length === 0 && (
               <div className="empty-workspace-watermark">
-                Arrastra y encadena bloques aquí para programar tu algoritmo
+                Arrastra y encadena bloques aquí. Puedes moverlos libremente en cualquier momento.
               </div>
             )}
 
             {workspaceBlocks.map(inst => (
               <div
                 key={inst.instanceId}
-                className={`workspace-block-placed ${inst.shape}`}
+                className={`workspace-block-placed scratch-block ${inst.shape}`}
                 style={{
                   left: `${inst.x}px`,
                   top: `${inst.y}px`,
                   backgroundColor: inst.color || '#4C97FF'
                 }}
+                onMouseDown={e => handleBlockMouseDown(e, inst.instanceId)}
               >
-                {inst.shape === 'hat' && <div className="hat-notch-top" style={{ backgroundColor: inst.color || '#4C97FF' }} />}
                 {inst.shape !== 'reporter' && inst.shape !== 'boolean' && inst.shape !== 'hat' && (
                   <div className="puzzle-tab-top" />
                 )}
 
-                <div className="block-content-row">
-                  <span>{inst.text}</span>
-                  {(inst.params || []).map((p, i) => (
-                    <input
-                      key={i}
-                      type="text"
-                      className="block-input-param"
-                      defaultValue={p.val}
-                      onClick={e => e.stopPropagation()}
-                    />
-                  ))}
-                  {inst.suffix && <span>{inst.suffix}</span>}
-                </div>
+                {/* Render de Bloque C en Mesa */}
+                {inst.shape === 'c-block' ? (
+                  <>
+                    <div className="c-block-header">
+                      <span>{inst.text}</span>
+                      {inst.hasCondition && (
+                        <div
+                          className="block-slot-capsule hex-slot"
+                          onDrop={e => handleSlotDrop(e, inst.instanceId, 'condition')}
+                          onDragOver={e => e.preventDefault()}
+                        >
+                          {inst.condition || '<condición>'}
+                        </div>
+                      )}
+                      {(inst.params || []).map((p, i) => (
+                        <input
+                          key={i}
+                          type="text"
+                          className="block-input-param"
+                          defaultValue={p.val}
+                          onClick={e => e.stopPropagation()}
+                        />
+                      ))}
+                      {inst.suffix && <span>{inst.suffix}</span>}
+                    </div>
 
-                {inst.shape === 'c-block' && <div className="c-mouth-inner" />}
+                    {/* Ranura expandible que crece al agregar código */}
+                    <div
+                      className="c-mouth-inner"
+                      style={{ borderColor: inst.color || '#FFAB19' }}
+                      onDrop={e => handleSlotDrop(e, inst.instanceId, 'body')}
+                      onDragOver={e => e.preventDefault()}
+                    >
+                      {(!inst.body || inst.body.length === 0) ? (
+                        <span className="c-mouth-placeholder">Arrastra bloques dentro de la ranura</span>
+                      ) : (
+                        inst.body.map((child, idx) => (
+                          <div
+                            key={idx}
+                            className={`scratch-block ${child.shape}`}
+                            style={{ backgroundColor: child.color || '#4C97FF' }}
+                          >
+                            <span>{child.text}</span>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                    <div className="c-block-bottom" />
+                  </>
+                ) : inst.shape === 'e-block' ? (
+                  /* Render de Bloque E en Mesa (si / sino con 2 bocas expandibles) */
+                  <>
+                    <div className="c-block-header">
+                      <span>si</span>
+                      <div
+                        className="block-slot-capsule hex-slot"
+                        onDrop={e => handleSlotDrop(e, inst.instanceId, 'condition')}
+                        onDragOver={e => e.preventDefault()}
+                      >
+                        {inst.condition || '<condición>'}
+                      </div>
+                      <span>entonces</span>
+                    </div>
+                    <div
+                      className="c-mouth-inner"
+                      style={{ borderColor: inst.color || '#FFAB19' }}
+                      onDrop={e => handleSlotDrop(e, inst.instanceId, 'body')}
+                      onDragOver={e => e.preventDefault()}
+                    >
+                      {(!inst.body || inst.body.length === 0) ? (
+                        <span className="c-mouth-placeholder">Si se cumple la condición</span>
+                      ) : (
+                        inst.body.map((child, idx) => (
+                          <div
+                            key={idx}
+                            className={`scratch-block ${child.shape}`}
+                            style={{ backgroundColor: child.color || '#4C97FF' }}
+                          >
+                            <span>{child.text}</span>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                    <div className="e-block-middle">
+                      <span>si no</span>
+                    </div>
+                    <div
+                      className="e-mouth-inner"
+                      style={{ borderColor: inst.color || '#FFAB19' }}
+                      onDrop={e => handleSlotDrop(e, inst.instanceId, 'elseBody')}
+                      onDragOver={e => e.preventDefault()}
+                    >
+                      {(!inst.elseBody || inst.elseBody.length === 0) ? (
+                        <span className="c-mouth-placeholder">Si no se cumple</span>
+                      ) : (
+                        inst.elseBody.map((child, idx) => (
+                          <div
+                            key={idx}
+                            className={`scratch-block ${child.shape}`}
+                            style={{ backgroundColor: child.color || '#4C97FF' }}
+                          >
+                            <span>{child.text}</span>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                    <div className="e-block-bottom" />
+                  </>
+                ) : (
+                  <div className="block-content-row">
+                    <span>{inst.text}</span>
+                    {(inst.params || []).map((p, i) => (
+                      <input
+                        key={i}
+                        type="text"
+                        className="block-input-param"
+                        defaultValue={p.val}
+                        onClick={e => e.stopPropagation()}
+                      />
+                    ))}
+                    {inst.suffix && <span>{inst.suffix}</span>}
+                    {(inst.params2 || []).map((p, i) => (
+                      <input
+                        key={`p2-${i}`}
+                        type="text"
+                        className="block-input-param"
+                        defaultValue={p.val}
+                        onClick={e => e.stopPropagation()}
+                      />
+                    ))}
+                    {inst.suffix2 && <span>{inst.suffix2}</span>}
+                  </div>
+                )}
 
-                {inst.shape !== 'reporter' && inst.shape !== 'boolean' && (
+                {inst.shape !== 'reporter' && inst.shape !== 'boolean' && inst.shape !== 'c-block' && inst.shape !== 'e-block' && (
                   <div className="puzzle-tab-bottom" />
                 )}
 
                 <button
                   type="button"
                   className="btn-delete-block"
-                  onClick={() => removeBlock(inst.instanceId)}
+                  onClick={(e) => { e.stopPropagation(); removeBlock(inst.instanceId); }}
                   title="Eliminar bloque"
                 >
                   <IconClose size={12} />
@@ -377,7 +618,7 @@ const ScratchIDE = ({ lessonData = {} }) => {
         </div>
       </main>
 
-      {/* 4. ESCENARIO DEL GATO OFICIAL Y FÍSICA DE MOVIMIENTO */}
+      {/* 4. ESCENARIO DEL GATO OFICIAL Y TELEMETRÍA */}
       <aside className="scratch-stage-section">
         <div className="stage-control-bar">
           <button
@@ -406,7 +647,6 @@ const ScratchIDE = ({ lessonData = {} }) => {
           </button>
         </div>
 
-        {/* Lienzo del escenario */}
         <div className="stage-screen-canvas">
           <div className="stage-axis-cross">
             <span className="origin-marker">(0, 0)</span>
@@ -421,38 +661,31 @@ const ScratchIDE = ({ lessonData = {} }) => {
                 transform: `translate(-50%, -50%) rotate(${catState.direction - 90}deg) scale(${catState.size / 100})`
               }}
             >
-              {/* Bocadillo de diálogo si el bloque "decir" fue invocado */}
               {catState.saying && (
                 <div className="sprite-speech-bubble">
                   {catState.saying}
                 </div>
               )}
 
-              {/* Dibujo SVG fiel del gato de Scratch */}
               <svg width="48" height="48" viewBox="0 0 100 100" fill="none">
                 <circle cx="50" cy="55" r="32" fill="#FFA500" stroke="#000" strokeWidth="3" />
-                {/* Orejas */}
                 <polygon points="25,32 18,10 40,25" fill="#FFA500" stroke="#000" strokeWidth="3" />
                 <polygon points="75,32 82,10 60,25" fill="#FFA500" stroke="#000" strokeWidth="3" />
-                {/* Ojos */}
                 <ellipse cx="38" cy="50" rx="6" ry="8" fill="#FFFFFF" stroke="#000" strokeWidth="2" />
                 <ellipse cx="62" cy="50" rx="6" ry="8" fill="#FFFFFF" stroke="#000" strokeWidth="2" />
                 <circle cx="40" cy="50" r="3" fill="#000" />
                 <circle cx="64" cy="50" r="3" fill="#000" />
-                {/* Nariz y bigotes */}
                 <polygon points="50,58 46,63 54,63" fill="#FF4081" />
                 <line x1="25" y1="58" x2="10" y2="56" stroke="#000" strokeWidth="2" />
                 <line x1="25" y1="64" x2="10" y2="66" stroke="#000" strokeWidth="2" />
                 <line x1="75" y1="58" x2="90" y2="56" stroke="#000" strokeWidth="2" />
                 <line x1="75" y1="64" x2="90" y2="66" stroke="#000" strokeWidth="2" />
-                {/* Sonrisa */}
                 <path d="M44 68 Q50 74 56 68" stroke="#000" strokeWidth="2" fill="none" />
               </svg>
             </div>
           )}
         </div>
 
-        {/* Telemetría del objeto */}
         <div className="stage-telemetry-bar">
           <span>X: <strong>{catState.x}</strong></span>
           <span>Y: <strong>{catState.y}</strong></span>

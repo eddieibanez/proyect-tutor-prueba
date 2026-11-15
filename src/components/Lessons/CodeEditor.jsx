@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import './CodeEditor.css';
-import { IconPlay, IconTerminal, IconCheck } from '../common/Icons';
+import { IconPlay, IconTerminal } from '../common/Icons';
 
 const GEMINI_API_KEY = import.meta.env.VITE_CHATBOT_API_KEY || import.meta.env.VITE_GEMINI_API_KEY || '';
 
@@ -12,13 +12,14 @@ const CodeEditor = ({ language = 'arduino', initialCode = '', expectedOutput = '
   const [aiGuidance, setAiGuidance] = useState('');
   const [isAiLoading, setIsAiLoading] = useState(false);
 
-  // Estados específicos de simulación visual de Arduino
+  // Estados de simulación de Arduino con cableado y retardos delay(ms)
   const [arduinoState, setArduinoState] = useState({
     ledOn: false,
+    activePin: 13,
     pwmValue: 0,
-    serialLog: [],
     pinsMode: {},
-    pinValues: {}
+    pinValues: {},
+    isSimulatingDelay: false
   });
 
   const textareaRef = useRef(null);
@@ -29,7 +30,7 @@ const CodeEditor = ({ language = 'arduino', initialCode = '', expectedOutput = '
     }
   }, [initialCode]);
 
-  // AUTO-TAB e INDENTACIÓN INTELIGENTE (tras ':' en Python o '{' en C++)
+  // AUTO-TAB E INDENTACIÓN INTELIGENTE
   const getAutoIndent = (value, selectionStart) => {
     const lines = value.substring(0, selectionStart).split('\n');
     const lastLine = lines[lines.length - 1] || '';
@@ -37,12 +38,11 @@ const CodeEditor = ({ language = 'arduino', initialCode = '', expectedOutput = '
     let indent = indentMatch ? indentMatch[1] : '';
     const trimmed = lastLine.trimEnd();
     if (trimmed.endsWith(':') || trimmed.endsWith('{')) {
-      indent += '    '; // 4 espacios
+      indent += '    ';
     }
     return indent;
   };
 
-  // MANEJO DE TECLAS: Tabulación, Auto-cierre de comillas y llaves
   const handleKeyDown = (e) => {
     const ta = e.target;
     const { selectionStart, selectionEnd, value } = ta;
@@ -68,7 +68,6 @@ const CodeEditor = ({ language = 'arduino', initialCode = '', expectedOutput = '
       return;
     }
 
-    // Auto-cierre de pares: (), [], {}, "", ''
     const openClosePairs = {
       '(': ')',
       '[': ']',
@@ -78,115 +77,119 @@ const CodeEditor = ({ language = 'arduino', initialCode = '', expectedOutput = '
     };
 
     if (openClosePairs[e.key]) {
-      // Si el carácter siguiente ya es la comilla o cierre y se pulsa de nuevo, avanzar cursor
-      if (value[selectionStart] === e.key && (e.key === '"' || e.key === "'")) {
+      const closingChar = openClosePairs[e.key];
+      if (selectionStart === selectionEnd) {
         e.preventDefault();
-        ta.selectionStart = ta.selectionEnd = selectionStart + 1;
-        return;
+        const updated = value.substring(0, selectionStart) + e.key + closingChar + value.substring(selectionEnd);
+        setCode(updated);
+        setTimeout(() => {
+          ta.selectionStart = ta.selectionEnd = selectionStart + 1;
+        }, 0);
       }
-
-      e.preventDefault();
-      const closing = openClosePairs[e.key];
-      const selected = value.substring(selectionStart, selectionEnd);
-      const updated = value.substring(0, selectionStart) + e.key + selected + closing + value.substring(selectionEnd);
-      setCode(updated);
-      setTimeout(() => {
-        ta.selectionStart = ta.selectionEnd = selectionStart + 1;
-      }, 0);
-      return;
     }
   };
 
-  // SIMULADOR DE ARDUINO SEGÚN ARDUINO API REFERENCE
-  const simulateArduino = (src) => {
-    const lines = [];
-    let isLedOn = false;
-    let pwm = 0;
-    const currentPins = {};
-    const pinModes = {};
+  // VALIDACIÓN ESTRICTA DE SINTAXIS ARDUINO C++ (Case-sensitive y detección de línea)
+  const validateArduinoStrict = (src) => {
+    const lines = src.split('\n');
+    const errors = [];
 
-    // 1. Verificación básica de estructura (setup y loop)
+    // Errores tipográficos comunes en Arduino API Reference
+    const casingChecks = [
+      { bad: /\bpinmode\b/i, correct: 'pinMode', rxCorrect: /\bpinMode\b/ },
+      { bad: /\bdigitalwrite\b/i, correct: 'digitalWrite', rxCorrect: /\bdigitalWrite\b/ },
+      { bad: /\bdigitalread\b/i, correct: 'digitalRead', rxCorrect: /\bdigitalRead\b/ },
+      { bad: /\banalogwrite\b/i, correct: 'analogWrite', rxCorrect: /\banalogWrite\b/ },
+      { bad: /\banalogread\b/i, correct: 'analogRead', rxCorrect: /\banalogRead\b/ },
+      { bad: /\bserial\.print/i, correct: 'Serial.print', rxCorrect: /\bSerial\.print/ },
+      { bad: /\bserial\.println/i, correct: 'Serial.println', rxCorrect: /\bSerial\.println/ },
+      { bad: /\bserial\.begin/i, correct: 'Serial.begin', rxCorrect: /\bSerial\.begin/ },
+      { bad: /\bhigh\b/i, correct: 'HIGH', rxCorrect: /\bHIGH\b/ },
+      { bad: /\blow\b/i, correct: 'LOW', rxCorrect: /\bLOW\b/ },
+      { bad: /\boutput\b/i, correct: 'OUTPUT', rxCorrect: /\bOUTPUT\b/ },
+      { bad: /\binput\b/i, correct: 'INPUT', rxCorrect: /\bINPUT\b/ }
+    ];
+
+    lines.forEach((lineText, idx) => {
+      const lineNum = idx + 1;
+      const trimmed = lineText.trim();
+      if (!trimmed || trimmed.startsWith('//') || trimmed.startsWith('/*')) return;
+
+      casingChecks.forEach(chk => {
+        if (chk.bad.test(trimmed) && !chk.rxCorrect.test(trimmed)) {
+          errors.push(`sketch.ino:${lineNum}:error: identificador no declarado en este ámbito; ¿quisiste decir '${chk.correct}'?`);
+        }
+      });
+
+      // Verificación de punto y coma en instrucciones C++
+      if (
+        (trimmed.startsWith('pinMode') || trimmed.startsWith('digitalWrite') || trimmed.startsWith('analogWrite') || trimmed.startsWith('delay') || trimmed.startsWith('Serial.')) &&
+        !trimmed.endsWith(';') && !trimmed.endsWith('{')
+      ) {
+        errors.push(`sketch.ino:${lineNum}:error: falta ';' al final de la instrucción.`);
+      }
+    });
+
     if (!src.includes('void setup') || !src.includes('void loop')) {
+      errors.unshift("sketch.ino:1:error: Arduino requiere obligatoriamente las funciones 'void setup()' y 'void loop()'.");
+    }
+
+    return errors;
+  };
+
+  // SIMULADOR ARDUINO CON EJECUCIÓN TEMPORIZADA DE DELAY(MS)
+  const simulateArduinoWithDelay = async (src) => {
+    const errors = validateArduinoStrict(src);
+    if (errors.length > 0) {
       return {
-        output: '[ERROR DE COMPILACIÓN] Arduino C++ requiere obligatoriamente las funciones void setup() y void loop().',
         success: false,
-        state: { ledOn: false, pwmValue: 0 }
+        output: errors.join('\n')
       };
     }
 
-    // 2. pinMode(...)
-    const pinMatches = src.match(/pinMode\s*\(\s*(\w+)\s*,\s*(\w+)\s*\)/g) || [];
-    pinMatches.forEach(m => {
-      const parts = m.match(/pinMode\s*\(\s*(\w+)\s*,\s*(\w+)\s*\)/);
-      if (parts) {
-        pinModes[parts[1]] = parts[2];
-        lines.push(`[GPIO] pinMode(${parts[1]}, ${parts[2]}) configurado.`);
-      }
-    });
+    const logs = [];
+    logs.push('[Compilador AVR-GCC] Compilado sin errores.');
+    logs.push('[Arduino Hardware] Cargando binario a memoria flash...');
 
-    // 3. Serial.begin(...)
-    if (src.includes('Serial.begin')) {
-      lines.push('[Serial] Comunicación UART inicializada.');
+    // Detectar pin configurado
+    let activePin = 13;
+    const pmMatch = src.match(/pinMode\s*\(\s*(\w+)\s*,\s*OUTPUT\s*\)/);
+    if (pmMatch && !isNaN(pmMatch[1])) {
+      activePin = parseInt(pmMatch[1], 10);
+      logs.push(`[GPIO] Pin ${activePin} configurado como OUTPUT.`);
     }
 
-    // 4. Serial.print / Serial.println
-    const serialPrints = src.match(/Serial\.print(ln)?\s*\(\s*([^)]*)\s*\)/g) || [];
-    serialPrints.forEach(sp => {
-      const p = sp.match(/Serial\.print(ln)?\s*\(\s*([^)]*)\s*\)/);
-      if (p && p[2]) {
-        let clean = p[2].trim();
-        if ((clean.startsWith('"') && clean.endsWith('"')) || (clean.startsWith("'") && clean.endsWith("'"))) {
-          clean = clean.slice(1, -1);
-        }
-        lines.push(`[Serial Monitor] ${clean}`);
-      }
-    });
-
-    // 5. digitalWrite(...)
-    const dWrites = src.match(/digitalWrite\s*\(\s*(\w+)\s*,\s*(\w+)\s*\)/g) || [];
-    dWrites.forEach(dw => {
-      const parts = dw.match(/digitalWrite\s*\(\s*(\w+)\s*,\s*(\w+)\s*\)/);
-      if (parts) {
-        const pin = parts[1];
-        const val = parts[2].toUpperCase();
-        currentPins[pin] = val;
-        if (pin === '13' || pin === 'LED_BUILTIN') {
-          isLedOn = val === 'HIGH' || val === '1';
-        }
-        lines.push(`[Digital Output] Pin ${pin} -> ${val}`);
-      }
-    });
-
-    // 6. analogWrite(...)
-    const aWrites = src.match(/analogWrite\s*\(\s*(\w+)\s*,\s*([0-9]+)\s*\)/g) || [];
-    aWrites.forEach(aw => {
-      const parts = aw.match(/analogWrite\s*\(\s*(\w+)\s*,\s*([0-9]+)\s*\)/);
-      if (parts) {
-        pwm = parseInt(parts[2], 10);
-        lines.push(`[PWM Output] Pin ${parts[1]} ciclo de trabajo: ${pwm}/255 (${Math.round((pwm/255)*100)}%)`);
-      }
-    });
-
-    // 7. delay(...)
-    const delays = src.match(/delay\s*\(\s*([0-9]+)\s*\)/g) || [];
-    if (delays.length > 0) {
-      lines.push(`[Timer] delay ejecutado correctamente.`);
+    // Parsear delays
+    const delayMatches = src.match(/delay\s*\(\s*([0-9]+)\s*\)/g) || [];
+    let delayMs = 1000;
+    if (delayMatches.length > 0) {
+      const dVal = delayMatches[0].match(/delay\s*\(\s*([0-9]+)\s*\)/);
+      if (dVal && dVal[1]) delayMs = parseInt(dVal[1], 10);
     }
 
-    lines.push('[OK] Simulación y compilación Arduino C++ completada.');
+    // Simular secuencia de parpadeo con retardo real
+    setArduinoState(prev => ({ ...prev, activePin, ledOn: true, isSimulatingDelay: true }));
+    logs.push(`[Circuito] Pin ${activePin} -> HIGH (LED Encendido)`);
+    logs.push(`[Temporizador] delay(${delayMs}ms) en ejecución...`);
+    setOutput(logs.join('\n'));
+
+    // Espera real proporcional al delay (acotada entre 500ms y 2500ms para UX fluida)
+    const waitTime = Math.min(2500, Math.max(500, delayMs));
+    await new Promise(res => setTimeout(res, waitTime));
+
+    setArduinoState(prev => ({ ...prev, ledOn: false, isSimulatingDelay: false }));
+    logs.push(`[Circuito] Pin ${activePin} -> LOW (LED Apagado)`);
+    logs.push(`[OK] Ciclo de simulación Arduino completado con éxito.`);
 
     return {
-      output: lines.join('\n'),
       success: true,
-      state: { ledOn: isLedOn, pwmValue: pwm, pinsMode: pinModes, pinValues: currentPins }
+      output: logs.join('\n')
     };
   };
 
   // SIMULADOR DE PYTHON
   const simulatePython = (src) => {
     const lines = [];
-
-    // Validar sangría básica si hay dos puntos
     const codeLines = src.split('\n');
     for (let i = 0; i < codeLines.length - 1; i++) {
       if (codeLines[i].trim().endsWith(':')) {
@@ -200,7 +203,6 @@ const CodeEditor = ({ language = 'arduino', initialCode = '', expectedOutput = '
       }
     }
 
-    // print(...)
     const prints = src.match(/print\s*\(([^)]*)\)/g) || [];
     prints.forEach(p => {
       const inner = p.replace(/^print\s*\(/, '').replace(/\)$/, '').trim();
@@ -223,17 +225,22 @@ const CodeEditor = ({ language = 'arduino', initialCode = '', expectedOutput = '
     };
   };
 
-  // ASISTENCIA SOCRÁTICA DE IA EN CONSOLA (Llama a Gemini API para guiar en caso de error o duda)
+  // ASISTENCIA SOCRÁTICA CON GEMINI API
   const callGeminiForGuidance = async (execOutput) => {
     if (!GEMINI_API_KEY) return;
     setIsAiLoading(true);
     try {
-      const prompt = 'Eres un tutor pedagogico de programacion.\n' +
-        'El estudiante ejecuto este codigo en ' + language.toUpperCase() + ':\n' +
-        code + '\n\n' +
-        'Salida obtenida en consola:\n' + execOutput + '\n\n' +
-        'Instrucciones de la leccion:\n' + (lessonData?.practice?.instructions || 'Realizar el ejercicio.') + '\n\n' +
-        'REGLAS: 1) NUNCA des la solucion completa. 2) Explica en maximo 2 frases claras. 3) Haz una pregunta guia.';
+      const prompt = `Eres un tutor pedagógico de programación.
+El estudiante ejecutó este código en ${language.toUpperCase()}:
+${code}
+
+Salida/Error en consola:
+${execOutput}
+
+REGLAS:
+1) NUNCA des el código resuelto completo.
+2) Explica el error exacto en 2 oraciones sencillas en español.
+3) Haz una pregunta guía socrática para que el estudiante lo corrija.`;
 
       const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
         method: 'POST',
@@ -250,35 +257,36 @@ const CodeEditor = ({ language = 'arduino', initialCode = '', expectedOutput = '
         setAiGuidance(text || '');
       }
     } catch (e) {
-      console.warn('Error en tutor IA de consola:', e);
+      console.warn('Tutor IA:', e);
     } finally {
       setIsAiLoading(false);
     }
   };
 
-  const handleRun = () => {
+  const handleRun = async () => {
     setIsRunning(true);
-    setOutput(`Compilando y ejecutando en entorno ${language.toUpperCase()}...`);
+    setOutput(`[Compilador] Iniciando verificación de código...`);
     setAiGuidance('');
 
-    setTimeout(() => {
-      let result;
-      if (language === 'arduino') {
-        result = simulateArduino(code);
-        setArduinoState(prev => ({ ...prev, ...result.state }));
-      } else {
-        result = simulatePython(code);
-      }
-
+    if (language === 'arduino') {
+      const result = await simulateArduinoWithDelay(code);
       setOutput(result.output);
       setIsSuccess(result.success);
       setIsRunning(false);
-
-      // Si falla o no coincide con la salida esperada, solicitar orientación socrática de la IA
-      if (!result.success || (expectedOutput && !result.output.includes(expectedOutput.trim()))) {
+      if (!result.success) {
         callGeminiForGuidance(result.output);
       }
-    }, 500);
+    } else {
+      setTimeout(() => {
+        const result = simulatePython(code);
+        setOutput(result.output);
+        setIsSuccess(result.success);
+        setIsRunning(false);
+        if (!result.success || (expectedOutput && !result.output.includes(expectedOutput.trim()))) {
+          callGeminiForGuidance(result.output);
+        }
+      }, 400);
+    }
   };
 
   const handleReset = () => {
@@ -286,7 +294,7 @@ const CodeEditor = ({ language = 'arduino', initialCode = '', expectedOutput = '
     setOutput('');
     setIsSuccess(false);
     setAiGuidance('');
-    setArduinoState({ ledOn: false, pwmValue: 0, serialLog: [], pinsMode: {}, pinValues: {} });
+    setArduinoState({ ledOn: false, activePin: 13, pwmValue: 0, pinsMode: {}, pinValues: {}, isSimulatingDelay: false });
   };
 
   const linesList = (code || '').split('\n');
@@ -294,21 +302,17 @@ const CodeEditor = ({ language = 'arduino', initialCode = '', expectedOutput = '
 
   return (
     <div className="vscode-editor-wrapper">
-      {/* 1. BARRA DE PESTAÑAS ESTILO VS CODE */}
+      {/* 1. BARRA DE PESTAÑAS */}
       <div className="vscode-titlebar">
         <div className="vscode-tabs-bar">
           <div className="vscode-tab active">
-            <span className="file-icon-badge">
-              {language === 'python' ? '🐍' : '⚡'}
-            </span>
-            <span className="tab-filename">
-              {language === 'python' ? 'main.py' : 'sketch.ino'}
-            </span>
+            <span className="file-icon-badge">{language === 'python' ? '🐍' : '⚡'}</span>
+            <span className="tab-filename">{language === 'python' ? 'main.py' : 'sketch.ino'}</span>
           </div>
         </div>
 
         <div className="vscode-toolbar-actions">
-          <button type="button" className="vsc-btn secondary" onClick={handleReset} title="Restablecer código inicial">
+          <button type="button" className="vsc-btn secondary" onClick={handleReset} title="Restablecer">
             Restablecer
           </button>
           <button
@@ -316,15 +320,15 @@ const CodeEditor = ({ language = 'arduino', initialCode = '', expectedOutput = '
             className={`vsc-btn run ${isRunning ? 'running' : ''}`}
             onClick={handleRun}
             disabled={isRunning}
-            title="Compilar y Simular Código"
+            title="Compilar y Simular"
           >
             <IconPlay size={14} />
-            <span>{isRunning ? 'Compilando...' : 'Ejecutar'}</span>
+            <span>{isRunning ? 'Ejecutando...' : 'Ejecutar'}</span>
           </button>
         </div>
       </div>
 
-      {/* 2. ÁREA DE CODIFICACIÓN (LÍNEAS + TEXTAREA) */}
+      {/* 2. ÁREA DE CODIFICACIÓN + CIRCUITO REALISTA */}
       <div className="vscode-editor-body">
         <div className="vscode-line-numbers">
           {Array.from({ length: Math.max(lineCount, 1) }, (_, i) => (
@@ -338,33 +342,85 @@ const CodeEditor = ({ language = 'arduino', initialCode = '', expectedOutput = '
           onChange={e => setCode(e.target.value)}
           onKeyDown={handleKeyDown}
           spellCheck="false"
-          autoCorrect="off"
-          autoCapitalize="off"
           placeholder={
             language === 'python'
-              ? '# Código Python\ndef main():\n    print("Hola Mundo")\n\nmain()'
-              : '// Código C++ Arduino\nvoid setup() {\n  pinMode(13, OUTPUT);\n}\n\nvoid loop() {\n  digitalWrite(13, HIGH);\n  delay(1000);\n}'
+              ? '# Codigo Python\ndef main():\n    print("Hola Mundo")\n\nmain()'
+              : '// Codigo Arduino C++\nvoid setup() {\n  pinMode(13, OUTPUT);\n}\n\nvoid loop() {\n  digitalWrite(13, HIGH);\n  delay(1000);\n  digitalWrite(13, LOW);\n  delay(1000);\n}'
           }
         />
 
-        {/* SIMULADOR EN TIEMPO REAL PARA ARDUINO */}
+        {/* SIMULADOR DE CIRCUITO REALISTA CON CABLEADO Y BREADBOARD */}
         {language === 'arduino' && (
           <div className="arduino-live-sim-panel">
-            <div className="sim-panel-title">Microcontrolador y Hardware</div>
-            <div className="board-representation">
-              <div className="mcu-chip">ATmega328P</div>
-              <div className="led-indicator-box">
-                <div className={`led-bulb ${arduinoState.ledOn ? 'on' : 'off'}`} />
-                <span>Pin 13 (LED): {arduinoState.ledOn ? 'ENCENDIDO' : 'APAGADO'}</span>
-              </div>
-              {arduinoState.pwmValue > 0 && (
-                <div className="pwm-indicator-box">
-                  <span>PWM: {arduinoState.pwmValue} / 255</span>
-                  <div className="pwm-bar-bg">
-                    <div className="pwm-bar-fill" style={{ width: `${(arduinoState.pwmValue/255)*100}%` }} />
-                  </div>
-                </div>
-              )}
+            <div className="sim-panel-title">Circuito y Conexiones Físicas</div>
+
+            {/* DIAGRAMA SVG DE CABLEADO EXACTO */}
+            <div className="circuit-svg-container">
+              <svg width="100%" height="100%" viewBox="0 0 300 130">
+                {/* Placa Arduino Uno */}
+                <rect x="10" y="20" width="100" height="90" rx="4" fill="#00878F" stroke="#005A60" strokeWidth="2" />
+                <text x="25" y="40" fill="#fff" fontSize="10" fontWeight="bold">ARDUINO UNO</text>
+                <rect x="20" y="55" width="25" height="40" fill="#222" />
+                <text x="24" y="80" fill="#aaa" fontSize="7">ATmega</text>
+
+                {/* Pin Digital */}
+                <circle cx="100" cy="35" r="4" fill="#FFD700" />
+                <text x="80" y="32" fill="#fff" fontSize="8">Pin {arduinoState.activePin}</text>
+
+                {/* Pin GND */}
+                <circle cx="100" cy="55" r="4" fill="#333" stroke="#fff" strokeWidth="1" />
+                <text x="75" y="68" fill="#fff" fontSize="8">GND</text>
+
+                {/* Cable Positivo (Rojo) del Pin seleccionado al LED */}
+                <path
+                  d={`M 100 35 C 150 20, 180 30, 210 45`}
+                  fill="none"
+                  stroke="#FF3333"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                />
+
+                {/* Cable Negativo (Negro) de GND a Resistencia */}
+                <path
+                  d={`M 100 55 C 140 75, 170 85, 210 85`}
+                  fill="none"
+                  stroke="#111111"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                />
+
+                {/* Protoboard / Módulo LED */}
+                <rect x="200" y="25" width="85" height="80" rx="6" fill="#f0f0f0" stroke="#ccc" strokeWidth="1" />
+                <text x="212" y="38" fill="#555" fontSize="8" fontWeight="bold">Protoboard</text>
+
+                {/* Resistencia 220 Ohm */}
+                <rect x="215" y="78" width="24" height="8" rx="2" fill="#D2B48C" stroke="#8B4513" strokeWidth="1" />
+                <line x1="220" y1="78" x2="220" y2="86" stroke="#f00" strokeWidth="1.5" />
+                <line x1="225" y1="78" x2="225" y2="86" stroke="#8B4513" strokeWidth="1.5" />
+                <line x1="230" y1="78" x2="230" y2="86" stroke="#000" strokeWidth="1.5" />
+                <text x="242" y="85" fill="#333" fontSize="7">220Ω</text>
+
+                {/* LED con emisión de luz cuando arduinoState.ledOn es true */}
+                <circle
+                  cx="245"
+                  cy="50"
+                  r="9"
+                  fill={arduinoState.ledOn ? '#FF0033' : '#777'}
+                  stroke="#333"
+                  strokeWidth="1.5"
+                />
+                {arduinoState.ledOn && (
+                  <circle cx="245" cy="50" r="15" fill="none" stroke="#FF5555" strokeWidth="2" opacity="0.7" />
+                )}
+                <text x="258" y="53" fill="#222" fontSize="8" fontWeight="bold">LED</text>
+              </svg>
+            </div>
+
+            <div className="led-indicator-box">
+              <div className={`led-bulb ${arduinoState.ledOn ? 'on' : 'off'}`} />
+              <span>
+                Pin {arduinoState.activePin}: {arduinoState.ledOn ? 'ENCENDIDO (HIGH)' : 'APAGADO (LOW)'}
+              </span>
             </div>
           </div>
         )}
@@ -376,46 +432,43 @@ const CodeEditor = ({ language = 'arduino', initialCode = '', expectedOutput = '
           <span>Ln {lineCount}, Col 1</span>
           <span>Espacios: 4</span>
           <span>UTF-8</span>
-          <span>{language === 'python' ? 'Python 3.11' : 'Arduino AVR (C++)'}</span>
+          <span>{language === 'python' ? 'Python 3.11' : 'Arduino AVR C++'}</span>
         </div>
         <div className="status-right">
-          <span className={`status-pill ${isSuccess ? 'ok' : ''}`}>
-            {isSuccess ? '✓ Sintaxis Verificada' : 'Listo'}
-          </span>
+          <span>{isSuccess ? '✓ Sintaxis Verificada' : 'Listo'}</span>
         </div>
       </div>
 
-      {/* 4. CONSOLA INTEGRADA MEJORADA CON ASISTENTE DE IA */}
+      {/* 4. CONSOLA INTEGRADA */}
       <div className="vscode-terminal-panel">
         <div className="terminal-header">
           <div className="terminal-title">
             <IconTerminal size={14} />
-            <span>TERMINAL & CONSOLA DE SALIDA</span>
+            <span>TERMINAL & CONSOLA</span>
           </div>
-          {isSuccess && <span className="terminal-success-tag">Ejecución exitosa</span>}
         </div>
 
         <div className="terminal-output-area">
           {output ? (
-            <pre className={`terminal-text ${output.includes('[ERROR') ? 'error-text' : isSuccess ? 'success-text' : ''}`}>
+            <pre className={`terminal-text ${output.includes('error:') || output.includes('Error') ? 'error-text' : isSuccess ? 'success-text' : ''}`}>
               {output}
             </pre>
           ) : (
-            <span className="terminal-placeholder">
-              Presiona "▶ Ejecutar" para compilar el código y observar la respuesta del sistema...
+            <span style={{ color: '#666', fontStyle: 'italic' }}>
+              Haz clic en "Ejecutar" para compilar el sketch...
             </span>
           )}
 
-          {/* GUÍA DE IA SOCRÁTICA EN LA CONSOLA */}
+          {/* GUÍA DE IA SOCRÁTICA EN CONSOLA */}
           {(isAiLoading || aiGuidance) && (
             <div className="console-ai-box">
               <div className="ai-box-title">
-                <strong>🤖 Tutor Pedagógico IA (Consejo de Consola):</strong>
+                <strong>🤖 Tutor Pedagógico IA (Guía):</strong>
               </div>
               {isAiLoading ? (
-                <span className="ai-analysing">Analizando el código y la salida de tu consola...</span>
+                <span>Analizando tu código...</span>
               ) : (
-                <p className="ai-guidance-content">{aiGuidance}</p>
+                <p style={{ margin: 0 }}>{aiGuidance}</p>
               )}
             </div>
           )}
