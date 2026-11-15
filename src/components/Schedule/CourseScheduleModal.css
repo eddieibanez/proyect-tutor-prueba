@@ -342,26 +342,3 @@
 .legend-dot.class { background: var(--primary); }
 .legend-dot.holiday { background: var(--success); }
 .legend-dot.cancelled { background: var(--error); }
-
-
-/* TIME PICKER TRIGGER BOTÓN */
-.time-picker-trigger-btn {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid var(--border, rgba(255, 255, 255, 0.15));
-  color: var(--text-primary, #ffffff);
-  border-radius: 8px;
-  padding: 8px 14px;
-  font-size: 0.95rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.time-picker-trigger-btn:hover {
-  background: rgba(0, 188, 212, 0.15);
-  border-color: var(--primary, #00BCD4);
-  color: var(--primary, #00BCD4);
-}

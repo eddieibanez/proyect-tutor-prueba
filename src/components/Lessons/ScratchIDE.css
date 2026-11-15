@@ -1,507 +1,231 @@
-﻿/* ScratchIDE.css - Autentico estilo Scratch 3.0 */
-.scratch-pro-ide-wrapper {
+.scratch-ide-wrapper {
   display: flex;
-  height: 680px;
-  background: #1e1e2d;
-  color: #ffffff;
-  border-radius: 12px;
+  height: 100%;
+  min-height: 440px;
+  background-color: var(--cards);
+  border: 1px solid var(--border);
+  border-radius: 8px;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  user-select: none;
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+  box-shadow: var(--shadow);
 }
 
-/* 1. Categorias Rail lateral */
+/* Columna lateral de categorías (estilo Scratch oficial) */
 .scratch-categories-rail {
-  width: 90px;
-  background: #14141e;
-  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  width: 110px;
+  background-color: var(--dark);
   display: flex;
   flex-direction: column;
   padding: 8px 4px;
   gap: 4px;
-  overflow-y: auto;
+  border-right: 1px solid var(--border);
   flex-shrink: 0;
+  overflow-y: auto;
 }
 
-.scratch-cat-item {
+.cat-rail-btn {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 4px;
+  padding: 8px 4px;
+  border-radius: 6px;
   background: transparent;
   border: none;
-  border-radius: 8px;
-  padding: 8px 4px;
-  color: #b0bec5;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: background 0.15s ease, transform 0.1s ease;
 }
 
-.scratch-cat-item:hover,
-.scratch-cat-item.active {
-  background: rgba(255, 255, 255, 0.08);
-  color: #ffffff;
+.cat-rail-btn:hover {
+  background-color: rgba(255, 255, 255, 0.08);
 }
 
-.scratch-cat-item.active {
-  box-shadow: inset 3px 0 0 var(--cat-color, #4C97FF);
+.cat-rail-btn.active {
+  background-color: rgba(255, 255, 255, 0.15);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
 }
 
-.cat-circle-dot {
-  width: 18px;
-  height: 18px;
+.cat-color-dot {
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
-  margin-bottom: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
-.cat-name-label {
-  font-size: 0.68rem;
+.cat-rail-label {
+  font-size: 0.72rem;
   font-weight: 600;
+  color: var(--text-secondary);
   text-align: center;
+  line-height: 1.1;
 }
 
-/* 2. Paleta de bloques */
-.scratch-blocks-palette-area {
-  width: 270px;
-  background: #181824;
-  border-right: 1px solid rgba(255, 255, 255, 0.08);
+.cat-rail-btn.active .cat-rail-label {
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+/* Paleta de bloques de la categoría seleccionada */
+.scratch-palette-pane {
+  width: 280px;
+  background-color: var(--background);
+  border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
-  overflow: hidden;
   flex-shrink: 0;
+  overflow-y: auto;
 }
 
-.palette-section-header {
-  padding: 12px 16px;
+.palette-header {
+  padding: 10px 14px;
+  border-bottom: 2px solid;
+  background-color: var(--cards);
+}
+
+.palette-header h4 {
+  margin: 0;
   font-size: 0.95rem;
   font-weight: 700;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-.palette-blocks-container {
-  flex: 1;
-  overflow-y: auto;
-  padding: 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-/* FORMAS ORIGINALES DE BLOQUES SCRATCH (Fieles a las capturas) */
-.scratch-block {
-  position: relative;
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: #ffffff;
-  cursor: grab;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
-}
-
-.scratch-block.stack {
-  border-radius: 4px;
-  padding: 8px 12px;
-  min-height: 38px;
-  justify-content: center;
-}
-
-/* Hat Block: Eventos con cabeza de gato / curva Scratch */
-.scratch-block.hat {
-  border-radius: 0 0 4px 4px;
-  padding: 14px 12px 8px 12px;
-  margin-top: 10px;
-}
-.scratch-block.hat::before {
-  content: '';
-  position: absolute;
-  top: -12px;
-  left: 0;
-  width: 70px;
-  height: 12px;
-  background: inherit;
-  border-radius: 14px 14px 0 0;
-}
-
-/* Reporter: Capsula redondeada (Variables y Numeros) */
-.scratch-block.reporter {
-  border-radius: 18px;
-  padding: 6px 14px;
-  min-height: 32px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: fit-content;
-}
-
-/* Boolean: Hexagono (Condiciones y Operadores de comparacion) */
-.scratch-block.boolean {
-  border-radius: 4px;
-  clip-path: polygon(10px 0%, calc(100% - 10px) 0%, 100% 50%, calc(100% - 10px) 100%, 10px 100%, 0% 50%);
-  padding: 6px 18px;
-  min-height: 32px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: fit-content;
-}
-
-/* Pestanas de encaje tipo puzzle (Top y Bottom) */
-.puzzle-tab-top {
-  position: absolute;
-  top: -4px;
-  left: 14px;
-  width: 16px;
-  height: 4px;
-  background: inherit;
-  border-radius: 2px 2px 0 0;
-}
-
-.puzzle-tab-bottom {
-  position: absolute;
-  bottom: -4px;
-  left: 14px;
-  width: 16px;
-  height: 4px;
-  background: inherit;
-  border-radius: 0 0 2px 2px;
-  z-index: 2;
-}
-
-.block-content-row {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 6px;
-  line-height: 1.2;
-}
-
-.block-param-pill {
-  background: #ffffff;
-  color: #333333;
-  padding: 2px 8px;
-  border-radius: 12px;
+.palette-sub {
   font-size: 0.72rem;
-  font-weight: bold;
+  color: var(--text-secondary);
+  display: block;
+  margin-top: 2px;
 }
 
-.block-slot-capsule {
-  display: inline-flex;
-  align-items: center;
-  min-width: 28px;
-  min-height: 24px;
-  background: rgba(0, 0, 0, 0.22);
-  border: 1px dashed rgba(255, 255, 255, 0.6);
-  border-radius: 12px;
-  padding: 2px 4px;
-}
-.block-slot-capsule.hex-slot {
-  clip-path: polygon(6px 0%, calc(100% - 6px) 0%, 100% 50%, calc(100% - 6px) 100%, 6px 100%, 0% 50%);
-  border-radius: 0;
-  background: rgba(0, 0, 0, 0.35);
+.palette-blocks-grid {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
-/* BLOQUES C-BLOCK Y E-BLOCK (CONDICIONALES EXPANDIBLES AUTENTICOS) */
-.scratch-block.c-block,
-.scratch-block.e-block {
+/* Bloques individuales estilo Scratch */
+.scratch-block-item {
+  color: #FFFFFF;
+  padding: 7px 12px;
   border-radius: 4px;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-.c-block-header, .e-block-middle {
-  padding: 8px 12px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: inherit;
-  border-radius: 4px 4px 0 0;
-}
-
-.e-block-middle {
-  border-radius: 0;
-}
-
-.c-mouth-inner, .e-mouth-inner {
-  margin-left: 14px;
-  min-height: 42px;
-  background: rgba(0, 0, 0, 0.28);
-  border-left: 14px solid;
-  border-color: inherit;
-  padding: 6px 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  transition: min-height 0.15s ease-out;
-}
-
-.c-mouth-inner.drag-over, .e-mouth-inner.drag-over {
-  background: rgba(255, 255, 255, 0.15);
-  outline: 2px dashed #00E676;
-}
-
-.c-mouth-placeholder {
-  font-size: 0.7rem;
-  color: rgba(255, 255, 255, 0.5);
-  font-style: italic;
-  padding: 4px;
-}
-
-.c-block-bottom, .e-block-bottom {
-  height: 12px;
-  background: inherit;
-  border-radius: 0 0 4px 4px;
+  font-size: 0.8rem;
+  font-family: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 2px 4px rgba(0, 0, 0, 0.25);
+  user-select: none;
+  transition: transform 0.1s ease, filter 0.15s ease;
   position: relative;
+  display: inline-block;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
 }
 
-/* 3. Espacio de trabajo (Canvas) */
-.scratch-workspace-main {
+.scratch-block-item:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+.scratch-block-item:active {
+  transform: translateY(1px);
+}
+
+.scratch-block-item.hat {
+  border-top-left-radius: 14px;
+  border-top-right-radius: 14px;
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
+}
+
+.scratch-block-item.boolean {
+  border-radius: 16px;
+  padding: 5px 12px;
+}
+
+.scratch-block-item.reporter {
+  border-radius: 12px;
+  padding: 5px 10px;
+}
+
+.block-content-text {
+  pointer-events: none;
+}
+
+/* Espacio de trabajo */
+.scratch-workspace-pane {
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: #1e1e2d;
-  position: relative;
+  background-color: var(--cards);
   overflow: hidden;
 }
 
-.workspace-controls-bar {
+.workspace-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 16px;
-  background: #252538;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  z-index: 10;
+  padding: 8px 14px;
+  background-color: var(--dark);
+  border-bottom: 1px solid var(--border);
 }
 
-.zoom-btn-group {
+.ws-title-group {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 
-.zoom-btn-group button, .btn-clear-blocks {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #fff;
+.ws-badge {
+  background-color: var(--primary);
+  color: #FFFFFF;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.ws-hint {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.btn-clear-blocks {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
   padding: 4px 10px;
-  border-radius: 6px;
+  border-radius: 4px;
   font-size: 0.75rem;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: background 0.15s ease, color 0.15s ease;
 }
 
-.zoom-btn-group button:hover, .btn-clear-blocks:hover {
-  background: rgba(255, 255, 255, 0.2);
+.btn-clear-blocks:hover {
+  background-color: #EF4444;
+  color: #FFFFFF;
+  border-color: #EF4444;
 }
 
-.zoom-text {
-  font-size: 0.75rem;
-  font-weight: bold;
-  color: #00bcd4;
-  min-width: 40px;
-  text-align: center;
-}
-
-.scratch-canvas-plane {
+.scratch-script-visual-zone {
   flex: 1;
-  position: relative;
-  overflow: auto;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-  background-size: 20px 20px;
+  padding: 12px;
+  display: flex;
 }
 
-.canvas-zoom-container {
-  width: 3000px;
-  height: 3000px;
-  position: relative;
-}
-
-.empty-workspace-watermark {
-  position: absolute;
-  top: 40px;
-  left: 40px;
-  color: rgba(255, 255, 255, 0.25);
-  font-size: 0.95rem;
-  font-style: italic;
-  pointer-events: none;
-}
-
-/* Bloques colocados en mesa de trabajo (Movibles libremente y no deformados) */
-.workspace-block-placed {
-  position: absolute;
-  cursor: grab;
-  user-select: none;
-  touch-action: none;
-  box-sizing: border-box;
-}
-.workspace-block-placed:active {
-  cursor: grabbing;
-  z-index: 100 !important;
-}
-
-.workspace-block-placed .block-input-param {
-  width: 42px;
-  background: #ffffff;
-  color: #111;
-  border: none;
-  border-radius: 12px;
-  padding: 2px 6px;
-  font-size: 0.75rem;
-  font-weight: bold;
-  text-align: center;
+.scratch-raw-editor {
+  width: 100%;
+  height: 100%;
+  background-color: var(--background);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px;
+  font-family: 'Fira Code', 'Courier New', monospace;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  resize: none;
   outline: none;
 }
 
-.btn-delete-block {
-  position: absolute;
-  right: -8px;
-  top: -8px;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: #ff5252;
-  color: white;
-  border: 1px solid white;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  z-index: 50;
-}
-
-.workspace-block-placed:hover > .btn-delete-block {
-  display: flex;
-}
-
-/* 4. Escenario del Gato y Telemetria */
-.scratch-stage-section {
-  width: 320px;
-  background: #14141e;
-  border-left: 1px solid rgba(255, 255, 255, 0.08);
-  display: flex;
-  flex-direction: column;
-  flex-shrink: 0;
-}
-
-.stage-control-bar {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 12px;
-  background: #1c1c28;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.btn-green-flag, .btn-red-stop, .btn-reset-pos {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 6px;
-  padding: 4px 8px;
-  cursor: pointer;
-  transition: all 0.2s;
-  color: #fff;
-  font-size: 0.75rem;
-}
-
-.btn-green-flag:hover { background: rgba(0, 230, 118, 0.2); }
-.btn-red-stop:hover { background: rgba(255, 82, 82, 0.2); }
-.btn-reset-pos:hover { background: rgba(255, 255, 255, 0.18); }
-
-.stage-screen-canvas {
-  height: 250px;
-  background: #ffffff;
-  position: relative;
-  overflow: hidden;
-  margin: 10px;
-  border-radius: 8px;
-  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.2);
-}
-
-.stage-axis-cross {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 100%;
-  height: 100%;
-  transform: translate(-50%, -50%);
-  pointer-events: none;
-}
-.stage-axis-cross::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 0;
-  width: 100%;
-  height: 1px;
-  background: rgba(0, 0, 0, 0.08);
-}
-.stage-axis-cross::after {
-  content: '';
-  position: absolute;
-  left: 50%;
-  top: 0;
-  height: 100%;
-  width: 1px;
-  background: rgba(0, 0, 0, 0.08);
-}
-
-.origin-marker {
-  position: absolute;
-  top: calc(50% + 4px);
-  left: calc(50% + 4px);
-  font-size: 0.62rem;
-  color: #888;
-}
-
-.scratch-cat-sprite {
-  position: absolute;
-  width: 50px;
-  height: 50px;
-  transition: transform 0.2s ease-out;
-}
-
-.sprite-speech-bubble {
-  position: absolute;
-  bottom: 54px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #ffffff;
-  color: #111;
-  padding: 4px 8px;
-  border-radius: 8px;
-  font-size: 0.72rem;
-  font-weight: bold;
-  border: 2px solid #333;
-  white-space: nowrap;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-}
-.sprite-speech-bubble::after {
-  content: '';
-  position: absolute;
-  bottom: -6px;
-  left: 50%;
-  transform: translateX(-50%);
-  border-width: 6px 6px 0;
-  border-style: solid;
-  border-color: #333 transparent;
-}
-
-.stage-telemetry-bar {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  padding: 12px;
-  background: #181824;
-  font-size: 0.75rem;
-  color: #b0bec5;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.stage-telemetry-bar span strong {
-  color: #00e5ff;
+.scratch-raw-editor:focus {
+  border-color: var(--primary);
 }

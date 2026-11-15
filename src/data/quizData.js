@@ -1,62 +1,97 @@
-// quizData.js - Banco de preguntas exclusivo por lenguaje de programación
-// 15+ preguntas por lenguaje con validaciones pedagógicas
-
-export const finalExamsByLanguage = {
-  arduino: [
-    { id: 'a1', type: 'mc', question: '¿Cuál función se ejecuta una sola vez al encender o reiniciar el microcontrolador Arduino?', options: ['loop()', 'setup()', 'init()', 'begin()'], answer: 1 },
-    { id: 'a2', type: 'tf', question: 'En la arquitectura Arduino, la función loop() se ejecuta continuamente en bucle infinito.', answer: 'Verdadero' },
-    { id: 'a3', type: 'fill', question: 'Escribe la instrucción exacta para configurar el pin digital 13 como salida:', answer: 'pinMode(13, OUTPUT)' },
-    { id: 'a4', type: 'mc', question: '¿Qué función se utiliza para leer el valor lógico de un pin digital?', options: ['analogRead()', 'digitalRead()', 'pinRead()', 'readDigital()'], answer: 1 },
-    { id: 'a5', type: 'mc', question: '¿Cuál es el rango de resolución de 10 bits devuelto por analogRead()?', options: ['0 a 255', '0 a 1023', '0 a 4095', '0 a 5000'], answer: 1 },
-    { id: 'a6', type: 'mc', question: '¿Qué técnica permite simular una salida analógica mediante modulación de ancho de pulso?', options: ['SPI', 'I2C', 'PWM (analogWrite)', 'UART'], answer: 2 },
-    { id: 'a7', type: 'fill', question: 'Escribe la función para inicializar la comunicación serial a 9600 baudios:', answer: 'Serial.begin(9600)' },
-    { id: 'a8', type: 'tf', question: 'El pin LED_BUILTIN hace referencia al LED integrado en la placa (usualmente pin 13 en el Uno).', answer: 'Verdadero' },
-    { id: 'a9', type: 'mc', question: '¿Qué función congela la ejecución del programa durante un número específico de milisegundos?', options: ['wait()', 'pause()', 'delay()', 'sleep()'], answer: 2 },
-    { id: 'a10', type: 'mc', question: '¿Qué función retorna el número de milisegundos transcurridos desde que se encendió el Arduino?', options: ['micros()', 'millis()', 'clock()', 'time()'], answer: 1 },
-    { id: 'a11', type: 'fill', question: 'Escribe el comando para enviar un texto con salto de línea al monitor serial:', answer: 'Serial.println("Hola")' },
-    { id: 'a12', type: 'tf', question: 'La función analogWrite() solo funciona en pines marcados con soporte PWM (tilde ~).', answer: 'Verdadero' },
-    { id: 'a13', type: 'mc', question: '¿Cuál es el valor que representa un nivel alto de voltaje (5V o 3.3V) en Arduino?', options: ['LOW', 'HIGH', 'MAX', 'ON'], answer: 1 },
-    { id: 'a14', type: 'mc', question: '¿Qué tipo de dato primitivo en C++/Arduino ocupa 2 bytes y almacena enteros de -32,768 a 32,767?', options: ['byte', 'int', 'long', 'float'], answer: 1 },
-    { id: 'a15', type: 'tf', question: 'pinMode(pin, INPUT_PULLUP) activa la resistencia interna de pull-up del microcontrolador.', answer: 'Verdadero' },
-    { id: 'a16', type: 'mc', question: '¿Qué función remapea un número desde un rango original hacia otro rango objetivo?', options: ['map()', 'constrain()', 'abs()', 'scale()'], answer: 0 }
-  ],
-  python: [
-    { id: 'p1', type: 'mc', question: '¿Cómo se define un bloque de código dependiente en Python (como el cuerpo de un if o función)?', options: ['Con llaves { }', 'Con indentación (sangría consistente)', 'Con las palabras BEGIN y END', 'Con corchetes [ ]'], answer: 1 },
-    { id: 'p2', type: 'tf', question: 'En Python 3, la función print() requiere paréntesis obligatorios.', answer: 'Verdadero' },
-    { id: 'p3', type: 'fill', question: 'Escribe la palabra clave para declarar una nueva función en Python:', answer: 'def' },
-    { id: 'p4', type: 'mc', question: '¿Cuál es el operador aritmético para elevar un número a una potencia en Python?', options: ['^', '**', 'pow', '^^'], answer: 1 },
-    { id: 'p5', type: 'mc', question: '¿Qué estructura de datos ordenada y mutable se declara utilizando corchetes [ ]?', options: ['Tupla', 'Diccionario', 'Lista', 'Conjunto (set)'], answer: 2 },
-    { id: 'p6', type: 'tf', question: 'Las tuplas en Python se definen con paréntesis ( ) y son inmutables.', answer: 'Verdadero' },
-    { id: 'p7', type: 'fill', question: 'Escribe el símbolo utilizado para escribir comentarios de una sola línea en Python:', answer: '#' },
-    { id: 'p8', type: 'mc', question: '¿Cuál es el resultado de la expresión: 15 // 4 en Python?', options: ['3.75', '3', '4', '1'], answer: 1 },
-    { id: 'p9', type: 'mc', question: '¿Qué función retorna la cantidad de elementos de una lista o caracteres de una cadena?', options: ['size()', 'length()', 'count()', 'len()'], answer: 3 },
-    { id: 'p10', type: 'tf', question: 'En Python, los tipos booleanos válidos se escriben con mayúscula inicial: True y False.', answer: 'Verdadero' },
-    { id: 'p11', type: 'fill', question: 'Escribe la palabra clave para retornar un valor desde el interior de una función:', answer: 'return' },
-    { id: 'p12', type: 'mc', question: '¿Cómo se comprueba si el valor "x" está presente dentro de una lista llamada "datos"?', options: ['if x exists datos:', 'if x in datos:', 'if datos.has(x):', 'if x.inside(datos):'], answer: 1 },
-    { id: 'p13', type: 'tf', question: 'La función range(5) genera una secuencia de enteros de 0 a 4.', answer: 'Verdadero' },
-    { id: 'p14', type: 'mc', question: '¿Qué método de listas permite añadir un nuevo elemento al final de la misma?', options: ['push()', 'add()', 'append()', 'insert()'], answer: 2 },
-    { id: 'p15', type: 'mc', question: '¿Cómo se convierte una cadena numérica "42" a un número entero?', options: ['integer("42")', 'int("42")', 'to_int("42")', 'Number("42")'], answer: 1 },
-    { id: 'p16', type: 'tf', question: 'El bloque try...except se utiliza en Python para capturar y manejar excepciones y errores.', answer: 'Verdadero' }
-  ],
-  scratch: [
-    { id: 's1', type: 'mc', question: '¿Qué bloque tipo Sombrero se utiliza comúnmente para iniciar la ejecución del proyecto al presionar el botón verde?', options: ['al hacer clic en este objeto', 'al presionar bandera verde', 'al recibir mensaje1', 'cuando el fondo cambie'], answer: 1 },
-    { id: 's2', type: 'tf', question: 'En Scratch, los bloques de la categoría Movimiento son de color azul (#4C97FF).', answer: 'Verdadero' },
-    { id: 's3', type: 'fill', question: 'Escribe el nombre del bloque para hacer que el personaje emita un texto en pantalla:', answer: 'decir' },
-    { id: 's4', type: 'mc', question: '¿Qué categoría de bloques tiene el color naranja oscuro / ámbar (#FFAB19)?', options: ['Variables', 'Control', 'Eventos', 'Sensores'], answer: 1 },
-    { id: 's5', type: 'mc', question: '¿Qué bloque crea un bucle infinito que nunca deja de ejecutarse hasta presionar el botón rojo?', options: ['repetir (10)', 'por siempre', 'repetir hasta que', 'esperar (1) segundos'], answer: 1 },
-    { id: 's6', type: 'tf', question: 'El centro del escenario de Scratch tiene coordenadas cartesianas (X: 0, Y: 0).', answer: 'Verdadero' },
-    { id: 's7', type: 'mc', question: '¿En qué dirección mira un personaje en Scratch por defecto cuando su valor de dirección es 90°?', options: ['Hacia arriba', 'Hacia la derecha', 'Hacia abajo', 'Hacia la izquierda'], answer: 1 },
-    { id: 's8', type: 'fill', question: 'Escribe el bloque para detener todos los programas en ejecución en el proyecto:', answer: 'detener todos' },
-    { id: 's9', type: 'mc', question: '¿Qué forma geométrica tienen los bloques que devuelven un valor booleano (Verdadero o Falso) en Scratch?', options: ['Rectangular', 'Ovalada', 'Hexagonal con puntas', 'Triangular'], answer: 2 },
-    { id: 's10', type: 'tf', question: 'Los bloques tipo Reportero con bordes redondeados (óvalos) devuelven números o texto.', answer: 'Verdadero' },
-    { id: 's11', type: 'mc', question: '¿Qué categoría de bloques es de color verde (#59C059) e incluye suma, azar y comparaciones?', options: ['Sensores', 'Variables', 'Operadores', 'Mis Bloques'], answer: 2 },
-    { id: 's12', type: 'mc', question: 'Si un personaje gira 90 grados a la derecha y luego se mueve 10 pasos, ¿hacia dónde avanzará?', options: ['Hacia donde esté apuntando su nueva dirección orientada', 'Siempre hacia la derecha absoluta', 'Hacia la izquierda', 'No se moverá'], answer: 0 },
-    { id: 's13', type: 'tf', question: 'Un bloque en forma de "C" (como si...entonces) permite anidar otros bloques dentro de su boca.', answer: 'Verdadero' },
-    { id: 's14', type: 'mc', question: '¿Qué bloque permite cambiar la apariencia del sprite a otro cuadro de animación guardado?', options: ['siguiente fondo', 'cambiar disfraz a', 'cambiar tamaño por', 'mostrar'], answer: 1 },
-    { id: 's15', type: 'fill', question: 'Escribe el nombre del sensor para detectar si el personaje colisiona con el puntero:', answer: 'tocando el puntero del ratón' },
-    { id: 's16', type: 'tf', question: 'La categoría Variables es de color naranja (#FF8C1A) y permite crear variables y listas.', answer: 'Verdadero' }
-  ]
+const generateGenericQuestions = (language, levelId) => {
+  return [
+    {
+      id: `q1-${language}-${levelId}`,
+      question: `¿Cuál es el concepto principal aprendido en el nivel ${levelId} de ${language.toUpperCase()}?`,
+      options: ['Variables', 'Control de Flujo', 'Funciones', 'Estructuras de Datos'],
+      correctAnswer: 1,
+      explanation: 'El control de flujo es esencial en este nivel.'
+    },
+    {
+      id: `q2-${language}-${levelId}`,
+      question: '¿Qué palabra clave usamos frecuentemente aquí?',
+      options: ['if', 'while', 'for', 'return'],
+      correctAnswer: 0,
+      explanation: 'if nos permite tomar decisiones.'
+    },
+    {
+      id: `q3-${language}-${levelId}`,
+      question: '¿Cómo cerramos una instrucción?',
+      options: ['Con punto y coma', 'Con dos puntos', 'Con un punto', 'No se cierra'],
+      correctAnswer: language === 'python' ? 3 : 0,
+      explanation: language === 'python' ? 'Python usa indentación en lugar de punto y coma.' : 'En muchos lenguajes se usa punto y coma.'
+    },
+    {
+      id: `q4-${language}-${levelId}`,
+      question: '¿Cuál es un error común en este nivel?',
+      options: ['Falta de sintaxis', 'Lógica inversa', 'Ciclo infinito', 'Todo lo anterior'],
+      correctAnswer: 3,
+      explanation: 'Todos estos son errores muy comunes cuando aprendemos.'
+    },
+    {
+      id: `q5-${language}-${levelId}`,
+      question: '¿Cómo podemos depurar este código?',
+      options: ['Imprimiendo variables', 'Borrando todo', 'Apagando el PC', 'Cambiando de lenguaje'],
+      correctAnswer: 0,
+      explanation: 'Imprimir variables (usando print o Serial.print) nos ayuda a ver qué pasa.'
+    }
+  ];
 };
 
-export const quizzesByLanguage = finalExamsByLanguage;
-export const quizData = quizzesByLanguage;
+export const quizData = {
+  arduino: {
+    1: {
+      title: 'Quiz: Hola Mundo LED',
+      questions: [
+        { id: 'a1q1', question: '¿Qué significa LED?', options: ['Luz Especial Digital', 'Diodo Emisor de Luz', 'Lámpara de Energía Directa', 'Diodo de Entrada Local'], correctAnswer: 1, explanation: 'LED viene del inglés Light Emitting Diode, que significa Diodo Emisor de Luz.' },
+        { id: 'a1q2', question: '¿Qué comando configura un pin como salida?', options: ['digitalWrite()', 'analogRead()', 'pinMode()', 'delay()'], correctAnswer: 2, explanation: 'pinMode() se usa en el setup() para configurar el pin como INPUT o OUTPUT.' },
+        { id: 'a1q3', question: '¿Dónde se debe poner el código que se ejecuta una sola vez?', options: ['En el loop()', 'En el setup()', 'Fuera de todo', 'En el delay()'], correctAnswer: 1, explanation: 'setup() se ejecuta una vez cuando el Arduino se enciende.' },
+        { id: 'a1q4', question: '¿Para qué sirve delay(1000)?', options: ['Pausar 1 segundo', 'Pausar 1000 segundos', 'Apagar el Arduino', 'Encender el pin 1000'], correctAnswer: 0, explanation: 'delay() pausa el programa en milisegundos. 1000 ms = 1 segundo.' },
+        { id: 'a1q5', question: '¿Qué valor envía electricidad al LED?', options: ['LOW', 'OFF', 'HIGH', 'ON'], correctAnswer: 2, explanation: 'HIGH activa el voltaje (usualmente 5V), encendiendo el LED.' }
+      ]
+    },
+    2: { title: 'Quiz: Semáforo', questions: generateGenericQuestions('arduino', 2) },
+    3: { title: 'Quiz: Botones', questions: generateGenericQuestions('arduino', 3) },
+    4: { title: 'Quiz: Serial', questions: generateGenericQuestions('arduino', 4) },
+    5: { title: 'Quiz: For', questions: generateGenericQuestions('arduino', 5) },
+  },
+  scratch: {
+    1: {
+      title: 'Quiz: Movimiento Básico',
+      questions: [
+        { id: 's1q1', question: '¿De qué color son los bloques de Movimiento?', options: ['Naranja', 'Azul', 'Verde', 'Morado'], correctAnswer: 1, explanation: 'Los bloques de Movimiento en Scratch son de color azul oscuro.' },
+        { id: 's1q2', question: '¿Qué hace el bloque "Mover 10 pasos"?', options: ['Gira al personaje', 'Mueve al personaje en la dirección actual', 'Hace que el personaje salte', 'Esconde al personaje'], correctAnswer: 1, explanation: 'Avanza 10 unidades en la dirección a la que apunta el objeto.' },
+        { id: 's1q3', question: '¿Cómo iniciamos normalmente un programa en Scratch?', options: ['Bandera Verde', 'Círculo Rojo', 'Estrella Amarilla', 'Cuadrado Azul'], correctAnswer: 0, explanation: 'El evento "Al presionar bandera verde" es la forma más común de iniciar.' },
+        { id: 's1q4', question: '¿Para qué sirve girar 90 grados?', options: ['Para dar una vuelta completa', 'Para hacer una esquina recta', 'Para ir hacia atrás', 'No hace nada'], correctAnswer: 1, explanation: '90 grados forman un ángulo recto, útil para cuadrados o esquinas.' },
+        { id: 's1q5', question: '¿Qué pasa si pones un número negativo en "Mover pasos"?', options: ['Da error', 'Va hacia adelante más rápido', 'Va hacia atrás', 'El personaje desaparece'], correctAnswer: 2, explanation: 'Mover pasos negativos retrocede al personaje.' }
+      ]
+    },
+    2: { title: 'Quiz: Eventos', questions: generateGenericQuestions('scratch', 2) },
+    3: { title: 'Quiz: Ciclos', questions: generateGenericQuestions('scratch', 3) },
+    4: { title: 'Quiz: If', questions: generateGenericQuestions('scratch', 4) },
+    5: { title: 'Quiz: Variables', questions: generateGenericQuestions('scratch', 5) },
+  },
+  python: {
+    1: {
+      title: 'Quiz: Imprimiendo',
+      questions: [
+        { id: 'p1q1', question: '¿Cuál es la función para mostrar texto en Python?', options: ['echo', 'print()', 'console.log()', 'escribir()'], correctAnswer: 1, explanation: 'En Python se usa print() para mostrar salidas.' },
+        { id: 'p1q2', question: '¿Cómo debe escribirse un texto dentro de print?', options: ['Sin nada', 'Entre corchetes []', 'Entre comillas "" o \'\'', 'Entre barras //'], correctAnswer: 2, explanation: 'El texto (strings) debe estar entre comillas.' },
+        { id: 'p1q3', question: '¿Qué imprimirá: print(2 + 2)?', options: ['2 + 2', '4', 'Error', 'Nada'], correctAnswer: 1, explanation: 'Python evalúa la expresión matemática y muestra el resultado, 4.' },
+        { id: 'p1q4', question: '¿Es importante usar minúsculas en print()?', options: ['Sí, Print() dará error', 'No importa', 'Solo en Mac', 'Python convierte todo a mayúsculas'], correctAnswer: 0, explanation: 'Python distingue entre mayúsculas y minúsculas (case-sensitive).' },
+        { id: 'p1q5', question: '¿Qué son los comentarios en Python?', options: ['Texto para que lea el usuario', 'Notas para el programador que empiezan con #', 'Errores de código', 'Textos grandes'], correctAnswer: 1, explanation: 'Los comentarios empiezan con # y son ignorados al ejecutar el código.' }
+      ]
+    },
+    2: { title: 'Quiz: Variables', questions: generateGenericQuestions('python', 2) },
+    3: { title: 'Quiz: Condicionales', questions: generateGenericQuestions('python', 3) },
+    4: { title: 'Quiz: While', questions: generateGenericQuestions('python', 4) },
+    5: { title: 'Quiz: Listas', questions: generateGenericQuestions('python', 5) },
+  }
+};
+
+// Generar niveles 6 al 15
+for(let i=6; i<=15; i++) {
+  quizData.arduino[i] = { title: `Quiz Nivel ${i}`, questions: generateGenericQuestions('arduino', i) };
+  quizData.scratch[i] = { title: `Quiz Nivel ${i}`, questions: generateGenericQuestions('scratch', i) };
+  quizData.python[i] = { title: `Quiz Nivel ${i}`, questions: generateGenericQuestions('python', i) };
+}
