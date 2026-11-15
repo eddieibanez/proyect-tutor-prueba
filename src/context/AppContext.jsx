@@ -18,6 +18,13 @@ export const AppProvider = ({ children }) => {
   const [messages, setMessages] = useState([]);
   const [tasks, setTasks] = useState([]);
   const [customContent, setCustomContent] = useState({});
+  const [lessonGoals, setLessonGoals] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('codecraft_lesson_goals') || '[]');
+    } catch {
+      return [];
+    }
+  });
   const [theme, setTheme] = useState('light');
   const [loading, setLoading] = useState(true);
   const [settings, setSettings] = useState({

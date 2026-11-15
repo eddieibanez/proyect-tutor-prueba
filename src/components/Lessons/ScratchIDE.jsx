@@ -1,233 +1,698 @@
-import React, { useState } from 'react';
+﻿import React, { useState, useRef } from 'react';
 import './ScratchIDE.css';
+import { IconClose } from '../common/Icons';
 
-/**
- * Paleta oficial de categorías y bloques de Scratch con colores oficiales:
- * - Movimiento: #4C97FF
- * - Apariencia: #9966FF
- * - Sonido: #CF63CF
- * - Eventos: #FFBF00
- * - Control: #FFAB19
- * - Sensores: #5CB1D6
- * - Operadores: #59C059
- * - Variables: #FF8C1A
- * - Mis Bloques: #FF6680
- */
 export const SCRATCH_CATEGORIES = [
-  {
-    id: 'motion',
-    name: 'Movimiento',
-    color: '#4C97FF',
-    blocks: [
-      { id: 'm1', text: 'mover (10) pasos', template: 'mover (10) pasos', type: 'stack' },
-      { id: 'm2', text: 'girar ↷ (15) grados', template: 'girar a la derecha (15) grados', type: 'stack' },
-      { id: 'm3', text: 'girar ↶ (15) grados', template: 'girar a la izquierda (15) grados', type: 'stack' },
-      { id: 'm4', text: 'ir a posición aleatoria', template: 'ir a posición aleatoria', type: 'stack' },
-      { id: 'm5', text: 'ir a x: (0) y: (0)', template: 'ir a x: (0) y: (0)', type: 'stack' },
-      { id: 'm6', text: 'deslizar en (1) seg a x: (0) y: (0)', template: 'deslizar en (1) seg a x: (0) y: (0)', type: 'stack' },
-      { id: 'm7', text: 'apuntar en dirección (90)', template: 'apuntar en dirección (90)', type: 'stack' },
-      { id: 'm8', text: 'sumar a x (10)', template: 'cambiar x por (10)', type: 'stack' },
-      { id: 'm9', text: 'fijar x a (0)', template: 'fijar x a (0)', type: 'stack' },
-      { id: 'm10', text: 'sumar a y (10)', template: 'cambiar y por (10)', type: 'stack' },
-      { id: 'm11', text: 'fijar y a (0)', template: 'fijar y a (0)', type: 'stack' },
-      { id: 'm12', text: 'rebotar si toca un borde', template: 'rebotar si toca un borde', type: 'stack' }
-    ]
-  },
-  {
-    id: 'looks',
-    name: 'Apariencia',
-    color: '#9966FF',
-    blocks: [
-      { id: 'l1', text: 'decir [¡Hola!] por (2) segundos', template: 'decir [¡Hola!] por (2) segundos', type: 'stack' },
-      { id: 'l2', text: 'decir [¡Hola!]', template: 'decir [¡Hola!]', type: 'stack' },
-      { id: 'l3', text: 'pensar [Hmm...] por (2) segundos', template: 'pensar [Hmm...] por (2) segundos', type: 'stack' },
-      { id: 'l4', text: 'cambiar disfraz a [disfraz2]', template: 'cambiar disfraz a [disfraz2]', type: 'stack' },
-      { id: 'l5', text: 'siguiente disfraz', template: 'siguiente disfraz', type: 'stack' },
-      { id: 'l6', text: 'cambiar fondo a [fondo1]', template: 'cambiar fondo a [fondo1]', type: 'stack' },
-      { id: 'l7', text: 'cambiar tamaño por (10)', template: 'cambiar tamaño por (10)', type: 'stack' },
-      { id: 'l8', text: 'fijar tamaño al (100) %', template: 'fijar tamaño a (100)%', type: 'stack' },
-      { id: 'l9', text: 'mostrar', template: 'mostrar', type: 'stack' },
-      { id: 'l10', text: 'esconder', template: 'esconder', type: 'stack' }
-    ]
-  },
-  {
-    id: 'sound',
-    name: 'Sonido',
-    color: '#CF63CF',
-    blocks: [
-      { id: 's1', text: 'tocar sonido [miau] hasta que termine', template: 'tocar sonido [miau] hasta terminar', type: 'stack' },
-      { id: 's2', text: 'iniciar sonido [pop]', template: 'iniciar sonido [pop]', type: 'stack' },
-      { id: 's3', text: 'detener todos los sonidos', template: 'detener todos los sonidos', type: 'stack' },
-      { id: 's4', text: 'fijar volumen a (100)%', template: 'fijar volumen a (100)%', type: 'stack' }
-    ]
-  },
-  {
-    id: 'events',
-    name: 'Eventos',
-    color: '#FFBF00',
-    blocks: [
-      { id: 'e1', text: '🚩 al presionar bandera verde', template: 'al presionar bandera verde', type: 'hat' },
-      { id: 'e2', text: '⌨️ al presionar tecla [espacio]', template: 'al presionar tecla [espacio]', type: 'hat' },
-      { id: 'e3', text: '🖱️ al hacer clic en este objeto', template: 'al hacer clic en este objeto', type: 'hat' },
-      { id: 'e4', text: '📨 al recibir [mensaje1]', template: 'al recibir [mensaje1]', type: 'hat' },
-      { id: 'e5', text: '📤 enviar [mensaje1]', template: 'enviar [mensaje1]', type: 'stack' },
-      { id: 'e6', text: '📤 enviar [mensaje1] y esperar', template: 'enviar [mensaje1] y esperar', type: 'stack' }
-    ]
-  },
-  {
-    id: 'control',
-    name: 'Control',
-    color: '#FFAB19',
-    blocks: [
-      { id: 'c1', text: 'esperar (1) segundos', template: 'esperar (1) segundos', type: 'stack' },
-      { id: 'c2', text: 'repetir (10)', template: 'repetir (10) veces:\n    mover (10) pasos', type: 'c-block' },
-      { id: 'c3', text: 'por siempre', template: 'por siempre:\n    mover (10) pasos\n    rebotar si toca un borde', type: 'c-block' },
-      { id: 'c4', text: 'si < > entonces', template: 'si <tocando borde> entonces:\n    decir [¡Borde!] por (1) seg', type: 'c-block' },
-      { id: 'c5', text: 'si < > entonces / si no', template: 'si <tocando raton> entonces:\n    decir [¡Atrapado!]\nsi no:\n    mover (5) pasos', type: 'c-block' },
-      { id: 'c6', text: 'esperar hasta que < >', template: 'esperar hasta que <raton presionado>', type: 'stack' },
-      { id: 'c7', text: 'detener [todos]', template: 'detener [todos]', type: 'cap' }
-    ]
-  },
-  {
-    id: 'sensing',
-    name: 'Sensores',
-    color: '#5CB1D6',
-    blocks: [
-      { id: 'se1', text: '¿tocando [puntero del ratón]?', template: '¿tocando puntero del ratón?', type: 'boolean' },
-      { id: 'se2', text: '¿tocando el color [#00FF00]?', template: '¿tocando color [#00FF00]?', type: 'boolean' },
-      { id: 'se3', text: 'distancia a [ratón]', template: 'distancia a [ratón]', type: 'reporter' },
-      { id: 'se4', text: 'preguntar [¿Cómo te llamas?] y esperar', template: 'preguntar [¿Cómo te llamas?] y esperar', type: 'stack' },
-      { id: 'se5', text: '(respuesta)', template: '(respuesta)', type: 'reporter' },
-      { id: 'se6', text: '¿tecla [espacio] presionada?', template: '¿tecla [espacio] presionada?', type: 'boolean' },
-      { id: 'se7', text: '¿ratón presionado?', template: '¿ratón presionado?', type: 'boolean' },
-      { id: 'se8', text: '(posición x del ratón)', template: '(posición x del ratón)', type: 'reporter' },
-      { id: 'se9', text: '(posición y del ratón)', template: '(posición y del ratón)', type: 'reporter' },
-      { id: 'se10', text: '(cronómetro)', template: '(cronómetro)', type: 'reporter' },
-      { id: 'se11', text: 'reiniciar cronómetro', template: 'reiniciar cronómetro', type: 'stack' }
-    ]
-  },
-  {
-    id: 'operators',
-    name: 'Operadores',
-    color: '#59C059',
-    blocks: [
-      { id: 'o1', text: '( ) + ( )', template: '(A) + (B)', type: 'reporter' },
-      { id: 'o2', text: '( ) - ( )', template: '(A) - (B)', type: 'reporter' },
-      { id: 'o3', text: '( ) * ( )', template: '(A) * (B)', type: 'reporter' },
-      { id: 'o4', text: '( ) / ( )', template: '(A) / (B)', type: 'reporter' },
-      { id: 'o5', text: 'número aleatorio entre (1) y (10)', template: 'número aleatorio entre (1) y (10)', type: 'reporter' },
-      { id: 'o6', text: '< ( ) > (50) >', template: '(valor) > (50)', type: 'boolean' },
-      { id: 'o7', text: '< ( ) < (50) >', template: '(valor) < (50)', type: 'boolean' },
-      { id: 'o8', text: '< ( ) = (50) >', template: '(valor) = (50)', type: 'boolean' },
-      { id: 'o9', text: '< < > y < > >', template: '<condición 1> y <condición 2>', type: 'boolean' },
-      { id: 'o10', text: '< < > o < > >', template: '<condición 1> o <condición 2>', type: 'boolean' },
-      { id: 'o11', text: '< no < > >', template: 'no <condición>', type: 'boolean' },
-      { id: 'o12', text: 'unir [manzana] y [plátano]', template: 'unir [manzana] y [plátano]', type: 'reporter' },
-      { id: 'o13', text: 'longitud de [texto]', template: 'longitud de [texto]', type: 'reporter' }
-    ]
-  },
-  {
-    id: 'variables',
-    name: 'Variables',
-    color: '#FF8C1A',
-    blocks: [
-      { id: 'v1', text: 'fijar [mi variable] a (0)', template: 'fijar [mi variable] a (0)', type: 'stack' },
-      { id: 'v2', text: 'sumar a [mi variable] (1)', template: 'sumar a [mi variable] (1)', type: 'stack' },
-      { id: 'v3', text: 'mostrar variable [mi variable]', template: 'mostrar variable [mi variable]', type: 'stack' },
-      { id: 'v4', text: 'esconder variable [mi variable]', template: 'esconder variable [mi variable]', type: 'stack' }
-    ]
-  },
-  {
-    id: 'myblocks',
-    name: 'Mis Bloques',
-    color: '#FF6680',
-    blocks: [
-      { id: 'mb1', text: 'definir [saltar]', template: 'definir [saltar]:\n    cambiar y por (20)\n    esperar (0.2) seg\n    cambiar y por (-20)', type: 'hat' },
-      { id: 'mb2', text: '[saltar]', template: '[saltar]', type: 'stack' }
-    ]
-  }
+  { id: 'motion', name: 'Movimiento', color: '#4C97FF' },
+  { id: 'looks', name: 'Apariencia', color: '#9966FF' },
+  { id: 'sound', name: 'Sonido', color: '#CF63CF' },
+  { id: 'events', name: 'Eventos', color: '#FFBF00' },
+  { id: 'control', name: 'Control', color: '#FFAB19' },
+  { id: 'sensing', name: 'Sensores', color: '#5CB1D6' },
+  { id: 'operators', name: 'Operadores', color: '#59C059' },
+  { id: 'variables', name: 'Variables', color: '#FF8C1A' }
 ];
 
-const ScratchIDE = ({ code, onCodeChange }) => {
-  const [activeCategory, setActiveCategory] = useState('motion');
+export const OFFICIAL_BLOCKS = {
+  motion: [
+    { id: 'm_move', shape: 'stack', text: 'mover', params: [{ id: 'steps', val: '10' }], suffix: 'pasos' },
+    { id: 'm_turn_right', shape: 'stack', text: 'girar ↷', params: [{ id: 'deg', val: '15' }], suffix: 'grados' },
+    { id: 'm_turn_left', shape: 'stack', text: 'girar ↶', params: [{ id: 'deg', val: '15' }], suffix: 'grados' },
+    { id: 'm_goto_rand', shape: 'stack', text: 'ir a posición aleatoria' },
+    { id: 'm_gotoxy', shape: 'stack', text: 'ir a x:', params: [{ id: 'x', val: '0' }], suffix: 'y:', params2: [{ id: 'y', val: '0' }] },
+    { id: 'm_point_dir', shape: 'stack', text: 'apuntar en dirección', params: [{ id: 'dir', val: '90' }] },
+    { id: 'm_bounce', shape: 'stack', text: 'si toca un borde, rebotar' }
+  ],
+  looks: [
+    { id: 'l_say_sec', shape: 'stack', text: 'decir', params: [{ id: 'msg', val: '¡Hola!' }], suffix: 'durante', params2: [{ id: 'sec', val: '2' }], suffix2: 'segundos' },
+    { id: 'l_say', shape: 'stack', text: 'decir', params: [{ id: 'msg', val: '¡Hola!' }] },
+    { id: 'l_show', shape: 'stack', text: 'mostrar' },
+    { id: 'l_hide', shape: 'stack', text: 'esconder' }
+  ],
+  sound: [
+    { id: 's_play_miau', shape: 'stack', text: 'tocar sonido Miau hasta que termine' },
+    { id: 's_stop', shape: 'stack', text: 'detener todos los sonidos' }
+  ],
+  events: [
+    { id: 'e_when_flag', shape: 'hat', text: 'al hacer clic en ⚑' },
+    { id: 'e_when_key', shape: 'hat', text: 'al presionar tecla espacio' },
+    { id: 'e_when_click', shape: 'hat', text: 'al hacer clic en este objeto' }
+  ],
+  control: [
+    { id: 'c_wait', shape: 'stack', text: 'esperar', params: [{ id: 'sec', val: '1' }], suffix: 'segundos' },
+    { id: 'c_repeat', shape: 'c-block', text: 'repetir', params: [{ id: 'times', val: '10' }], body: [] },
+    { id: 'c_forever', shape: 'c-block', text: 'por siempre', body: [] },
+    { id: 'c_if', shape: 'c-block', text: 'si', hasCondition: true, condition: null, suffix: 'entonces', body: [] },
+    { id: 'c_if_else', shape: 'e-block', text: 'si', hasCondition: true, condition: null, suffix: 'entonces', body: [], elseBody: [] },
+    { id: 'c_stop', shape: 'stack', text: 'detener todos' }
+  ],
+  sensing: [
+    { id: 'sn_touch_mouse', shape: 'boolean', text: '¿tocando el puntero del ratón?' },
+    { id: 'sn_key_pressed', shape: 'boolean', text: '¿tecla espacio presionada?' },
+    { id: 'sn_mouse_x', shape: 'reporter', text: 'posición x del ratón' },
+    { id: 'sn_mouse_y', shape: 'reporter', text: 'posición y del ratón' }
+  ],
+  operators: [
+    { id: 'op_add', shape: 'reporter', text: '', isOp: true, op: '+', leftVal: '', rightVal: '' },
+    { id: 'op_sub', shape: 'reporter', text: '', isOp: true, op: '-', leftVal: '', rightVal: '' },
+    { id: 'op_mul', shape: 'reporter', text: '', isOp: true, op: '*', leftVal: '', rightVal: '' },
+    { id: 'op_div', shape: 'reporter', text: '', isOp: true, op: '/', leftVal: '', rightVal: '' },
+    { id: 'op_random', shape: 'reporter', text: 'elegir número al azar entre', params: [{ id: 'min', val: '1' }], suffix: 'y', params2: [{ id: 'max', val: '10' }] },
+    { id: 'op_gt', shape: 'boolean', text: '', isCmp: true, cmp: '>', leftVal: '', rightVal: '50' },
+    { id: 'op_lt', shape: 'boolean', text: '', isCmp: true, cmp: '<', leftVal: '', rightVal: '50' },
+    { id: 'op_eq', shape: 'boolean', text: '', isCmp: true, cmp: '=', leftVal: '', rightVal: '50' },
+    { id: 'op_and', shape: 'boolean', text: '', isLogic: true, logic: 'y' },
+    { id: 'op_or', shape: 'boolean', text: '', isLogic: true, logic: 'o' },
+    { id: 'op_not', shape: 'boolean', text: 'no', isLogic: true }
+  ],
+  variables: [
+    { id: 'v_my_var', shape: 'reporter', text: 'mi variable' },
+    { id: 'v_set_var', shape: 'stack', text: 'dar a mi variable el valor', params: [{ id: 'val', val: '0' }] },
+    { id: 'v_change_var', shape: 'stack', text: 'sumar a mi variable', params: [{ id: 'val', val: '1' }] }
+  ]
+};
 
-  const handleAddBlock = (block) => {
-    const formatted = `[${block.template}]`;
-    const newCode = code ? `${code}\n${formatted}` : formatted;
-    onCodeChange(newCode);
+const ScratchIDE = () => {
+  const [activeCategory, setActiveCategory] = useState('events');
+  const [workspaceBlocks, setWorkspaceBlocks] = useState([
+    {
+      instanceId: 'inst_start_flag',
+      id: 'e_when_flag',
+      shape: 'hat',
+      text: 'al hacer clic en ⚑',
+      color: '#FFBF00',
+      x: 60,
+      y: 40
+    },
+    {
+      instanceId: 'inst_start_move',
+      id: 'm_move',
+      shape: 'stack',
+      text: 'mover',
+      color: '#4C97FF',
+      params: [{ id: 'steps', val: '10' }],
+      suffix: 'pasos',
+      x: 60,
+      y: 95
+    }
+  ]);
+
+  const [zoom, setZoom] = useState(1);
+  const [activeDragId, setActiveDragId] = useState(null);
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+
+  const [catState, setCatState] = useState({
+    x: 0,
+    y: 0,
+    direction: 90,
+    visible: true,
+    size: 100,
+    saying: '',
+    isRunning: false
+  });
+
+  const canvasRef = useRef(null);
+
+  const curCat = SCRATCH_CATEGORIES.find(c => c.id === activeCategory) || SCRATCH_CATEGORIES[0];
+  const categoryBlocks = OFFICIAL_BLOCKS[activeCategory] || [];
+
+  // ARRASTRE DESDE LA PALETA DE BLOQUES
+  const handlePaletteDragStart = (e, block) => {
+    e.dataTransfer.setData('text/plain', JSON.stringify({
+      ...block,
+      color: curCat.color,
+      isNew: true
+    }));
   };
 
-  const handleClearScript = () => {
-    onCodeChange('');
+  // SOLTAR EN EL CANVAS O DENTRO DE UNA RANURA C/E
+  const handleCanvasDrop = (e) => {
+    e.preventDefault();
+    const rawData = e.dataTransfer.getData('text/plain');
+    if (!rawData) return;
+
+    try {
+      const data = JSON.parse(rawData);
+      if (data.isNew) {
+        const rect = canvasRef.current.getBoundingClientRect();
+        const dropX = Math.round((e.clientX - rect.left) / zoom);
+        const dropY = Math.round((e.clientY - rect.top) / zoom);
+
+        // IMÁN MAGNÉTICO: Si se suelta cerca del último bloque, encajar verticalmente
+        let finalX = dropX;
+        let finalY = dropY;
+
+        if (workspaceBlocks.length > 0 && data.shape !== 'reporter' && data.shape !== 'boolean') {
+          const last = workspaceBlocks[workspaceBlocks.length - 1];
+          const dist = Math.hypot(dropX - last.x, dropY - (last.y + 44));
+          if (dist < 50) {
+            finalX = last.x;
+            finalY = last.y + 46;
+          }
+        }
+
+        const newInst = {
+          ...data,
+          instanceId: 'inst_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+          x: finalX,
+          y: finalY,
+          body: data.body ? [] : undefined,
+          elseBody: data.elseBody ? [] : undefined,
+          condition: data.condition || null
+        };
+
+        setWorkspaceBlocks(prev => [...prev, newInst]);
+      }
+    } catch (err) {
+      console.warn('Error al soltar bloque:', err);
+    }
   };
 
-  const currentCategoryData = SCRATCH_CATEGORIES.find(c => c.id === activeCategory) || SCRATCH_CATEGORIES[0];
+  const handleCanvasDragOver = (e) => {
+    e.preventDefault();
+  };
+
+  // MOVILIDAD LIBRE DE BLOQUES DENTRO DE LA MESA DE TRABAJO (Drag & Move en Canvas)
+  const handleBlockMouseDown = (e, instId) => {
+    if (e.target.tagName === 'INPUT' || e.target.closest('button')) return;
+    e.stopPropagation();
+
+    const targetBlock = workspaceBlocks.find(b => b.instanceId === instId);
+    if (!targetBlock) return;
+
+    const rect = canvasRef.current.getBoundingClientRect();
+    const mouseX = (e.clientX - rect.left) / zoom;
+    const mouseY = (e.clientY - rect.top) / zoom;
+
+    setActiveDragId(instId);
+    setDragOffset({
+      x: mouseX - targetBlock.x,
+      y: mouseY - targetBlock.y
+    });
+  };
+
+  const handleCanvasMouseMove = (e) => {
+    if (!activeDragId) return;
+    const rect = canvasRef.current.getBoundingClientRect();
+    const mouseX = (e.clientX - rect.left) / zoom;
+    const mouseY = (e.clientY - rect.top) / zoom;
+
+    let newX = Math.round(mouseX - dragOffset.x);
+    let newY = Math.round(mouseY - dragOffset.y);
+
+    // Detección magnética con otros bloques
+    workspaceBlocks.forEach(other => {
+      if (other.instanceId !== activeDragId && other.shape !== 'reporter' && other.shape !== 'boolean') {
+        const dist = Math.hypot(newX - other.x, newY - (other.y + 46));
+        if (dist < 28) {
+          newX = other.x;
+          newY = other.y + 46;
+        }
+      }
+    });
+
+    setWorkspaceBlocks(prev =>
+      prev.map(b => b.instanceId === activeDragId ? { ...b, x: newX, y: newY } : b)
+    );
+  };
+
+  const handleCanvasMouseUp = () => {
+    setActiveDragId(null);
+  };
+
+  const removeBlock = (instId) => {
+    setWorkspaceBlocks(prev => prev.filter(b => b.instanceId !== instId));
+  };
+
+  // INSERCIÓN DE CÁPSULAS DENTRO DE RANURAS C/E O ENTRADAS
+  const handleSlotDrop = (e, targetBlockId, targetSlot) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const rawData = e.dataTransfer.getData('text/plain');
+    if (!rawData) return;
+    try {
+      const data = JSON.parse(rawData);
+      setWorkspaceBlocks(prev => prev.map(b => {
+        if (b.instanceId === targetBlockId) {
+          if (targetSlot === 'condition') {
+            return { ...b, condition: data.text || data.id };
+          }
+          if (targetSlot === 'body') {
+            const nested = { ...data, instanceId: 'inst_n_' + Date.now() };
+            return { ...b, body: [...(b.body || []), nested] };
+          }
+          if (targetSlot === 'elseBody') {
+            const nested = { ...data, instanceId: 'inst_ne_' + Date.now() };
+            return { ...b, elseBody: [...(b.elseBody || []), nested] };
+          }
+        }
+        return b;
+      }));
+    } catch (err) {
+      console.warn('Error en inserción en ranura:', err);
+    }
+  };
+
+  // EJECUCIÓN OFICIAL DE SCRATCH CON MOVIMIENTO, GIROS Y BUCLES
+  const handleRunGreenFlag = () => {
+    let nextX = catState.x;
+    let nextY = catState.y;
+    let nextDir = catState.direction;
+    let nextSay = '';
+
+    const executeSeq = (blocks) => {
+      blocks.forEach(blk => {
+        if (blk.id === 'm_move') {
+          const steps = parseInt(blk.params?.[0]?.val || 10, 10);
+          const rad = (nextDir - 90) * (Math.PI / 180);
+          nextX += Math.round(steps * Math.cos(rad));
+          nextY += Math.round(steps * Math.sin(rad));
+        } else if (blk.id === 'm_turn_right') {
+          const deg = parseInt(blk.params?.[0]?.val || 15, 10);
+          nextDir = (nextDir + deg) % 360;
+        } else if (blk.id === 'm_turn_left') {
+          const deg = parseInt(blk.params?.[0]?.val || 15, 10);
+          nextDir = (nextDir - deg + 360) % 360;
+        } else if (blk.id === 'm_gotoxy') {
+          nextX = parseInt(blk.params?.[0]?.val || 0, 10);
+          nextY = parseInt(blk.params2?.[0]?.val || 0, 10);
+        } else if (blk.id === 'm_point_dir') {
+          nextDir = parseInt(blk.params?.[0]?.val || 90, 10);
+        } else if (blk.id === 'l_say_sec' || blk.id === 'l_say') {
+          nextSay = blk.params?.[0]?.val || '¡Hola!';
+        } else if (blk.shape === 'c-block' && blk.body) {
+          executeSeq(blk.body);
+        }
+      });
+    };
+
+    executeSeq(workspaceBlocks);
+
+    nextX = Math.max(-230, Math.min(230, nextX));
+    nextY = Math.max(-170, Math.min(170, nextY));
+
+    setCatState(prev => ({
+      ...prev,
+      x: nextX,
+      y: nextY,
+      direction: nextDir,
+      saying: nextSay,
+      isRunning: true
+    }));
+  };
+
+  const handleStopAll = () => {
+    setCatState(prev => ({ ...prev, saying: '', isRunning: false }));
+  };
+
+  const handleResetStage = () => {
+    setCatState({
+      x: 0,
+      y: 0,
+      direction: 90,
+      visible: true,
+      size: 100,
+      saying: '',
+      isRunning: false
+    });
+  };
 
   return (
-    <div className="scratch-ide-wrapper">
-      {/* Selector lateral de categorías */}
-      <div className="scratch-categories-rail">
+    <div className="scratch-pro-ide-wrapper">
+      {/* 1. BARRA LATERAL DE CATEGORÍAS */}
+      <aside className="scratch-categories-rail">
         {SCRATCH_CATEGORIES.map(cat => (
           <button
             key={cat.id}
             type="button"
-            className={`cat-rail-btn ${activeCategory === cat.id ? 'active' : ''}`}
+            className={`scratch-cat-item ${activeCategory === cat.id ? 'active' : ''}`}
+            style={{ '--cat-color': cat.color }}
             onClick={() => setActiveCategory(cat.id)}
-            title={cat.name}
           >
-            <span className="cat-color-dot" style={{ backgroundColor: cat.color }}></span>
-            <span className="cat-rail-label">{cat.name}</span>
+            <span className="cat-circle-dot" style={{ backgroundColor: cat.color }} />
+            <span className="cat-name-label">{cat.name}</span>
           </button>
         ))}
-      </div>
+      </aside>
 
-      {/* Paleta de bloques de la categoría seleccionada */}
-      <div className="scratch-palette-pane">
-        <div className="palette-header" style={{ borderBottomColor: currentCategoryData.color }}>
-          <h4 style={{ color: currentCategoryData.color }}>{currentCategoryData.name}</h4>
-          <span className="palette-sub">Haz clic en un bloque para agregarlo a la secuencia</span>
+      {/* 2. PALETA DE BLOQUES CON FORMAS RÍGIDAS DE SCRATCH */}
+      <section className="scratch-blocks-palette-area">
+        <div className="palette-section-header" style={{ color: curCat.color }}>
+          {curCat.name}
         </div>
-
-        <div className="palette-blocks-grid">
-          {currentCategoryData.blocks.map(b => (
+        <div className="palette-blocks-container">
+          {categoryBlocks.map(block => (
             <div
-              key={b.id}
-              className={`scratch-block-item ${b.type}`}
-              style={{ backgroundColor: currentCategoryData.color }}
-              onClick={() => handleAddBlock(b)}
+              key={block.id}
+              className={`scratch-block ${block.shape}`}
+              style={{ backgroundColor: curCat.color }}
+              draggable
+              onDragStart={e => handlePaletteDragStart(e, block)}
             >
-              {b.type === 'hat' && <div className="block-hat-curved"></div>}
-              {b.type === 'stack' && <div className="block-puzzle-notch"></div>}
-              <span className="block-content-text">{b.text}</span>
-              {b.type === 'stack' && <div className="block-puzzle-tab"></div>}
+              {block.shape !== 'reporter' && block.shape !== 'boolean' && block.shape !== 'hat' && (
+                <div className="puzzle-tab-top" />
+              )}
+
+              {/* Contenido condicional C / E / Reporter / Stack */}
+              {block.shape === 'c-block' ? (
+                <>
+                  <div className="c-block-header">
+                    <span>{block.text}</span>
+                    {block.hasCondition && (
+                      <span className="block-slot-capsule hex-slot">
+                        {block.condition || '<condición>'}
+                      </span>
+                    )}
+                    {(block.params || []).map((p, i) => (
+                      <span key={i} className="block-param-pill">{p.val}</span>
+                    ))}
+                    {block.suffix && <span>{block.suffix}</span>}
+                  </div>
+                  <div className="c-mouth-inner" style={{ borderColor: curCat.color }}>
+                    <span className="c-mouth-placeholder">bloques dentro</span>
+                  </div>
+                  <div className="c-block-bottom" />
+                </>
+              ) : block.shape === 'e-block' ? (
+                <>
+                  <div className="c-block-header">
+                    <span>si</span>
+                    <span className="block-slot-capsule hex-slot">{'<condición>'}</span>
+                    <span>entonces</span>
+                  </div>
+                  <div className="c-mouth-inner" style={{ borderColor: curCat.color }}>
+                    <span className="c-mouth-placeholder">si es verdadero</span>
+                  </div>
+                  <div className="e-block-middle">
+                    <span>si no</span>
+                  </div>
+                  <div className="e-mouth-inner" style={{ borderColor: curCat.color }}>
+                    <span className="c-mouth-placeholder">si es falso</span>
+                  </div>
+                  <div className="e-block-bottom" />
+                </>
+              ) : block.isOp || block.isCmp ? (
+                <div className="block-content-row">
+                  <span className="block-slot-capsule" />
+                  <span>{block.op || block.cmp}</span>
+                  <span className="block-slot-capsule" />
+                </div>
+              ) : (
+                <div className="block-content-row">
+                  <span>{block.text}</span>
+                  {(block.params || []).map((p, i) => (
+                    <span key={i} className="block-param-pill">{p.val}</span>
+                  ))}
+                  {block.suffix && <span>{block.suffix}</span>}
+                  {(block.params2 || []).map((p, i) => (
+                    <span key={`p2-${i}`} className="block-param-pill">{p.val}</span>
+                  ))}
+                  {block.suffix2 && <span>{block.suffix2}</span>}
+                </div>
+              )}
+
+              {block.shape !== 'reporter' && block.shape !== 'boolean' && block.shape !== 'c-block' && block.shape !== 'e-block' && (
+                <div className="puzzle-tab-bottom" />
+              )}
             </div>
           ))}
         </div>
-      </div>
+      </section>
 
-      {/* Espacio de trabajo (Área de secuencia) */}
-      <div className="scratch-workspace-pane">
-        <div className="workspace-header">
-          <div className="ws-title-group">
-            <span className="ws-badge">Espacio de Código</span>
-            <span className="ws-hint">Secuencia de bloques conectados</span>
+      {/* 3. ESPACIO DE TRABAJO AMPLIO (CANVAS CON MOVILIDAD LIBRE Y ENCAJE C/E) */}
+      <main className="scratch-workspace-main">
+        <div className="workspace-controls-bar">
+          <div className="zoom-btn-group">
+            <button type="button" onClick={() => setZoom(z => Math.min(1.8, z + 0.1))} title="Acercar">+</button>
+            <span className="zoom-text">{Math.round(zoom * 100)}%</span>
+            <button type="button" onClick={() => setZoom(z => Math.max(0.5, z - 0.1))} title="Alejar">-</button>
+            <button type="button" onClick={() => setZoom(1)} title="Restablecer zoom 100%">100%</button>
           </div>
-          <button type="button" className="btn-clear-blocks" onClick={handleClearScript}>
-            🗑️ Limpiar
+          <button type="button" className="btn-clear-blocks" onClick={() => setWorkspaceBlocks([])}>
+            Limpiar Pizarra
           </button>
         </div>
 
-        <div className="scratch-script-visual-zone">
-          <textarea
-            className="scratch-raw-editor"
-            value={code}
-            onChange={(e) => onCodeChange(e.target.value)}
-            placeholder="Selecciona bloques de la izquierda para ir construyendo tu algoritmo de Scratch aquí..."
-            rows={10}
-            spellCheck="false"
-          />
+        <div
+          ref={canvasRef}
+          className="scratch-canvas-plane"
+          onDrop={handleCanvasDrop}
+          onDragOver={handleCanvasDragOver}
+          onMouseMove={handleCanvasMouseMove}
+          onMouseUp={handleCanvasMouseUp}
+        >
+          <div
+            className="canvas-zoom-container"
+            style={{ transform: `scale(${zoom})`, transformOrigin: 'top left' }}
+          >
+            {workspaceBlocks.length === 0 && (
+              <div className="empty-workspace-watermark">
+                Arrastra y encadena bloques aquí. Puedes moverlos libremente en cualquier momento.
+              </div>
+            )}
+
+            {workspaceBlocks.map(inst => (
+              <div
+                key={inst.instanceId}
+                className={`workspace-block-placed scratch-block ${inst.shape}`}
+                style={{
+                  left: `${inst.x}px`,
+                  top: `${inst.y}px`,
+                  backgroundColor: inst.color || '#4C97FF'
+                }}
+                onMouseDown={e => handleBlockMouseDown(e, inst.instanceId)}
+              >
+                {inst.shape !== 'reporter' && inst.shape !== 'boolean' && inst.shape !== 'hat' && (
+                  <div className="puzzle-tab-top" />
+                )}
+
+                {/* Render de Bloque C en Mesa */}
+                {inst.shape === 'c-block' ? (
+                  <>
+                    <div className="c-block-header">
+                      <span>{inst.text}</span>
+                      {inst.hasCondition && (
+                        <div
+                          className="block-slot-capsule hex-slot"
+                          onDrop={e => handleSlotDrop(e, inst.instanceId, 'condition')}
+                          onDragOver={e => e.preventDefault()}
+                        >
+                          {inst.condition || '<condición>'}
+                        </div>
+                      )}
+                      {(inst.params || []).map((p, i) => (
+                        <input
+                          key={i}
+                          type="text"
+                          className="block-input-param"
+                          defaultValue={p.val}
+                          onClick={e => e.stopPropagation()}
+                        />
+                      ))}
+                      {inst.suffix && <span>{inst.suffix}</span>}
+                    </div>
+
+                    {/* Ranura expandible que crece al agregar código */}
+                    <div
+                      className="c-mouth-inner"
+                      style={{ borderColor: inst.color || '#FFAB19' }}
+                      onDrop={e => handleSlotDrop(e, inst.instanceId, 'body')}
+                      onDragOver={e => e.preventDefault()}
+                    >
+                      {(!inst.body || inst.body.length === 0) ? (
+                        <span className="c-mouth-placeholder">Arrastra bloques dentro de la ranura</span>
+                      ) : (
+                        inst.body.map((child, idx) => (
+                          <div
+                            key={idx}
+                            className={`scratch-block ${child.shape}`}
+                            style={{ backgroundColor: child.color || '#4C97FF' }}
+                          >
+                            <span>{child.text}</span>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                    <div className="c-block-bottom" />
+                  </>
+                ) : inst.shape === 'e-block' ? (
+                  /* Render de Bloque E en Mesa (si / sino con 2 bocas expandibles) */
+                  <>
+                    <div className="c-block-header">
+                      <span>si</span>
+                      <div
+                        className="block-slot-capsule hex-slot"
+                        onDrop={e => handleSlotDrop(e, inst.instanceId, 'condition')}
+                        onDragOver={e => e.preventDefault()}
+                      >
+                        {inst.condition || '<condición>'}
+                      </div>
+                      <span>entonces</span>
+                    </div>
+                    <div
+                      className="c-mouth-inner"
+                      style={{ borderColor: inst.color || '#FFAB19' }}
+                      onDrop={e => handleSlotDrop(e, inst.instanceId, 'body')}
+                      onDragOver={e => e.preventDefault()}
+                    >
+                      {(!inst.body || inst.body.length === 0) ? (
+                        <span className="c-mouth-placeholder">Si se cumple la condición</span>
+                      ) : (
+                        inst.body.map((child, idx) => (
+                          <div
+                            key={idx}
+                            className={`scratch-block ${child.shape}`}
+                            style={{ backgroundColor: child.color || '#4C97FF' }}
+                          >
+                            <span>{child.text}</span>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                    <div className="e-block-middle">
+                      <span>si no</span>
+                    </div>
+                    <div
+                      className="e-mouth-inner"
+                      style={{ borderColor: inst.color || '#FFAB19' }}
+                      onDrop={e => handleSlotDrop(e, inst.instanceId, 'elseBody')}
+                      onDragOver={e => e.preventDefault()}
+                    >
+                      {(!inst.elseBody || inst.elseBody.length === 0) ? (
+                        <span className="c-mouth-placeholder">Si no se cumple</span>
+                      ) : (
+                        inst.elseBody.map((child, idx) => (
+                          <div
+                            key={idx}
+                            className={`scratch-block ${child.shape}`}
+                            style={{ backgroundColor: child.color || '#4C97FF' }}
+                          >
+                            <span>{child.text}</span>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                    <div className="e-block-bottom" />
+                  </>
+                ) : (
+                  <div className="block-content-row">
+                    <span>{inst.text}</span>
+                    {(inst.params || []).map((p, i) => (
+                      <input
+                        key={i}
+                        type="text"
+                        className="block-input-param"
+                        defaultValue={p.val}
+                        onClick={e => e.stopPropagation()}
+                      />
+                    ))}
+                    {inst.suffix && <span>{inst.suffix}</span>}
+                    {(inst.params2 || []).map((p, i) => (
+                      <input
+                        key={`p2-${i}`}
+                        type="text"
+                        className="block-input-param"
+                        defaultValue={p.val}
+                        onClick={e => e.stopPropagation()}
+                      />
+                    ))}
+                    {inst.suffix2 && <span>{inst.suffix2}</span>}
+                  </div>
+                )}
+
+                {inst.shape !== 'reporter' && inst.shape !== 'boolean' && inst.shape !== 'c-block' && inst.shape !== 'e-block' && (
+                  <div className="puzzle-tab-bottom" />
+                )}
+
+                <button
+                  type="button"
+                  className="btn-delete-block"
+                  onClick={(e) => { e.stopPropagation(); removeBlock(inst.instanceId); }}
+                  title="Eliminar bloque"
+                >
+                  <IconClose size={12} />
+                </button>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      </main>
+
+      {/* 4. ESCENARIO DEL GATO OFICIAL Y TELEMETRÍA */}
+      <aside className="scratch-stage-section">
+        <div className="stage-control-bar">
+          <button
+            type="button"
+            className="btn-green-flag"
+            onClick={handleRunGreenFlag}
+            title="Al hacer clic en bandera verde (Ejecutar)"
+          >
+            <span style={{ color: '#00E676', fontSize: '1.2rem' }}>⚑</span>
+          </button>
+          <button
+            type="button"
+            className="btn-red-stop"
+            onClick={handleStopAll}
+            title="Detener todo"
+          >
+            <span style={{ color: '#FF5252', fontSize: '1.2rem' }}>⏹</span>
+          </button>
+          <button
+            type="button"
+            className="btn-reset-pos"
+            onClick={handleResetStage}
+            title="Centrar personaje en (0, 0)"
+          >
+            Reiniciar Posición
+          </button>
+        </div>
+
+        <div className="stage-screen-canvas">
+          <div className="stage-axis-cross">
+            <span className="origin-marker">(0, 0)</span>
+          </div>
+
+          {catState.visible && (
+            <div
+              className="scratch-cat-sprite"
+              style={{
+                left: `calc(50% + ${catState.x}px)`,
+                top: `calc(50% - ${catState.y}px)`,
+                transform: `translate(-50%, -50%) rotate(${catState.direction - 90}deg) scale(${catState.size / 100})`
+              }}
+            >
+              {catState.saying && (
+                <div className="sprite-speech-bubble">
+                  {catState.saying}
+                </div>
+              )}
+
+              <svg width="48" height="48" viewBox="0 0 100 100" fill="none">
+                <circle cx="50" cy="55" r="32" fill="#FFA500" stroke="#000" strokeWidth="3" />
+                <polygon points="25,32 18,10 40,25" fill="#FFA500" stroke="#000" strokeWidth="3" />
+                <polygon points="75,32 82,10 60,25" fill="#FFA500" stroke="#000" strokeWidth="3" />
+                <ellipse cx="38" cy="50" rx="6" ry="8" fill="#FFFFFF" stroke="#000" strokeWidth="2" />
+                <ellipse cx="62" cy="50" rx="6" ry="8" fill="#FFFFFF" stroke="#000" strokeWidth="2" />
+                <circle cx="40" cy="50" r="3" fill="#000" />
+                <circle cx="64" cy="50" r="3" fill="#000" />
+                <polygon points="50,58 46,63 54,63" fill="#FF4081" />
+                <line x1="25" y1="58" x2="10" y2="56" stroke="#000" strokeWidth="2" />
+                <line x1="25" y1="64" x2="10" y2="66" stroke="#000" strokeWidth="2" />
+                <line x1="75" y1="58" x2="90" y2="56" stroke="#000" strokeWidth="2" />
+                <line x1="75" y1="64" x2="90" y2="66" stroke="#000" strokeWidth="2" />
+                <path d="M44 68 Q50 74 56 68" stroke="#000" strokeWidth="2" fill="none" />
+              </svg>
+            </div>
+          )}
+        </div>
+
+        <div className="stage-telemetry-bar">
+          <span>X: <strong>{catState.x}</strong></span>
+          <span>Y: <strong>{catState.y}</strong></span>
+          <span>Dirección: <strong>{catState.direction}°</strong></span>
+          <span>Tamaño: <strong>{catState.size}%</strong></span>
+        </div>
+      </aside>
     </div>
   );
 };
