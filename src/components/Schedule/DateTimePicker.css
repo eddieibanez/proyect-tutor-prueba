@@ -1,8 +1,8 @@
-/* DateTimePicker.css - Estilo Material Design 3 */
-.picker-dialog-overlay {
+﻿/* DateTimePicker.css - Selector de Fecha y Hora Material */
+.date-time-picker-overlay {
   position: fixed;
   inset: 0;
-  background-color: rgba(0, 0, 0, 0.65);
+  background-color: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(4px);
   z-index: 10500;
   display: flex;
@@ -12,14 +12,21 @@
 }
 
 .picker-card {
-  background: var(--card-bg, #1e1e2d);
-  color: var(--text-primary, #ffffff);
+  background: var(--cards, #FFFFFF);
+  color: var(--text-primary, #1E293B);
   border-radius: 20px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
-  border: 1px solid var(--border, rgba(255, 255, 255, 0.12));
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--border, rgba(0, 0, 0, 0.12));
   padding: 24px;
   animation: pickerPop 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   user-select: none;
+}
+
+[data-theme="dark"] .picker-card {
+  background: #1e1e2d;
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
 }
 
 @keyframes pickerPop {
@@ -27,33 +34,46 @@
   100% { transform: scale(1); opacity: 1; }
 }
 
-/* DATE PICKER */
-.date-card {
-  width: 330px;
+.date-picker-card {
+  width: 320px;
 }
 
-.picker-header-nav {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
+.time-picker-card {
+  width: 310px;
 }
 
 .picker-title-label {
-  font-size: 1.1rem;
-  font-weight: 700;
-  letter-spacing: 0.3px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted, #64748B);
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.picker-nav-arrows {
+/* 1. MODO CALENDARIO DE FECHA */
+.calendar-nav-header {
   display: flex;
-  gap: 6px;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.calendar-month-year {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary, #1E293B);
+}
+
+.calendar-arrows {
+  display: flex;
+  gap: 4px;
 }
 
 .arrow-btn {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid var(--border, rgba(255, 255, 255, 0.1));
-  color: var(--text-primary, #ffffff);
+  background: var(--dark, rgba(0, 0, 0, 0.05));
+  border: 1px solid var(--border, rgba(0, 0, 0, 0.1));
+  color: var(--text-primary, #1E293B);
   width: 32px;
   height: 32px;
   border-radius: 50%;
@@ -61,61 +81,60 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   transition: all 0.2s;
 }
 
 .arrow-btn:hover {
   background: var(--primary, #00BCD4);
-  color: #000;
+  color: #ffffff;
 }
 
-.weekdays-strip {
+.calendar-weekdays-row {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   text-align: center;
-  margin-bottom: 12px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--text-secondary, #9e9e9e);
+  margin-bottom: 8px;
 }
 
-.calendar-grid-cells {
+.weekday-header {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-muted, #64748B);
+  padding: 4px 0;
+}
+
+.calendar-days-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 4px;
-  margin-bottom: 20px;
-}
-
-.day-cell {
-  height: 38px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.85rem;
-}
-
-.day-cell.outside {
-  color: var(--text-muted, rgba(255, 255, 255, 0.25));
+  margin-bottom: 16px;
 }
 
 .day-cell-btn {
+  position: relative;
+  width: 38px;
   height: 38px;
   background: transparent;
   border: none;
   border-radius: 50%;
-  color: var(--text-primary, #ffffff);
-  font-size: 0.88rem;
+  color: var(--text-primary, #1E293B);
+  font-size: 0.85rem;
   font-weight: 500;
-  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
+  margin: auto;
   transition: all 0.15s;
 }
 
+.day-cell-btn.other-month {
+  color: var(--text-muted, rgba(0, 0, 0, 0.3));
+}
+
 .day-cell-btn:hover {
-  background: rgba(0, 188, 212, 0.2);
+  background: rgba(0, 188, 212, 0.15);
 }
 
 .day-cell-btn.active-day {
@@ -125,46 +144,47 @@
   box-shadow: 0 4px 12px rgba(25, 118, 210, 0.5);
 }
 
-/* TIME PICKER */
-.time-card {
-  width: 320px;
+.day-cell-btn.today-day:not(.active-day) {
+  border: 1px solid var(--primary, #00BCD4);
 }
 
-.time-picker-title {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--text-secondary, #b0bec5);
-  margin-bottom: 16px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+.day-badge-dot {
+  position: absolute;
+  bottom: 2px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
 }
+.day-badge-dot.class { background: var(--primary, #00BCD4); }
+.day-badge-dot.holiday { background: #00E676; }
 
-.time-display-row {
+/* 2. MODO RELOJ MATERIAL CON DIAL Y BOTONES AM/PM */
+.time-display-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 24px;
+  justify-content: center;
   gap: 12px;
+  margin-bottom: 20px;
 }
 
-.digits-group {
+.time-digits-group {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
 }
 
 .digit-box {
-  background: rgba(187, 134, 252, 0.18);
+  background: rgba(187, 134, 252, 0.12);
   border: 2px solid transparent;
   border-radius: 12px;
   padding: 12px 18px;
   font-size: 2.2rem;
   font-weight: 700;
-  color: var(--text-primary, #ffffff);
+  color: var(--text-primary, #1E293B);
   cursor: pointer;
-  min-width: 76px;
-  text-align: center;
   transition: all 0.2s;
+  min-width: 64px;
+  text-align: center;
 }
 
 .digit-box.active-unit {
@@ -175,25 +195,25 @@
 
 .time-colon {
   font-size: 2rem;
-  font-weight: 700;
-  color: var(--text-secondary, #b0bec5);
+  font-weight: bold;
+  color: var(--text-primary, #1E293B);
 }
 
 .ampm-toggle-col {
   display: flex;
   flex-direction: column;
-  border: 1px solid var(--border, rgba(255, 255, 255, 0.15));
-  border-radius: 12px;
+  border-radius: 10px;
   overflow: hidden;
+  border: 1px solid var(--border, rgba(0, 0, 0, 0.15));
 }
 
 .ampm-btn {
   background: transparent;
   border: none;
   padding: 10px 14px;
-  color: var(--text-secondary, #9e9e9e);
+  color: var(--text-muted, #64748B);
   font-weight: 700;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   cursor: pointer;
   transition: all 0.2s;
 }
@@ -203,11 +223,12 @@
   color: #2b0d1e;
 }
 
-/* DIAL CLOCK */
+/* ESFERA ANALÓGICA CON AGUJA Y NÚMEROS CIRCULARES */
 .analog-clock-container {
   display: flex;
   justify-content: center;
-  margin-bottom: 24px;
+  align-items: center;
+  margin-bottom: 20px;
 }
 
 .clock-dial-face {
@@ -215,11 +236,11 @@
   width: 220px;
   height: 220px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--dark, rgba(0, 0, 0, 0.04));
+  border: 1px solid var(--border, rgba(0, 0, 0, 0.1));
 }
 
-.clock-center-dot {
+.clock-center-pivot {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -231,7 +252,7 @@
   z-index: 5;
 }
 
-.clock-hand {
+.clock-hand-pointer {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -243,32 +264,31 @@
   pointer-events: none;
 }
 
-.clock-hand-endpoint {
+.clock-hand-thumb {
   position: absolute;
-  bottom: -18px;
+  bottom: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   background: #512da8;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #ffffff;
-  font-size: 0.85rem;
-  font-weight: 700;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+  font-size: 0.8rem;
+  font-weight: bold;
 }
 
 .dial-number-btn {
   position: absolute;
-  width: 34px;
-  height: 34px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   background: transparent;
   border: none;
-  color: var(--text-primary, #ffffff);
+  color: var(--text-primary, #1E293B);
   font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
@@ -276,12 +296,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.15s;
-  z-index: 2;
+  transition: background 0.15s;
+  z-index: 6;
 }
 
 .dial-number-btn:hover {
-  background: rgba(103, 58, 183, 0.3);
+  background: rgba(103, 58, 183, 0.2);
 }
 
 /* KEYBOARD INPUT MODE */
@@ -290,96 +310,88 @@
   align-items: center;
   justify-content: center;
   gap: 12px;
-  margin: 20px 0 30px;
+  margin: 25px 0;
 }
 
-.field-block {
+.kbd-field-block {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
 }
 
 .kbd-input {
   width: 76px;
   height: 64px;
   border-radius: 12px;
-  background: rgba(187, 134, 252, 0.15);
+  background: rgba(187, 134, 252, 0.12);
   border: 2px solid #7e57c2;
-  color: var(--text-primary, #ffffff);
+  color: var(--text-primary, #1E293B);
   font-size: 2rem;
-  font-weight: 700;
+  font-weight: bold;
   text-align: center;
   outline: none;
 }
 
-.kbd-sep {
-  font-size: 2rem;
-  font-weight: 700;
-  margin-top: -16px;
+.kbd-label {
+  font-size: 0.75rem;
+  color: var(--text-muted, #64748B);
 }
 
-/* ACTIONS */
-.picker-dialog-actions,
-.picker-footer-bar {
+/* BARRA DE ACCIONES INFERIOR */
+.picker-actions-footer {
   display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  align-items: center;
-}
-
-.picker-footer-bar {
   justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid var(--border, rgba(0, 0, 0, 0.1));
+  padding-top: 14px;
+  margin-top: 6px;
 }
 
-.footer-actions {
+.actions-left, .actions-right {
   display: flex;
-  gap: 10px;
+  align-items: center;
+  gap: 8px;
 }
 
 .btn-toggle-input-mode {
   background: transparent;
   border: none;
-  color: var(--text-secondary, #b0bec5);
+  color: var(--text-muted, #64748B);
   cursor: pointer;
+  font-size: 1.1rem;
+  padding: 6px;
+  border-radius: 6px;
+  transition: all 0.2s;
   display: flex;
   align-items: center;
-  justify-content: center;
-  padding: 6px;
-  border-radius: 50%;
-  transition: all 0.2s;
 }
 
 .btn-toggle-input-mode:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: var(--text-primary, #ffffff);
+  background: var(--dark, rgba(0, 0, 0, 0.05));
+  color: var(--text-primary, #1E293B);
 }
 
-.btn-cancel,
-.btn-ok {
+.btn-cancel, .btn-ok {
   border: none;
-  padding: 8px 18px;
+  padding: 8px 16px;
   border-radius: 8px;
-  font-size: 0.88rem;
-  font-weight: 600;
+  font-weight: 700;
+  font-size: 0.85rem;
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .btn-cancel {
   background: transparent;
-  color: var(--text-secondary, #b0bec5);
+  color: var(--text-muted, #64748B);
 }
 
 .btn-cancel:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--dark, rgba(0, 0, 0, 0.05));
 }
 
 .btn-ok {
   background: var(--primary, #00BCD4);
-  color: #000;
-}
-
-.btn-ok:hover {
-  filter: brightness(1.15);
+  color: #ffffff;
 }

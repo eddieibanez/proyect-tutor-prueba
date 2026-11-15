@@ -1,4 +1,4 @@
-:root {
+﻿:root {
   /* Modo Claro - Elegante, con profundidad, bordes sutiles y tarjetas distinguidas */
   --primary: #0097A7;
   --primary-hover: #00838F;
@@ -11,7 +11,7 @@
   --card-bg: #FFFFFF;
   --card-header: #FAFCFE;
   --border: #DDE3EA;
-  --border-focus: #00BCD4;
+  --border-focus: #0097A7;
   --warning: #EF6C00;
   --error: #D32F2F;
   --success: #2E7D32;
@@ -21,11 +21,16 @@
   --text-secondary: #64748B;
   --nav-bg: #FFFFFF;
   --sidebar-bg: #F8FAFC;
-  --code-bg: #1E293B;
-  --code-text: #38BDF8;
+  --code-bg: #F1F5F9;
+  --code-text: #0F172A;
   --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-  --card-shadow-hover: 0 10px 30px rgba(0, 0, 0, 0.1);
+  --card-shadow-hover: 0 10px 30px rgba(0, 0, 0, 0.10);
   --surface-raised: #FFFFFF;
+  --input-bg: #FFFFFF;
+  --input-text: #0F172A;
+  --input-focus-bg: #FFFFFF;
+  --selection-bg: rgba(0, 151, 167, 0.25);
+  --selection-color: #0F172A;
 }
 
 /* Modo Oscuro - Paleta profunda con contraste nítido y acentos vibrantes */
@@ -56,12 +61,28 @@
   --card-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
   --card-shadow-hover: 0 14px 40px rgba(0, 0, 0, 0.7);
   --surface-raised: #202038;
+  --input-bg: #151523;
+  --input-text: #F8FAFC;
+  --input-focus-bg: #1A1A2E;
+  --selection-bg: rgba(0, 188, 212, 0.35);
+  --selection-color: #FFFFFF;
 }
 
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+}
+
+/* SELECCIÓN DE TEXTO LIMPIA Y ALTAMENTE LEGIBLE */
+::selection {
+  background-color: var(--selection-bg);
+  color: var(--selection-color);
+}
+
+::-moz-selection {
+  background-color: var(--selection-bg);
+  color: var(--selection-color);
 }
 
 body {
@@ -78,25 +99,56 @@ code, pre {
   font-family: 'Fira Code', 'Consolas', monospace;
 }
 
-/* Scrollbar */
+/* REGLAS GLOBALES PARA INPUTS, TEXTAREAS Y SELECTS (Evita fondos negros en modo claro y asegura lectura clara al seleccionar) */
+input, select, textarea {
+  background-color: var(--input-bg);
+  color: var(--input-text);
+  border: 1px solid var(--border);
+  outline: none;
+  font-family: inherit;
+  transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+input:focus, select:focus, textarea:focus {
+  background-color: var(--input-focus-bg) !important;
+  color: var(--input-text) !important;
+  border-color: var(--border-focus) !important;
+  box-shadow: 0 0 0 3px rgba(0, 151, 167, 0.15);
+}
+
+input::selection, textarea::selection {
+  background-color: var(--selection-bg) !important;
+  color: var(--selection-color) !important;
+}
+
+option {
+  background-color: var(--cards);
+  color: var(--text-primary);
+}
+
+/* Scrollbars personalizados */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
+
 ::-webkit-scrollbar-track {
   background: var(--background);
 }
+
 ::-webkit-scrollbar-thumb {
   background: var(--primary);
   border-radius: 4px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
   background: var(--secondary);
 }
 
+/* Botones genéricos de diseño */
 .btn-primary {
   background: linear-gradient(135deg, var(--primary), var(--secondary));
-  color: #FFFFFF;
+  color: #ffffff;
   border: none;
   border-radius: 8px;
   padding: 10px 20px;

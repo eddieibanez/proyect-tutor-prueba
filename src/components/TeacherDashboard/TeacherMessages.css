@@ -1,225 +1,245 @@
-.teacher-messages-view {
-  padding: 1.5rem 2rem;
-  color: var(--text-light);
-}
-
-.messages-header-bar {
-  margin-bottom: 1.5rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid var(--border);
-}
-
-.messages-header-bar h2 {
-  font-size: 1.5rem;
-  margin: 0 0 0.4rem 0;
-  color: var(--text-light);
-}
-
-.messages-header-bar .subtitle {
-  color: var(--text-muted);
-  font-size: 0.9rem;
-  margin: 0;
-}
-
-.messages-layout-card {
+﻿/* TeacherMessages.css */
+.teacher-messages-container {
   display: flex;
-  background-color: var(--cards);
+  height: calc(100vh - 120px);
+  background-color: var(--cards, #FFFFFF);
   border: 1px solid var(--border);
-  border-radius: 12px;
-  height: calc(100vh - 230px);
-  min-height: 500px;
+  border-radius: 14px;
   overflow: hidden;
   box-shadow: var(--card-shadow);
+  animation: fadeIn 0.3s ease;
+  color: var(--text-primary);
 }
 
-/* LISTA DE ALUMNOS */
-.messages-students-list {
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* LISTA LATERAL DE ESTUDIANTES / CONVERSACIONES */
+.conversations-sidebar {
   width: 320px;
-  background-color: var(--sidebar-bg);
   border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
-}
-
-.students-list-head {
-  padding: 1rem;
-  background-color: var(--dark);
-  border-bottom: 1px solid var(--border);
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--primary);
-}
-
-.students-scroll-area {
-  flex: 1;
-  overflow-y: auto;
-}
-
-.student-msg-item {
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-  padding: 0.8rem 1rem;
-  border-bottom: 1px solid var(--border);
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.student-msg-item:hover {
-  background-color: rgba(0, 188, 212, 0.05);
-}
-
-.student-msg-item.active {
-  background-color: rgba(0, 188, 212, 0.12);
-  border-left: 3px solid var(--primary);
-}
-
-.avatar-initials {
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--secondary), var(--primary));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  font-size: 0.85rem;
-  color: white;
+  background-color: var(--sidebar-bg);
   flex-shrink: 0;
 }
 
-.msg-preview-info {
-  flex: 1;
-  overflow: hidden;
-}
-
-.name-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.student-chat-name {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--text-light);
-}
-
-.unread-dot {
-  background: var(--error);
-  color: white;
-  font-size: 0.7rem;
-  font-weight: bold;
-  padding: 0.1rem 0.4rem;
-  border-radius: 10px;
-}
-
-.student-grade-tag {
-  display: block;
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  margin-top: 0.2rem;
-}
-
-/* PANEL DERECHO DE CHAT */
-.messages-chat-pane {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  background-color: var(--background);
-}
-
-.chat-pane-header {
-  padding: 1rem 1.5rem;
-  background-color: var(--cards);
+.sidebar-header-bar {
+  padding: 1.2rem 1.4rem;
   border-bottom: 1px solid var(--border);
 }
 
-.chat-user-details h3 {
-  margin: 0 0 0.3rem 0;
+.sidebar-header-bar h3 {
   font-size: 1.15rem;
-  color: var(--text-light);
+  font-weight: 800;
+  color: var(--primary);
+  margin-bottom: 0.8rem;
 }
 
-.chat-user-details p {
-  margin: 0;
-  font-size: 0.8rem;
+.search-student-box {
+  display: flex;
+  align-items: center;
+  background-color: var(--input-bg, #FFFFFF);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.4rem 0.8rem;
+  gap: 0.6rem;
+}
+
+.search-student-box input {
+  background: transparent;
+  border: none;
+  color: var(--input-text, #1E293B);
+  font-size: 0.85rem;
+  width: 100%;
+  outline: none;
+}
+
+.conversations-scroll-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.conv-item-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.75rem 0.9rem;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background-color: transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: 100%;
+  text-align: left;
+  color: var(--text-primary);
+}
+
+.conv-item-btn:hover {
+  background-color: var(--dark);
+}
+
+.conv-item-btn.selected {
+  background-color: rgba(0, 188, 212, 0.12);
+  border-color: var(--primary);
+}
+
+.student-conv-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.95rem;
+  flex-shrink: 0;
+}
+
+.conv-item-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.conv-name-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2px;
+}
+
+.conv-student-name {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-light);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.conv-last-time {
+  font-size: 0.68rem;
   color: var(--text-muted);
 }
 
-.chat-status {
-  color: var(--success);
-  font-weight: 600;
+.conv-last-msg {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0;
+}
+
+/* ÁREA DE CONVERSACIÓN ACTIVA */
+.active-chat-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--cards);
+}
+
+.active-chat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.8rem;
+  border-bottom: 1px solid var(--border);
+  background-color: var(--dark);
+}
+
+.chat-user-profile {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.chat-user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--secondary);
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 1.05rem;
+}
+
+.chat-user-names h4 {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--text-light);
+  margin: 0;
+}
+
+.chat-user-names span {
+  font-size: 0.75rem;
+  color: var(--text-muted);
 }
 
 .chat-messages-history {
   flex: 1;
-  padding: 1.5rem;
   overflow-y: auto;
+  padding: 1.5rem;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.8rem;
 }
 
-.no-messages-alert {
-  text-align: center;
-  color: var(--text-muted);
-  margin: auto;
-  font-size: 0.9rem;
-}
-
-.chat-bubble-row {
+.msg-row-wrapper {
   display: flex;
-  width: 100%;
 }
 
-.chat-bubble-row.sent {
+.msg-row-wrapper.sent {
   justify-content: flex-end;
 }
 
-.chat-bubble-row.received {
+.msg-row-wrapper.received {
   justify-content: flex-start;
 }
 
-.chat-bubble {
-  max-width: 70%;
-  padding: 0.8rem 1rem;
+.msg-bubble-box {
+  max-width: 65%;
+  padding: 0.75rem 1rem;
   border-radius: 12px;
-  position: relative;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
-.chat-bubble-row.sent .chat-bubble {
-  background: linear-gradient(135deg, var(--secondary), var(--primary));
-  color: white;
+.msg-row-wrapper.sent .msg-bubble-box {
+  background-color: var(--primary);
+  color: #FFFFFF;
   border-bottom-right-radius: 2px;
 }
 
-.chat-bubble-row.received .chat-bubble {
-  background-color: var(--cards);
-  border: 1px solid var(--border);
+.msg-row-wrapper.received .msg-bubble-box {
+  background-color: var(--dark);
   color: var(--text-light);
   border-bottom-left-radius: 2px;
 }
 
-.sender-tag {
-  display: block;
-  font-size: 0.7rem;
-  font-weight: bold;
-  opacity: 0.8;
-  margin-bottom: 0.3rem;
+.msg-text-content {
+  font-size: 0.88rem;
+  line-height: 1.45;
+  word-break: break-word;
 }
 
-.bubble-text {
-  margin: 0 0 0.4rem 0;
-  font-size: 0.9rem;
-  line-height: 1.4;
-}
-
-.bubble-time {
-  display: block;
+.msg-meta-row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: 4px;
   font-size: 0.65rem;
-  text-align: right;
-  opacity: 0.6;
+  opacity: 0.8;
 }
 
 /* BARRA DE ENTRADA */
@@ -233,10 +253,10 @@
 
 .chat-input-bar input {
   flex: 1;
-  background-color: var(--dark);
+  background-color: var(--input-bg, #FFFFFF);
   border: 1px solid var(--border);
-  color: var(--text-light);
-  padding: 0.7rem 1rem;
+  color: var(--input-text, #1E293B);
+  padding: 0.6rem 1rem;
   border-radius: 8px;
   font-size: 0.9rem;
   outline: none;
@@ -244,23 +264,24 @@
 
 .chat-input-bar input:focus {
   border-color: var(--primary);
+  background-color: var(--input-focus-bg, #FFFFFF);
 }
 
 .btn-send-msg {
-  background: linear-gradient(135deg, var(--primary), var(--accent));
-  color: white;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: #FFFFFF;
   border: none;
-  padding: 0.7rem 1.3rem;
+  padding: 0.6rem 1.4rem;
   border-radius: 8px;
-  font-weight: bold;
-  font-size: 0.85rem;
+  font-size: 0.88rem;
+  font-weight: 700;
   cursor: pointer;
   transition: all 0.2s;
-  white-space: nowrap;
 }
 
 .btn-send-msg:hover {
-  transform: translateY(-2px);
+  opacity: 0.9;
+  transform: translateY(-1px);
 }
 
 .no-student-selected {

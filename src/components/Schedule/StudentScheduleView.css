@@ -1,171 +1,162 @@
-﻿.st-sched-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.65);
-  backdrop-filter: blur(5px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10000;
-  padding: 1rem;
-}
-
-.st-sched-card {
-  background: var(--cards);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  width: 100%;
-  max-width: 950px;
-  max-height: 85vh;
+﻿/* StudentScheduleView.css */
+.schedule-view-container {
   display: flex;
   flex-direction: column;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-  overflow: hidden;
+  gap: 1.5rem;
 }
 
-.st-sched-header {
-  padding: 1.2rem 1.5rem;
-  background: var(--dark);
-  border-bottom: 1px solid var(--border);
+.schedule-header-card {
+  background: var(--cards, #FFFFFF);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.5rem 1.8rem;
+  box-shadow: var(--card-shadow);
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 
-.st-sched-header h3 {
-  margin: 0;
+.header-text h2 {
+  font-size: 1.4rem;
+  font-weight: 800;
   color: var(--primary);
-  font-size: 1.25rem;
+  margin-bottom: 0.2rem;
 }
 
-.st-sched-header p {
-  margin: 3px 0 0 0;
+.header-text p {
   color: var(--text-muted);
-  font-size: 0.82rem;
+  font-size: 0.85rem;
 }
 
-.st-sched-body {
-  padding: 1.5rem;
-  overflow-y: auto;
+.month-navigator-box {
   display: flex;
-  flex-direction: column;
-  gap: 1.2rem;
+  align-items: center;
+  gap: 0.8rem;
+  background: var(--dark);
+  padding: 0.4rem 0.8rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+
+.current-month-label {
+  font-weight: 700;
+  color: var(--text-light);
+  font-size: 0.95rem;
+}
+
+.nav-arrow-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.nav-arrow-btn:hover {
+  background: var(--cards);
+  color: var(--primary);
 }
 
 .student-picker-row {
   display: flex;
   align-items: center;
   gap: 1rem;
+  background: var(--cards);
+  border: 1px solid var(--border);
+  padding: 1rem 1.4rem;
+  border-radius: 10px;
 }
 
 .student-picker-row label {
+  font-weight: 700;
   font-size: 0.85rem;
-  font-weight: 600;
   color: var(--text-muted);
 }
 
 .student-picker-row select {
-  background: var(--dark);
+  background: var(--input-bg, #FFFFFF);
   border: 1px solid var(--border);
-  color: var(--text-light);
+  color: var(--input-text, #1E293B);
   padding: 0.5rem 1rem;
   border-radius: 6px;
-  font-size: 0.9rem;
-  outline: none;
-}
-
-.st-info-banner {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  background: var(--dark);
-  padding: 0.8rem 1.2rem;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  margin-bottom: 1rem;
-}
-
-.st-avatar-badge {
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  background: var(--primary);
-  color: #FFFFFF;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 1.1rem;
-}
-
-.st-info-banner h4 {
-  margin: 0;
-  color: var(--text-light);
-  font-size: 1.05rem;
-}
-
-.st-info-banner p {
-  margin: 2px 0 0 0;
-  color: var(--text-muted);
-  font-size: 0.8rem;
-}
-
-.weekly-schedule-matrix {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 0.6rem;
-  overflow-x: auto;
-}
-
-.day-schedule-column {
-  background: var(--dark);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  display: flex;
-  flex-direction: column;
-  min-width: 130px;
-}
-
-.day-column-head {
-  padding: 0.6rem 0.8rem;
-  background: var(--cards);
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  border-top-left-radius: 8px;
-  border-top-right-radius: 8px;
-}
-
-.day-column-head strong {
-  color: var(--text-light);
   font-size: 0.85rem;
+  outline: none;
+  cursor: pointer;
 }
 
-.day-count {
-  font-size: 0.7rem;
+.calendar-matrix-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+}
+
+.matrix-weekday-header {
+  text-align: center;
+  font-size: 0.8rem;
+  font-weight: 700;
   color: var(--text-muted);
+  padding: 0.5rem;
+  background: var(--dark);
+  border-radius: 6px;
 }
 
-.day-classes-list {
+.matrix-day-cell {
+  background: var(--cards, #FFFFFF);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  min-height: 100px;
   padding: 0.6rem;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  flex: 1;
+  gap: 4px;
+  transition: all 0.2s;
 }
 
-.no-class-slot {
-  text-align: center;
+.matrix-day-cell:hover {
+  border-color: var(--primary);
+}
+
+.matrix-day-cell.empty {
+  background: transparent;
+  border-color: transparent;
+}
+
+.matrix-day-cell.holiday {
+  background: rgba(46, 125, 50, 0.08);
+  border-color: var(--success);
+}
+
+.matrix-day-cell.today {
+  border: 2px solid var(--primary);
+}
+
+.cell-day-num {
+  font-size: 0.8rem;
+  font-weight: 800;
   color: var(--text-muted);
-  font-size: 0.75rem;
-  padding: 1.5rem 0;
-  font-style: italic;
-  opacity: 0.7;
+}
+
+.cell-day-num.today {
+  color: var(--primary);
+}
+
+.holiday-banner {
+  background: var(--success);
+  color: #FFFFFF;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  line-height: 1.2;
 }
 
 .matrix-class-card {
-  background: var(--cards);
+  background: var(--cards, #FFFFFF);
   border: 1px solid var(--border);
   border-left: 3px solid;
   border-radius: 6px;
@@ -173,21 +164,35 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
-.matrix-time {
-  font-size: 0.68rem;
+.matrix-class-card.cancelled {
+  opacity: 0.6;
+  text-decoration: line-through;
+  background: rgba(198, 40, 40, 0.05);
+  border-left-color: var(--error);
+}
+
+.class-title {
+  font-size: 0.75rem;
   font-weight: 700;
-  color: var(--primary);
-}
-
-.matrix-course-name {
-  font-size: 0.78rem;
   color: var(--text-light);
-  line-height: 1.2;
 }
 
-.matrix-course-code {
+.class-time {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+}
+
+.class-lead {
   font-size: 0.65rem;
   color: var(--text-muted);
+  font-style: italic;
+}
+
+.cancelled-tag {
+  font-size: 0.62rem;
+  color: var(--error);
+  font-weight: 700;
 }

@@ -1,89 +1,91 @@
-﻿.calendar-widget-card {
-  background: var(--cards);
+﻿/* CalendarWidget.css - Calendario Fijo e Integrado */
+.calendar-widget-card {
+  background: var(--cards, #FFFFFF);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 14px;
   padding: 1.2rem;
   box-shadow: var(--card-shadow);
   display: flex;
   flex-direction: column;
   gap: 0.8rem;
+  color: var(--text-primary);
 }
 
-.widget-head {
+.widget-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 0.6rem;
-  border-bottom: 1px solid var(--border);
-  padding-bottom: 0.6rem;
 }
 
-.widget-head h4 {
-  margin: 0;
+.widget-month-title {
   font-size: 0.95rem;
-  color: var(--primary);
-  font-weight: 700;
+  font-weight: 800;
+  color: var(--text-light);
+  margin: 0;
 }
 
-.widget-month-nav {
+.widget-nav-group {
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  gap: 4px;
 }
 
-.btn-widget-month {
+.widget-nav-btn {
   background: var(--dark);
   border: 1px solid var(--border);
   color: var(--text-light);
+  border-radius: 4px;
   width: 26px;
   height: 26px;
-  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  font-size: 0.75rem;
-}
-
-.widget-month-label {
-  font-size: 0.8rem;
+  font-size: 0.7rem;
   font-weight: 700;
-  color: var(--text-light);
+  cursor: pointer;
+  transition: all 0.2s;
 }
 
-.widget-weekdays-grid {
+.widget-nav-btn:hover {
+  border-color: var(--primary);
+}
+
+.widget-weekdays-row {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   text-align: center;
-  font-size: 0.72rem;
+}
+
+.widget-weekday {
+  font-size: 0.68rem;
   font-weight: 700;
   color: var(--text-muted);
+  padding: 2px 0;
 }
 
 .widget-days-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 4px;
+  gap: 3px;
 }
 
-.widget-cell.empty {
-  min-height: 32px;
+.widget-cell-empty {
+  min-height: 34px;
 }
 
 .widget-cell-btn {
-  background: var(--dark);
+  background: var(--cards, #FFFFFF);
   border: 1px solid var(--border);
   border-radius: 6px;
   min-height: 34px;
-  padding: 3px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  padding: 2px;
   cursor: pointer;
   position: relative;
-  transition: all 0.15s ease;
+  transition: all 0.15s;
+  color: var(--text-primary);
 }
 
 .widget-cell-btn:hover {
@@ -91,12 +93,12 @@
 }
 
 .widget-cell-btn.selected {
-  background: rgba(0, 188, 212, 0.2);
+  background: rgba(0, 188, 212, 0.15);
   border-color: var(--primary);
 }
 
 .widget-cell-btn.holiday {
-  background: rgba(46, 125, 50, 0.15);
+  background: rgba(46, 125, 50, 0.12);
   border-color: var(--success);
 }
 
@@ -110,11 +112,16 @@
   color: var(--text-light);
 }
 
+.cell-dots-row {
+  display: flex;
+  gap: 2px;
+  margin-top: 2px;
+}
+
 .cell-mini-dot {
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  margin-top: 2px;
 }
 
 .cell-mini-dot.holiday { background: var(--success); }
@@ -125,7 +132,7 @@
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 0.7rem;
-  font-size: 0.78rem;
+  font-size: 0.75rem;
 }
 
 .selected-date-title {
@@ -135,27 +142,43 @@
   margin-bottom: 0.4rem;
 }
 
-.holiday-info-pill {
-  color: var(--success);
+.event-item-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 6px;
+  border-radius: 4px;
+  margin-bottom: 3px;
   font-weight: 600;
 }
 
-.courses-mini-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
+.event-item-pill.holiday {
+  background: rgba(46, 125, 50, 0.15);
+  color: var(--success);
 }
 
-.course-mini-item {
-  background: var(--cards);
-  border: 1px solid var(--border);
-  border-left: 3px solid;
-  padding: 0.4rem 0.6rem;
-  border-radius: 4px;
-  color: var(--text-light);
+.event-item-pill.class {
+  background: rgba(0, 188, 212, 0.15);
+  color: var(--primary);
 }
 
-.no-classes-info {
+.no-events-text {
   color: var(--text-muted);
   font-style: italic;
+  margin: 0;
+}
+
+.widget-legend {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border);
+  padding-top: 0.6rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }

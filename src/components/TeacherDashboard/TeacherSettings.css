@@ -1,86 +1,96 @@
-.teacher-settings-view {
-  padding: 1.5rem 2rem;
-  color: var(--text-light);
-  max-width: 900px;
-}
-
-.settings-header-bar {
-  margin-bottom: 1.5rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid var(--border);
-}
-
-.settings-header-bar h2 {
-  font-size: 1.5rem;
-  margin: 0 0 0.4rem 0;
-  color: var(--text-light);
-}
-
-.settings-header-bar .subtitle {
-  color: var(--text-muted);
-  font-size: 0.9rem;
-  margin: 0;
-}
-
-.save-banner {
-  background: rgba(46, 125, 50, 0.15);
-  border: 1px solid var(--success);
-  color: var(--success);
-  padding: 0.8rem 1.2rem;
-  border-radius: 8px;
-  font-weight: 600;
-  margin-bottom: 1.5rem;
-  animation: fadeIn 0.3s ease;
-}
-
-.settings-form {
+﻿/* TeacherSettings.css */
+.teacher-settings-container {
   display: flex;
   flex-direction: column;
   gap: 1.8rem;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.settings-header {
+  background-color: var(--cards);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.6rem 2rem;
+  box-shadow: var(--card-shadow);
+}
+
+.settings-header h2 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--primary);
+  margin-bottom: 0.3rem;
+}
+
+.settings-header p {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.settings-sections-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
 .settings-card {
   background-color: var(--cards);
   border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 1.5rem;
+  border-radius: 14px;
+  padding: 1.8rem;
+  box-shadow: var(--card-shadow);
   display: flex;
   flex-direction: column;
-  gap: 1.2rem;
-  box-shadow: var(--card-shadow);
+  gap: 1.4rem;
 }
 
-.settings-card h3 {
-  font-size: 1.1rem;
-  color: var(--primary);
-  margin: 0 0 0.4rem 0;
+.settings-card-title {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
   border-bottom: 1px solid var(--border);
-  padding-bottom: 0.6rem;
+  padding-bottom: 0.8rem;
 }
 
-.setting-row {
+.settings-card-title h3 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-light);
+  margin: 0;
+}
+
+.settings-form-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 1rem;
-  padding: 0.5rem 0;
+  gap: 1.5rem;
 }
 
-.setting-desc {
+.settings-label-block h4 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-light);
+  margin: 0 0 0.2rem 0;
+}
+
+.settings-label-block p {
   font-size: 0.8rem;
   color: var(--text-muted);
-  margin: 0.2rem 0 0 0;
+  margin: 0;
 }
 
 .text-input, .select-input, .number-input {
-  background-color: var(--dark);
+  background-color: var(--input-bg, #FFFFFF);
   border: 1px solid var(--border);
-  color: var(--text-light);
+  color: var(--input-text, #1E293B);
   padding: 0.55rem 0.8rem;
   border-radius: 6px;
-  font-size: 0.85rem;
+  font-size: 0.88rem;
   outline: none;
-  min-width: 220px;
 }
 
 .number-input {
@@ -90,14 +100,16 @@
 
 .text-input:focus, .select-input:focus, .number-input:focus {
   border-color: var(--primary);
+  background-color: var(--input-focus-bg, #FFFFFF);
 }
 
 /* TOGGLE SWITCH */
 .toggle-switch {
   position: relative;
   display: inline-block;
-  width: 48px;
-  height: 24px;
+  width: 50px;
+  height: 26px;
+  flex-shrink: 0;
 }
 
 .toggle-switch input {
@@ -115,20 +127,19 @@
   bottom: 0;
   background-color: var(--dark);
   border: 1px solid var(--border);
-  transition: .3s;
-  border-radius: 24px;
+  transition: 0.3s;
+  border-radius: 34px;
 }
 
 .slider:before {
   position: absolute;
   content: "";
-  height: 16px;
-  width: 16px;
+  height: 18px;
+  width: 18px;
   left: 3px;
   bottom: 3px;
-  background-color: var(--cards);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-  transition: .3s;
+  background-color: var(--text-muted);
+  transition: 0.3s;
   border-radius: 50%;
 }
 
@@ -142,24 +153,27 @@ input:checked + .slider:before {
   background-color: white;
 }
 
-.form-submit-row {
+.settings-actions-footer {
   display: flex;
   justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1rem;
 }
 
 .btn-save-settings {
   background: linear-gradient(135deg, var(--primary), var(--secondary));
-  color: white;
+  color: #FFFFFF;
   border: none;
   padding: 0.75rem 1.8rem;
   border-radius: 8px;
-  font-weight: bold;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
+  font-weight: 700;
   cursor: pointer;
+  box-shadow: 0 4px 15px rgba(0, 188, 212, 0.25);
   transition: all 0.2s;
-  box-shadow: 0 4px 15px rgba(0, 188, 212, 0.3);
 }
 
 .btn-save-settings:hover {
-  transform: translateY(-2px);
+  opacity: 0.9;
+  transform: translateY(-1px);
 }
