@@ -270,8 +270,8 @@ const TeacherCourses = ({ onOpenGoalModal }) => {
 
       {/* MODAL CREAR CURSO */}
       {showCourseModal && (
-        <div className="modal-overlay">
-          <div className="course-modal-content">
+        <div className="course-modal-overlay" onClick={() => setShowCourseModal(false)}>
+          <div className="course-modal-content" onClick={e => e.stopPropagation()}>
             <div className="modal-header-row">
               <h3>Crear Nueva Asignatura</h3>
               <button type="button" className="btn-close-modal" onClick={() => setShowCourseModal(false)}>✕</button>
@@ -432,7 +432,7 @@ const TeacherCourses = ({ onOpenGoalModal }) => {
 
       {/* MODAL MATRICULAR ESTUDIANTE */}
       {showStudentModal && (
-        <div className="modal-overlay">
+        <div className="course-modal-overlay" onClick={() => setShowStudentModal(false)}>
           <div className="course-modal-content">
             <div className="modal-header-row">
               <h3>Matricular Nuevo Alumno en [{activeCourse?.code}]</h3>

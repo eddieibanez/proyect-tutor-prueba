@@ -149,7 +149,7 @@ const TeacherDashboard = () => {
           </button>
         </nav>
 
-        {/* ACCIONES RÃPIDAS EN EL PIE DE LA CINTA LATERAL */}
+        {/* ACCIONES RÁPIDAS EN EL PIE DE LA CINTA LATERAL */}
         <div className="ribbon-footer-actions">
           {/* BOTÓN CALENDARIO DESPLEGABLE */}
           <button
@@ -188,7 +188,7 @@ const TeacherDashboard = () => {
         </div>
       </aside>
 
-      {/* ÃREA DE CONTENIDO PRINCIPAL */}
+      {/* ÁREA DE CONTENIDO PRINCIPAL */}
       <main className="teacher-main-viewport">
         {activeTab === 'dashboard' && (
           <TeacherOverview

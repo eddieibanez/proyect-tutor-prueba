@@ -418,7 +418,21 @@
 }
 
 /* 3. MODAL DE CREACIÓN DE CURSO Y ESTUDIANTE ELEGANTE */
+.course-modal-overlay,
 .modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(6px);
+  z-index: 10600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  animation: fadeInModal 0.2s ease-out;
+}
+
+.legacy-modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
