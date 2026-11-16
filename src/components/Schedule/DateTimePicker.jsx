@@ -46,8 +46,9 @@ export const DatePickerModal = ({ isOpen, onClose, onSelectDate, initialDate }) 
     <div className="picker-dialog-overlay" onClick={onClose}>
       <div className="picker-card date-card" onClick={e => e.stopPropagation()}>
         <div className="picker-header-nav">
-          <span className="picker-title-label">
-            📅 Selector de Fecha
+          <span className="picker-title-label" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+            <IconCalendar size={18} color="var(--primary)" />
+            Selector de Fecha
           </span>
           <div className="picker-nav-arrows">
             <button type="button" className="arrow-btn" onClick={handlePrevMonth} title="Mes anterior">▲</button>

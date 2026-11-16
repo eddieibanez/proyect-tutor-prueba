@@ -7,7 +7,7 @@ import CourseTasksModal from '../Tasks/CourseTasksModal';
 import StudentScheduleView from '../Schedule/StudentScheduleView';
 import { DAY_NAMES } from '../../utils/colombianHolidays';
 import { TimePickerModal, DatePickerModal } from '../Schedule/DateTimePicker';
-import { IconClock, IconCalendar } from '../common/Icons';
+import { IconClock, IconCalendar, IconBook, IconGlobe, IconUser, IconEdit, IconTrash, IconEye, IconStudent, IconSearch, IconCheck, IconClose, IconAlertCircle, IconAlertTriangle } from '../common/Icons';
 
 const TeacherCourses = ({ onOpenGoalModal }) => {
   const {
@@ -136,7 +136,7 @@ const TeacherCourses = ({ onOpenGoalModal }) => {
     }
 
     if (createConflict) {
-      alert(`⚠️ Cruce de horarios: Este curso colisiona con "${createConflict.courseName}" (${createConflict.courseCode}) de ${createConflict.grade}° Grado los días ${createConflict.dayName} en el horario ${createConflict.timeRange}. Por favor ajusta los días o la hora.`);
+      alert(`Cruce de horarios detectado: Este curso colisiona con "${createConflict.courseName}" (${createConflict.courseCode}) de ${createConflict.grade}° Grado los días ${createConflict.dayName} en el horario ${createConflict.timeRange}. Por favor ajusta los días o la hora.`);
       return;
     }
 
@@ -179,7 +179,7 @@ const TeacherCourses = ({ onOpenGoalModal }) => {
     if (!editingCourse || !editingCourse.name || !editingCourse.code) return;
 
     if (editConflict) {
-      alert(`⚠️ Cruce de horarios: Este horario colisiona con "${editConflict.courseName}" (${editConflict.courseCode}) de ${editConflict.grade}° Grado los días ${editConflict.dayName} en el horario ${editConflict.timeRange}. Modifica la hora o los días para evitar cruces.`);
+      alert(`Cruce de horarios detectado: Este horario colisiona con "${editConflict.courseName}" (${editConflict.courseCode}) de ${editConflict.grade}° Grado los días ${editConflict.dayName} en el horario ${editConflict.timeRange}. Modifica la hora o los días para evitar cruces.`);
       return;
     }
 
@@ -249,7 +249,7 @@ const TeacherCourses = ({ onOpenGoalModal }) => {
     <div className="teacher-courses-view">
       <div className="courses-header-bar">
         <div>
-          <h2>📚 Gestión de Cursos y Alumnos</h2>
+          <h2><IconBook size={24} color="var(--primary, #00BCD4)" /> Gestión de Cursos y Alumnos</h2>
           <p className="subtitle">Crea, edita y administra asignaturas sin cruces de horario. Matricula alumnos desde la plataforma.</p>
         </div>
         <button type="button" className="btn-add-course" onClick={() => setShowCourseModal(true)}>
@@ -266,14 +266,14 @@ const TeacherCourses = ({ onOpenGoalModal }) => {
               className={`scope-tab-btn ${courseScopeTab === 'mine' ? 'active' : ''}`}
               onClick={() => setCourseScopeTab('mine')}
             >
-              📘 Mis Cursos ({myCourses.length})
+              Mis Cursos ({myCourses.length})
             </button>
             <button
               type="button"
               className={`scope-tab-btn ${courseScopeTab === 'all' ? 'active' : ''}`}
               onClick={() => setCourseScopeTab('all')}
             >
-              🌐 Todos los Cursos ({courses.length})
+              Todos los Cursos ({courses.length})
             </button>
           </div>
 
@@ -304,7 +304,7 @@ const TeacherCourses = ({ onOpenGoalModal }) => {
                         </span>
                         {!isMine && (
                           <span className="course-owner-badge" title="Asignatura de colega docente">
-                            👤 {course.teacherName || 'Colega'}
+                            <IconUser size={13} /> {course.teacherName || 'Colega'}
                           </span>
                         )}
                       </div>
@@ -318,9 +318,7 @@ const TeacherCourses = ({ onOpenGoalModal }) => {
                               handleStartEditCourse(course);
                             }}
                             title="Editar asignatura y horario"
-                          >
-                            ✏️
-                          </button>
+                          ><IconEdit size={15} /></button>
                           <button
                             type="button"
                             className="btn-delete-course"
@@ -329,9 +327,7 @@ const TeacherCourses = ({ onOpenGoalModal }) => {
                               handleDeleteCourse(course.id, course.name);
                             }}
                             title="Eliminar este curso"
-                          >
-                            🗑️
-                          </button>
+                          ><IconTrash size={15} /></button>
                         </div>
                       )}
                     </div>
@@ -351,7 +347,7 @@ const TeacherCourses = ({ onOpenGoalModal }) => {
           {/* CALENDARIO DE CLASES Y HORARIOS DE LOS CURSOS */}
           <div className="courses-calendar-container-card">
             <div className="card-calendar-head">
-              <h4>📅 Calendario Académico de Cursos y Horarios</h4>
+              <h4><IconCalendar size={18} /> Calendario Académico de Cursos y Horarios</h4>
               <p>Consulta las sesiones programadas, festivos y fechas asignadas para los estudiantes inscritos.</p>
             </div>
             <CalendarWidget
@@ -368,7 +364,7 @@ const TeacherCourses = ({ onOpenGoalModal }) => {
             <div className="course-detail-card">
               {!isMyCourse && (
                 <div className="colleague-course-notice-banner">
-                  <span>👁️ <strong>Modo Monitoreo Institucional:</strong> Asignatura creada y a cargo de <strong>{activeCourse.teacherName || 'Docente Colega'}</strong>.</span>
+                  <span><IconEye size={16} /> <strong>Modo Monitoreo Institucional:</strong> Asignatura creada y a cargo de <strong>{activeCourse.teacherName || 'Docente Colega'}</strong>.</span>
                 </div>
               )}
               <div className="detail-top-banner">
@@ -393,8 +389,9 @@ const TeacherCourses = ({ onOpenGoalModal }) => {
                     className="btn-banner-edit-course"
                     onClick={() => handleStartEditCourse(activeCourse)}
                     title="Editar detalles y horario de esta asignatura"
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
                   >
-                    ✏️ Editar Asignatura
+                    <IconEdit size={14} /> Editar Asignatura
                   </button>
                 </div>
               </div>
@@ -402,7 +399,10 @@ const TeacherCourses = ({ onOpenGoalModal }) => {
               {/* LISTA Y GESTIÓN DE ALUMNOS MATRICULADOS */}
               <div className="enrolled-students-section">
                 <div className="enrolled-header">
-                  <h4>👨‍🎓 Estudiantes Matriculados ({enrolledStudents.length})</h4>
+                  <h4 style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <IconStudent size={18} color="var(--primary)" />
+                    Estudiantes Matriculados ({enrolledStudents.length})
+                  </h4>
                   <button 
                     type="button" 
                     className="btn-add-student-course"
@@ -453,7 +453,7 @@ const TeacherCourses = ({ onOpenGoalModal }) => {
                                 onClick={() => handleDeleteStudent(st.id, `${st.name} ${st.lastName || ''}`)}
                                 title="Dar de baja a este estudiante"
                               >
-                                ✕ Dar de baja
+                                Dar de baja
                               </button>
                             </td>
                           </tr>
@@ -478,12 +478,12 @@ const TeacherCourses = ({ onOpenGoalModal }) => {
           <div className="course-modal-content" onClick={e => e.stopPropagation()}>
             <div className="modal-header-row">
               <h3>Crear Nueva Asignatura</h3>
-              <button type="button" className="btn-close-modal" onClick={() => setShowCourseModal(false)}>✕</button>
+              <button type="button" className="btn-close-modal" onClick={() => setShowCourseModal(false)}><IconClose size={20} /></button>
             </div>
             <form onSubmit={handleCreateCourse} className="course-edit-form">
               {createConflict && (
                 <div className="conflict-warning-box">
-                  ⚠️ <strong>Cruce de Horario:</strong> Se traslapa con "{createConflict.courseName}" ({createConflict.courseCode}) los días {createConflict.dayName} ({createConflict.timeRange}). Modifica el horario para evitar conflictos.
+                  <IconAlertCircle size={16} /> <strong>Cruce de Horario:</strong> Se traslapa con "{createConflict.courseName}" ({createConflict.courseCode}) los días {createConflict.dayName} ({createConflict.timeRange}). Modifica el horario para evitar conflictos.
                 </div>
               )}
 
@@ -545,7 +545,7 @@ const TeacherCourses = ({ onOpenGoalModal }) => {
                         }}
                         title={day.full}
                       >
-                        {isSelected && <span className="day-check-badge">✓</span>}
+                        {isSelected && <span className="day-check-badge"><IconCheck size={10} /></span>}
                         <span>{day.name}</span>
                       </button>
                     );
@@ -553,11 +553,13 @@ const TeacherCourses = ({ onOpenGoalModal }) => {
                 </div>
                 <div className="selected-days-summary">
                   {newCourse.scheduleDays.length > 0 ? (
-                    <span>
-                      📅 <strong>Días seleccionados:</strong> {newCourse.scheduleDays.map(d => DAY_NAMES[d]).join(', ')} ({newCourse.scheduleDays.length} {newCourse.scheduleDays.length === 1 ? 'sesión' : 'sesiones'}/semana)
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                      <IconCalendar size={14} /> <strong>Días seleccionados:</strong> {newCourse.scheduleDays.map(d => DAY_NAMES[d]).join(', ')} ({newCourse.scheduleDays.length} {newCourse.scheduleDays.length === 1 ? 'sesión' : 'sesiones'}/semana)
                     </span>
                   ) : (
-                    <span className="no-days-warning">⚠️ Selecciona al menos un día de clase</span>
+                    <span className="no-days-warning" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                      <IconAlertTriangle size={14} /> Selecciona al menos un día de clase
+                    </span>
                   )}
                 </div>
               </div>
@@ -613,13 +615,17 @@ const TeacherCourses = ({ onOpenGoalModal }) => {
         <div className="course-modal-overlay" onClick={() => setShowEditCourseModal(false)}>
           <div className="course-modal-content" onClick={e => e.stopPropagation()}>
             <div className="modal-header-row">
-              <h3>✏️ Editar Asignatura y Ajustar Horario</h3>
-              <button type="button" className="btn-close-modal" onClick={() => setShowEditCourseModal(false)}>✕</button>
+              <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <IconEdit size={20} color="var(--primary)" />
+                Editar Asignatura y Ajustar Horario
+              </h3>
+              <button type="button" className="btn-close-modal" onClick={() => setShowEditCourseModal(false)}><IconClose size={20} /></button>
             </div>
             <form onSubmit={handleSaveEditCourse} className="course-edit-form">
               {editConflict && (
-                <div className="conflict-warning-box">
-                  ⚠️ <strong>Cruce de Horario:</strong> Se traslapa con "{editConflict.courseName}" ({editConflict.courseCode}) los días {editConflict.dayName} ({editConflict.timeRange}). Por favor ajusta la hora o los días.
+                <div className="conflict-warning-box" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <IconAlertTriangle size={18} color="#FF9800" />
+                  <span><strong>Cruce de Horario:</strong> Se traslapa con "{editConflict.courseName}" ({editConflict.courseCode}) los días {editConflict.dayName} ({editConflict.timeRange}). Por favor ajusta la hora o los días.</span>
                 </div>
               )}
 
@@ -681,7 +687,7 @@ const TeacherCourses = ({ onOpenGoalModal }) => {
                         }}
                         title={day.full}
                       >
-                        {isSelected && <span className="day-check-badge">✓</span>}
+                        {isSelected && <span className="day-check-badge"><IconCheck size={10} /></span>}
                         <span>{day.name}</span>
                       </button>
                     );
@@ -689,11 +695,13 @@ const TeacherCourses = ({ onOpenGoalModal }) => {
                 </div>
                 <div className="selected-days-summary">
                   {(editingCourse.scheduleDays || []).length > 0 ? (
-                    <span>
-                      📅 <strong>Días seleccionados:</strong> {(editingCourse.scheduleDays || []).map(d => DAY_NAMES[d]).join(', ')} ({(editingCourse.scheduleDays || []).length} {editingCourse.scheduleDays.length === 1 ? 'sesión' : 'sesiones'}/semana)
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                      <IconCalendar size={14} /> <strong>Días seleccionados:</strong> {(editingCourse.scheduleDays || []).map(d => DAY_NAMES[d]).join(', ')} ({(editingCourse.scheduleDays || []).length} {editingCourse.scheduleDays.length === 1 ? 'sesión' : 'sesiones'}/semana)
                     </span>
                   ) : (
-                    <span className="no-days-warning">⚠️ Selecciona al menos un día de clase</span>
+                    <span className="no-days-warning" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                      <IconAlertTriangle size={14} /> Selecciona al menos un día de clase
+                    </span>
                   )}
                 </div>
               </div>
@@ -783,7 +791,7 @@ const TeacherCourses = ({ onOpenGoalModal }) => {
           <div className="course-modal-content student-enrollment-modal" onClick={e => e.stopPropagation()}>
             <div className="modal-header-row">
               <h3>Matricular Alumnos en [{activeCourse.name} - {activeCourse.code}]</h3>
-              <button type="button" className="btn-close-modal" onClick={() => setShowStudentModal(false)}>✕</button>
+              <button type="button" className="btn-close-modal" onClick={() => setShowStudentModal(false)}><IconClose size={20} /></button>
             </div>
 
             <div className="student-modal-tab-bar">
@@ -792,14 +800,14 @@ const TeacherCourses = ({ onOpenGoalModal }) => {
                 className={`tab-btn ${studentModalTab === 'search' ? 'active' : ''}`}
                 onClick={() => setStudentModalTab('search')}
               >
-                🔍 Buscar en Estudiantes Registrados ({students.length})
+                Buscar en Estudiantes Registrados ({students.length})
               </button>
               <button
                 type="button"
                 className={`tab-btn ${studentModalTab === 'create' ? 'active' : ''}`}
                 onClick={() => setStudentModalTab('create')}
               >
-                ➕ Registrar y Matricular Alumno Nuevo
+                Registrar y Matricular Alumno Nuevo
               </button>
             </div>
 
@@ -807,7 +815,7 @@ const TeacherCourses = ({ onOpenGoalModal }) => {
               <div className="student-search-view">
                 <div className="search-filters-row">
                   <div className="search-input-wrapper">
-                    <span className="search-icon">🔍</span>
+                    <span className="search-icon"><IconSearch size={16} /></span>
                     <input
                       type="text"
                       className="student-search-input"
@@ -851,7 +859,7 @@ const TeacherCourses = ({ onOpenGoalModal }) => {
                           </div>
                           <div>
                             {isEnrolled ? (
-                              <span className="badge-already-enrolled">✓ Ya Matriculado</span>
+                              <span className="badge-already-enrolled"><IconCheck size={14} /> Ya Matriculado</span>
                             ) : (
                               <button
                                 type="button"

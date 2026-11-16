@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import { IconChat, IconUsers } from '../common/Icons';
+import { IconChat, IconUsers, IconStudent, IconTeacher, IconSend } from '../common/Icons';
 import './TeacherMessages.css';
 
 const TeacherMessages = () => {
@@ -95,7 +95,7 @@ const TeacherMessages = () => {
     <div className="teacher-messages-view">
       <div className="messages-header-bar">
         <div className="header-titles-group">
-          <h2>💬 Mensajería Docente</h2>
+          <h2><IconChat size={24} color="var(--primary, #00BCD4)" /> Mensajería Docente</h2>
           <p className="subtitle">
             Comunícate de manera aislada con los alumnos de tus asignaturas o coordina con tus colegas profesores.
           </p>
@@ -112,14 +112,14 @@ const TeacherMessages = () => {
               className={`t-msg-tab-btn ${contactTab === 'students' ? 'active' : ''}`}
               onClick={() => { setContactTab('students'); setSelectedContactId(null); }}
             >
-              👨‍🎓 Mis Alumnos ({myStudents.length})
+              <IconStudent size={16} /> Mis Alumnos ({myStudents.length})
             </button>
             <button
               type="button"
               className={`t-msg-tab-btn ${contactTab === 'colleagues' ? 'active' : ''}`}
               onClick={() => { setContactTab('colleagues'); setSelectedContactId(null); }}
             >
-              👥 Colegas ({colleagueTeachers.length})
+              <IconTeacher size={16} /> Colegas ({colleagueTeachers.length})
             </button>
           </div>
 
@@ -219,7 +219,7 @@ const TeacherMessages = () => {
                   onChange={e => setInputText(e.target.value)}
                 />
                 <button type="submit" className="btn-send-msg" disabled={!inputText.trim()}>
-                  Enviar Mensaje 🚀
+                  <IconSend size={16} /> Enviar Mensaje
                 </button>
               </form>
             </>

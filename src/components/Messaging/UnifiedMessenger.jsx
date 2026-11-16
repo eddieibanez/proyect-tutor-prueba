@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import { IconChat, IconClose, IconSend, IconEdit, IconCheck } from '../common/Icons';
+import { IconChat, IconClose, IconSend, IconEdit, IconCheck, IconStudent, IconTeacher, IconUsers, IconSearch } from '../common/Icons';
 import './UnifiedMessenger.css';
 
 const UnifiedMessenger = ({ onClose, isEmbedded = false }) => {
@@ -230,14 +230,16 @@ const UnifiedMessenger = ({ onClose, isEmbedded = false }) => {
                 className={`msg-tab-btn ${activeTab === 'students' ? 'active' : ''}`}
                 onClick={() => { setActiveTab('students'); setSelectedContactId(null); }}
               >
-                👨‍🎓 Mis Alumnos ({teacherStudentContacts.length})
+                <IconStudent size={16} />
+                <span>Mis Alumnos ({teacherStudentContacts.length})</span>
               </button>
               <button
                 type="button"
                 className={`msg-tab-btn ${activeTab === 'colleagues' ? 'active' : ''}`}
                 onClick={() => { setActiveTab('colleagues'); setSelectedContactId(null); }}
               >
-                👥 Colegas Docentes ({colleagueTeachers.length})
+                <IconTeacher size={16} />
+                <span>Colegas Docentes ({colleagueTeachers.length})</span>
               </button>
             </>
           ) : (
@@ -247,14 +249,16 @@ const UnifiedMessenger = ({ onClose, isEmbedded = false }) => {
                 className={`msg-tab-btn ${activeTab === 'teachers' ? 'active' : ''}`}
                 onClick={() => { setActiveTab('teachers'); setSelectedContactId(null); }}
               >
-                👨‍🏫 Mis Docentes ({studentTeacherContacts.length})
+                <IconTeacher size={16} />
+                <span>Mis Docentes ({studentTeacherContacts.length})</span>
               </button>
               <button
                 type="button"
                 className={`msg-tab-btn ${activeTab === 'students' ? 'active' : ''}`}
                 onClick={() => { setActiveTab('students'); setSelectedContactId(null); }}
               >
-                👥 Compañeros de Curso ({classmates.length})
+                <IconUsers size={16} />
+                <span>Compañeros de Curso ({classmates.length})</span>
               </button>
             </>
           )}
@@ -266,7 +270,7 @@ const UnifiedMessenger = ({ onClose, isEmbedded = false }) => {
             <div className="contacts-search-box">
               <input
                 type="text"
-                placeholder="🔍 Buscar contacto o curso..."
+                placeholder="Buscar contacto o curso..."
                 value={searchContactTerm}
                 onChange={e => setSearchContactTerm(e.target.value)}
                 className="contacts-search-input"
@@ -320,7 +324,9 @@ const UnifiedMessenger = ({ onClose, isEmbedded = false }) => {
                 <div className="chat-messages-container">
                   {conversation.length === 0 ? (
                     <div className="empty-chat-hint">
-                      <div className="empty-chat-icon">💬</div>
+                      <div className="empty-chat-icon">
+                        <IconChat size={46} color="var(--primary, #00BCD4)" />
+                      </div>
                       <h4>Conversación con {activeContact.displayName || activeContact.name}</h4>
                       <p>Inicia el diálogo escribiendo tus dudas o notas de coordinación pedagógica.</p>
                     </div>

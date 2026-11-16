@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
+import { IconSettings, IconCheckCircle, IconGraduation, IconLayers, IconSave } from '../common/Icons';
 import './TeacherSettings.css';
 
 const TeacherSettings = () => {
@@ -26,20 +27,20 @@ const TeacherSettings = () => {
   return (
     <div className="teacher-settings-view">
       <div className="settings-header-bar">
-        <h2>⚙️ Configuraciones de la Plataforma</h2>
+        <h2><IconSettings size={24} color="var(--primary, #00BCD4)" /> Configuraciones de la Plataforma</h2>
         <p className="subtitle">Personaliza los parámetros pedagógicos, visuales y del sistema para el salón de clases.</p>
       </div>
 
       {savedSuccess && (
         <div className="save-banner">
-          ✅ ¡Configuraciones guardadas y aplicadas con éxito!
+          <IconCheckCircle size={18} color="#00E676" /> ¡Configuraciones guardadas y aplicadas con éxito!
         </div>
       )}
 
       <form className="settings-form" onSubmit={handleSave}>
         {/* GRUPO 1: PARÁMETROS ACADÉMICOS */}
         <div className="settings-card">
-          <h3>🎓 Parámetros Académicos y Evaluación</h3>
+          <h3><IconGraduation size={20} color="var(--primary, #00BCD4)" /> Parámetros Académicos y Evaluación</h3>
           
           <div className="setting-row">
             <div>
@@ -100,7 +101,7 @@ const TeacherSettings = () => {
 
         {/* GRUPO 2: PREFERENCIAS DE INTERFAZ Y ASISTENCIA */}
         <div className="settings-card">
-          <h3>🖥️ Interfaz y Preferencias Visuales</h3>
+          <h3><IconLayers size={20} color="var(--secondary, #7C4DFF)" /> Interfaz y Preferencias Visuales</h3>
 
           <div className="setting-row">
             <div>
@@ -151,7 +152,7 @@ const TeacherSettings = () => {
 
         <div className="form-submit-row">
           <button type="submit" className="btn-save-settings">
-            💾 Guardar Preferencias
+            <IconSave size={18} /> Guardar Preferencias
           </button>
         </div>
       </form>

@@ -11,7 +11,10 @@ import {
   IconAlertCircle,
   IconTrendingUp,
   IconAward,
-  IconDownload
+  IconDownload,
+  IconLightbulb,
+  IconEdit,
+  IconGlobe
 } from '../common/Icons';
 import './StudentMonitor.css';
 
@@ -179,7 +182,7 @@ const StudentMonitor = () => {
               value={selectedCourseId}
               onChange={e => setSelectedCourseId(e.target.value)}
             >
-              <option value="all">🌐 Todos los Alumnos de la Plataforma ({students.length})</option>
+              <option value="all">Todos los Alumnos de la Plataforma ({students.length})</option>
               {myCourses.length > 0 && (
                 <optgroup label="Mis Asignaturas Asignadas">
                   {myCourses.map(c => (
@@ -384,7 +387,10 @@ const StudentMonitor = () => {
                                 {/* COLUMNA 1: DIFICULTADES Y RECOMENDACIÓN */}
                                 <div className="analysis-col">
                                   <div className="analysis-card-header">
-                                    <h4>🔍 Diagnóstico Pedagógico y Puntos de Refuerzo</h4>
+                                    <h4 style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                      <IconSearch size={18} color="var(--primary)" />
+                                      Diagnóstico Pedagógico y Puntos de Refuerzo
+                                    </h4>
                                   </div>
 
                                   <div className="weaknesses-box">
@@ -418,7 +424,10 @@ const StudentMonitor = () => {
                                   </div>
 
                                   <div className="recommendation-box">
-                                    <span className="col-subheading">💡 Pauta de Actuación en Aula:</span>
+                                    <span className="col-subheading" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                      <IconLightbulb size={16} color="var(--primary)" />
+                                      Pauta de Actuación en Aula:
+                                    </span>
                                     <p className="recommendation-text">
                                       {student.status === 'Necesita Apoyo'
                                         ? 'Programar sesiones prácticas supervisadas de 15 minutos en el editor con simulación paso a paso y retos de menor complejidad.'
@@ -430,7 +439,10 @@ const StudentMonitor = () => {
                                 {/* COLUMNA 2: NOTAS DEL PROFESOR Y DESCARGA */}
                                 <div className="analysis-col notes-col">
                                   <div className="analysis-card-header">
-                                    <h4>📝 Bitácora de Observaciones Docentes</h4>
+                                    <h4 style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                      <IconEdit size={18} color="var(--primary)" />
+                                      Bitácora de Observaciones Docentes
+                                    </h4>
                                   </div>
 
                                   <div className="teacher-notes-editor">

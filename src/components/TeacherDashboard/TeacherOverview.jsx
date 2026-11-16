@@ -10,7 +10,8 @@ import {
   IconAward,
   IconCpu,
   IconLayers,
-  IconTerminal
+  IconTerminal,
+  IconUser
 } from '../common/Icons';
 import './TeacherOverview.css';
 
@@ -229,7 +230,7 @@ const TeacherOverview = ({ onNavigateTab, onOpenGoalModal }) => {
           <div className="goals-mini-list">
             {myGoals.length === 0 ? (
               <div className="empty-goals-prompt">
-                <span className="empty-prompt-icon">🎯</span>
+                <span className="empty-prompt-icon"><IconTarget size={32} color="var(--primary)" /></span>
                 <p>No tienes metas de lección activas actualmente.</p>
                 <button
                   type="button"
@@ -253,8 +254,8 @@ const TeacherOverview = ({ onNavigateTab, onOpenGoalModal }) => {
                         <IconCalendar size={13} />
                         Límite: {g.deadline}
                       </span>
-                      <span className="target-chip">
-                        {g.type === 'group' ? '👥 Asignación Grupal' : '👤 Estudiante Individual'}
+                      <span className="target-chip" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                        {g.type === 'group' ? <><IconUsers size={12} /> Asignación Grupal</> : <><IconUser size={12} /> Estudiante Individual</>}
                       </span>
                     </div>
                   </div>

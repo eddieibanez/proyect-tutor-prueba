@@ -1,6 +1,6 @@
 ﻿import React, { useState, useMemo } from 'react';
 import { useApp } from '../../context/AppContext';
-import { IconCheck, IconClose, IconCalendar, IconClock, IconBook } from '../common/Icons';
+import { IconCheck, IconClose, IconCalendar, IconClock, IconBook, IconFileText, IconAlertTriangle, IconFlame, IconUpload, IconFolder } from '../common/Icons';
 import './CourseTasksModal.css';
 
 const AllTasksModal = ({ onClose, initialCourseId = 'all' }) => {
@@ -63,10 +63,13 @@ const AllTasksModal = ({ onClose, initialCourseId = 'all' }) => {
       <div className="tasks-modal-card wide-all-tasks" onClick={e => e.stopPropagation()}>
         <div className="tasks-modal-header">
           <div>
-            <h3>📋 Centro de Tareas Asignadas</h3>
+            <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <IconFileText size={20} color="var(--primary)" />
+              Centro de Tareas Asignadas
+            </h3>
             <p>Monitorea y entrega tus compromisos académicos con filtros por fecha y asignatura.</p>
           </div>
-          <button type="button" className="btn-close-tasks" onClick={onClose}>✕</button>
+          <button type="button" className="btn-close-tasks" onClick={onClose} aria-label="Cerrar"><IconClose size={18} /></button>
         </div>
 
         {/* BARRA DE FILTROS AVANZADOS */}
@@ -92,8 +95,8 @@ const AllTasksModal = ({ onClose, initialCourseId = 'all' }) => {
               onChange={e => setSortByDeadline(e.target.value)}
               className="tasks-filter-select"
             >
-              <option value="near">⏳ Fecha Límite Más Cercana</option>
-              <option value="far">📅 Fecha Límite Más Lejana</option>
+              <option value="near">Fecha Límite Más Cercana</option>
+              <option value="far">Fecha Límite Más Lejana</option>
             </select>
           </div>
 
@@ -105,8 +108,8 @@ const AllTasksModal = ({ onClose, initialCourseId = 'all' }) => {
               className="tasks-filter-select"
             >
               <option value="all">Todas las tareas</option>
-              <option value="pending">⏳ Pendientes por entregar</option>
-              <option value="submitted">✓ Ya entregadas</option>
+              <option value="pending">Pendientes por entregar</option>
+              <option value="submitted">Ya entregadas</option>
             </select>
           </div>
         </div>
@@ -115,7 +118,7 @@ const AllTasksModal = ({ onClose, initialCourseId = 'all' }) => {
         <div className="tasks-list-container">
           {filteredTasks.length === 0 ? (
             <div className="empty-tasks-alert">
-              <span className="empty-icon">📂</span>
+              <span className="empty-icon"><IconFolder size={36} color="var(--text-muted)" /></span>
               <h4>No se encontraron tareas con los filtros seleccionados</h4>
               <p>Cambia el curso o los filtros para visualizar otras actividades.</p>
             </div>
@@ -137,11 +140,17 @@ const AllTasksModal = ({ onClose, initialCourseId = 'all' }) => {
                         <span className="course-code-badge">{courseObj ? courseObj.code : t.courseCode || 'Curso'}</span>
                         <span className="task-type-badge">{t.type === 'project' ? 'Proyecto' : 'Lección / Ejercicio'}</span>
                         {isSubmitted ? (
-                          <span className="task-status-pill done">✓ Entregada</span>
+                          <span className="task-status-pill done" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                            <IconCheck size={12} /> Entregada
+                          </span>
                         ) : isPastDue ? (
-                          <span className="task-status-pill late">⚠️ Vencida</span>
+                          <span className="task-status-pill late" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                            <IconAlertTriangle size={12} /> Vencida
+                          </span>
                         ) : diffHours <= 24 ? (
-                          <span className="task-status-pill urgent">🔥 Vence pronto ({diffHours}h)</span>
+                          <span className="task-status-pill urgent" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                            <IconFlame size={12} /> Vence pronto ({diffHours}h)
+                          </span>
                         ) : (
                           <span className="task-status-pill open">● En Plazo</span>
                         )}
@@ -185,7 +194,9 @@ const AllTasksModal = ({ onClose, initialCourseId = 'all' }) => {
                       <div className="task-footer-bar">
                         {isSubmitted ? (
                           <div className="submitted-meta">
-                            <span>✓ Entregada el {new Date(mySubmission.deliveredAt).toLocaleDateString()}</span>
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                              <IconCheck size={14} color="#00e676" /> Entregada el {new Date(mySubmission.deliveredAt).toLocaleDateString()}
+                            </span>
                             {mySubmission.grade !== undefined && (
                               <span className="grade-badge">Calificación: {mySubmission.grade}/100</span>
                             )}
@@ -195,8 +206,9 @@ const AllTasksModal = ({ onClose, initialCourseId = 'all' }) => {
                             type="button"
                             className="btn-deliver-task"
                             onClick={() => { setSubmittingTaskId(t.id); setSubmissionContent(''); }}
+                            style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
                           >
-                            📤 Realizar Entrega
+                            <IconUpload size={14} /> Realizar Entrega
                           </button>
                         )}
                       </div>

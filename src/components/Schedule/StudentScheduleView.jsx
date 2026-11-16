@@ -1,6 +1,7 @@
 ﻿import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { isColombianHoliday, DAY_NAMES } from '../../utils/colombianHolidays';
+import { IconCalendar, IconClose } from '../common/Icons';
 import './StudentScheduleView.css';
 
 const StudentScheduleView = ({ onClose }) => {
@@ -24,10 +25,13 @@ const StudentScheduleView = ({ onClose }) => {
       <div className="st-sched-card" onClick={e => e.stopPropagation()}>
         <div className="st-sched-header">
           <div>
-            <h3>📅 Horarios de Estudiantes (Solo Docentes)</h3>
+            <h3 style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <IconCalendar size={20} color="var(--primary)" />
+              Horarios de Estudiantes (Solo Docentes)
+            </h3>
             <p>Supervisa la carga horaria y disponibilidad académica semanal de cada alumno</p>
           </div>
-          <button type="button" className="close-btn" onClick={onClose}>✕</button>
+          <button type="button" className="close-btn" onClick={onClose} aria-label="Cerrar"><IconClose size={18} /></button>
         </div>
 
         <div className="st-sched-body">

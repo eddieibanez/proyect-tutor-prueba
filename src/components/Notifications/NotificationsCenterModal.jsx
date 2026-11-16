@@ -1,6 +1,6 @@
 ﻿import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
-import { IconBell, IconCheck, IconClose } from '../common/Icons';
+import { IconBell, IconCheck, IconClose, IconClock, IconLightbulb, IconEdit } from '../common/Icons';
 import './NotificationsCenterModal.css';
 
 const NotificationsCenterModal = ({ onClose, onNavigateLesson, isDropdown = false }) => {
@@ -130,7 +130,8 @@ const NotificationsCenterModal = ({ onClose, onNavigateLesson, isDropdown = fals
       <div className="notifications-action-bar">
         {unreadCount > 0 ? (
           <button type="button" className="btn-mark-all-read" onClick={handleMarkAllAsRead}>
-            ✓ Marcar todas como leídas
+            <IconCheck size={14} style={{ verticalAlign: 'middle', marginRight: 4 }} />
+            Marcar todas como leídas
           </button>
         ) : (
           <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Todo al día</span>
@@ -140,7 +141,7 @@ const NotificationsCenterModal = ({ onClose, onNavigateLesson, isDropdown = fals
       <div className="notifications-scroll-area">
         {allAlerts.length === 0 ? (
           <div className="no-notifications-box">
-            <span style={{ fontSize: '2rem' }}>📭</span>
+            <IconBell size={36} color="var(--primary)" />
             <h3>No tienes notificaciones pendientes</h3>
             <p>Aquí verás recordatorios de tareas, metas de cursos y avisos de docentes.</p>
           </div>
@@ -153,7 +154,7 @@ const NotificationsCenterModal = ({ onClose, onNavigateLesson, isDropdown = fals
                 className={`notification-row-item ${isRead ? 'read' : 'unread'} priority-${a.priority || 'baja'}`}
               >
                 <div className="notif-icon-box">
-                  {a.id.startsWith('task') ? '⏰' : a.id.startsWith('lesson') ? '💡' : '✏️'}
+                  {a.id.startsWith('task') ? <IconClock size={16} /> : a.id.startsWith('lesson') ? <IconLightbulb size={16} /> : <IconEdit size={16} />}
                 </div>
                 <div className="notif-body-content">
                   <div className="notif-title-row">
@@ -183,7 +184,7 @@ const NotificationsCenterModal = ({ onClose, onNavigateLesson, isDropdown = fals
                       className="btn-mark-item-read"
                       onClick={() => handleToggleRead(a.id)}
                     >
-                      {isRead ? 'Marcar no leída' : 'Marcar leída ✓'}
+                      {isRead ? 'Marcar no leída' : 'Marcar leída'}
                     </button>
                   </div>
                 </div>

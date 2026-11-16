@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
+import { IconEye, IconBook, IconUnlock, IconLock } from './Icons';
 import './StudentPreviewBanner.css';
 
 const StudentPreviewBanner = () => {
@@ -17,7 +18,9 @@ const StudentPreviewBanner = () => {
     <div className="global-preview-banner">
       <div className="banner-left-section">
         <span className="banner-pulse-dot"></span>
-        <span className="banner-title-badge">👁️ MODO VISTA DE ESTUDIANTES</span>
+        <span className="banner-title-badge">
+          <IconEye size={16} /> MODO VISTA DE ESTUDIANTES
+        </span>
         <span className="banner-info-text">
           Estás interactuando con la plataforma tal como la ve un estudiante en tiempo real.
         </span>
@@ -44,7 +47,7 @@ const StudentPreviewBanner = () => {
         {/* CURSO ASOCIADO */}
         {currentCourse && (
           <span className="course-chip" title={currentCourse.name}>
-            📚 {currentCourse.code}: {currentCourse.name.slice(0, 24)}...
+            <IconBook size={14} /> {currentCourse.code}: {currentCourse.name.slice(0, 24)}...
           </span>
         )}
 
@@ -55,7 +58,15 @@ const StudentPreviewBanner = () => {
           onClick={togglePreviewUnlockAll}
           title="Permite a los profesores probar cualquier nivel (1-15) sin tener que completar los anteriores"
         >
-          {previewMode.unlockedAll ? '🔓 Todos los Niveles Abiertos' : '🔒 Progreso Secuencial'}
+          {previewMode.unlockedAll ? (
+            <>
+              <IconUnlock size={14} /> Todos los Niveles Abiertos
+            </>
+          ) : (
+            <>
+              <IconLock size={14} /> Progreso Secuencial
+            </>
+          )}
         </button>
 
         {/* BOTÓN PARA SALIR Y VOLVER AL PANEL DOCENTE */}

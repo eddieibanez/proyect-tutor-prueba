@@ -1,6 +1,6 @@
 ﻿import React, { useState, useEffect, useRef } from 'react';
 import './CodeEditor.css';
-import { IconPlay, IconTerminal } from '../common/Icons';
+import { IconPlay, IconTerminal, IconPython, IconZap, IconRobot, IconCheckCircle } from '../common/Icons';
 
 const GEMINI_API_KEY = import.meta.env.VITE_CHATBOT_API_KEY || import.meta.env.VITE_GEMINI_API_KEY || '';
 
@@ -161,7 +161,7 @@ const CodeEditor = ({ language = 'arduino', initialCode = '', expectedOutput = '
     const waitTime = Math.min(1800, Math.max(400, delayMs));
 
     let headerMsg = initialOutput ? `${initialOutput}\n\n` : '';
-    headerMsg += `⚡ [Arduino Hardware] Hardware encendido. Ejecutando ciclo infinito 'void loop()'...\n(Presiona "Detener Simulación" para apagar el microcontrolador y pausar el circuito)\n`;
+    headerMsg += `[Arduino Hardware] Hardware encendido. Ejecutando ciclo infinito 'void loop()'...\n(Presiona "Detener Simulación" para apagar el microcontrolador y pausar el circuito)\n`;
     setOutput(headerMsg);
 
     let cycle = 0;
@@ -588,7 +588,7 @@ REGLAS:
       <div className="vscode-titlebar">
         <div className="vscode-tabs-bar">
           <div className="vscode-tab active">
-            <span className="file-icon-badge">{language === 'python' ? '🐍' : '⚡'}</span>
+            <span className="file-icon-badge">{language === 'python' ? <IconPython size={16} /> : <IconZap size={16} />}</span>
             <span className="tab-filename">{language === 'python' ? 'main.py' : 'sketch.ino'}</span>
           </div>
         </div>
@@ -736,7 +736,9 @@ REGLAS:
           <span>{language === 'python' ? 'Python 3.11' : 'Arduino AVR C++'}</span>
         </div>
         <div className="status-right">
-          <span>{isSuccess ? '✓ Sintaxis Verificada' : 'Listo'}</span>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            {isSuccess ? <><IconCheckCircle size={14} color="#00e676" /> Sintaxis Verificada</> : 'Listo'}
+          </span>
         </div>
       </div>
 
@@ -763,8 +765,9 @@ REGLAS:
           {/* GUÍA DE IA SOCRÁTICA EN CONSOLA */}
           {(isAiLoading || aiGuidance) && (
             <div className="console-ai-box">
-              <div className="ai-box-title">
-                <strong>🤖 Tutor Pedagógico IA (Guía):</strong>
+              <div className="ai-box-title" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <IconRobot size={18} color="var(--primary, #00d2ff)" />
+                <strong>Tutor Pedagógico IA (Guía):</strong>
               </div>
               {isAiLoading ? (
                 <span>Analizando tu código...</span>

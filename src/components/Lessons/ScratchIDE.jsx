@@ -1,6 +1,6 @@
 ﻿import React, { useState, useRef } from 'react';
 import './ScratchIDE.css';
-import { IconClose } from '../common/Icons';
+import { IconClose, IconFlag } from '../common/Icons';
 
 export const SCRATCH_CATEGORIES = [
   { id: 'motion', name: 'Movimiento', color: '#4C97FF' },
@@ -626,8 +626,9 @@ const ScratchIDE = () => {
             className="btn-green-flag"
             onClick={handleRunGreenFlag}
             title="Al hacer clic en bandera verde (Ejecutar)"
+            style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
           >
-            <span style={{ color: '#00E676', fontSize: '1.2rem' }}>⚑</span>
+            <IconFlag size={18} color="#00E676" />
           </button>
           <button
             type="button"

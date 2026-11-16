@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { IconChat, IconClose, IconSend } from '../common/Icons';
+import { IconChat, IconClose, IconSend, IconRobot, IconLightbulb, IconSearch, IconZap, IconPython } from '../common/Icons';
 import './Chatbot.css';
 
 const GEMINI_API_KEY = import.meta.env.VITE_CHATBOT_API_KEY || import.meta.env.VITE_GEMINI_API_KEY || '';
@@ -137,9 +137,11 @@ REGLAS CRÍTICAS PEDAGÓGICAS:
   };
 
   const quickChips = [
-    '💡 Dame una pista',
-    '🔍 ¿Por qué falla mi lógica?',
-    languageId === 'arduino' ? '⚡ ¿Cómo uso el pin y delay?' : '🐍 ¿Cómo estructuro el ciclo?'
+    { icon: <IconLightbulb size={14} />, text: 'Dame una pista' },
+    { icon: <IconSearch size={14} />, text: '¿Por qué falla mi lógica?' },
+    languageId === 'arduino'
+      ? { icon: <IconZap size={14} />, text: '¿Cómo uso el pin y delay?' }
+      : { icon: <IconPython size={14} />, text: '¿Cómo estructuro el ciclo?' }
   ];
 
   return (
@@ -151,7 +153,9 @@ REGLAS CRÍTICAS PEDAGÓGICAS:
           onClick={toggleChat}
           title="Abrir Tutor IA Pedagógico"
         >
-          <div className="tutor-toggle-icon">🤖</div>
+          <div className="tutor-toggle-icon">
+            <IconRobot size={22} color="currentColor" />
+          </div>
           <span className="tutor-toggle-label">Tutor IA</span>
         </button>
       ) : (
@@ -159,7 +163,9 @@ REGLAS CRÍTICAS PEDAGÓGICAS:
           {/* Cabecera Proporcional */}
           <div className="tutor-ai-header">
             <div className="tutor-header-title">
-              <div className="tutor-avatar-icon">🤖</div>
+              <div className="tutor-avatar-icon">
+                <IconRobot size={20} color="currentColor" />
+              </div>
               <div>
                 <h4>Tutor Pedagógico IA</h4>
                 <span className="tutor-level-badge">{languageId.toUpperCase()} • Nivel {levelId}</span>
@@ -208,10 +214,11 @@ REGLAS CRÍTICAS PEDAGÓGICAS:
                 key={idx}
                 type="button"
                 className="tutor-chip-btn"
-                onClick={() => handleSendPrompt(chip)}
+                onClick={() => handleSendPrompt(chip.text || chip)}
                 disabled={isTyping}
               >
-                {chip}
+                {chip.icon && <span style={{ display: 'inline-flex', marginRight: '6px', verticalAlign: 'middle' }}>{chip.icon}</span>}
+                <span>{chip.text || chip}</span>
               </button>
             ))}
           </div>

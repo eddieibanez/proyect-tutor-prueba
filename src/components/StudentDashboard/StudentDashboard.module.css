@@ -524,10 +524,20 @@
 .embeddedMessengerApartado {
   width: 100%;
   margin-top: 1rem;
-  background: var(--bg-secondary, #1e293b);
-  border-radius: 16px;
-  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
+  background: var(--cards, #ffffff);
+  border-radius: 20px;
+  border: 1px solid var(--border, #dde3ea);
+  box-shadow: var(--card-shadow, 0 4px 20px rgba(0, 0, 0, 0.06));
   padding: 1.5rem;
+  color: var(--text-primary, #1e293b);
+  transition: all 0.3s ease;
+}
+
+:global([data-theme="dark"]) .embeddedMessengerApartado {
+  background: var(--cards, #1a1a2e);
+  border-color: var(--border, rgba(255, 255, 255, 0.12));
+  color: var(--text-primary, #f8fafc);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 }
 
 .apartadoHeaderRow {
@@ -536,37 +546,72 @@
   justify-content: space-between;
   margin-bottom: 1.25rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
+  border-bottom: 1px solid var(--border, #dde3ea);
+}
+
+:global([data-theme="dark"]) .apartadoHeaderRow {
+  border-bottom-color: var(--border, rgba(255, 255, 255, 0.08));
+}
+
+.apartadoHeaderInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.apartadoTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .apartadoHeaderInfo h2 {
-  font-size: 1.4rem;
+  font-size: 1.35rem;
   font-weight: 700;
+  color: var(--text-primary, #1e293b);
+  margin: 0;
+}
+
+:global([data-theme="dark"]) .apartadoHeaderInfo h2 {
   color: var(--text-primary, #f8fafc);
-  margin-bottom: 0.25rem;
 }
 
 .apartadoHeaderInfo p {
-  font-size: 0.9rem;
+  font-size: 0.88rem;
+  color: var(--text-secondary, #64748b);
+  margin: 0;
+}
+
+:global([data-theme="dark"]) .apartadoHeaderInfo p {
   color: var(--text-secondary, #94a3b8);
 }
 
 .btnCloseApartado {
-  background: var(--bg-primary, #0f172a);
-  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.15));
-  color: var(--text-primary, #f8fafc);
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 0.85rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--dark, #f0f4f8);
+  border: 1px solid var(--border, #dde3ea);
+  color: var(--text-primary, #1e293b);
+  padding: 0.6rem 1.2rem;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.88rem;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
+:global([data-theme="dark"]) .btnCloseApartado {
+  background: #151523;
+  border-color: rgba(255, 255, 255, 0.15);
+  color: #f8fafc;
+}
+
 .btnCloseApartado:hover {
-  background: var(--primary, #6366f1);
+  background: var(--primary, #0097a7);
   color: #ffffff;
-  border-color: var(--primary, #6366f1);
+  border-color: var(--primary, #0097a7);
+  transform: translateY(-1px);
 }
 
 .activeTabBtn {

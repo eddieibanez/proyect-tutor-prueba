@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
 import { levelData } from '../../data/levelData';
 import { lessonContent } from '../../data/lessonContent';
+import { IconCpu, IconPuzzle, IconPython, IconEye, IconPlay, IconSave, IconClose, IconFileText, IconUpload } from '../common/Icons';
 import './ContentEditor.css';
 
 const ContentEditor = () => {
@@ -131,9 +132,9 @@ const ContentEditor = () => {
 
         <div className="lang-tabs">
           {[
-            { id: 'arduino', label: '🤖 Arduino' },
-            { id: 'scratch', label: '🧩 Scratch' },
-            { id: 'python', label: '🐍 Python' }
+            { id: 'arduino', label: 'Arduino', icon: <IconCpu size={16} /> },
+            { id: 'scratch', label: 'Scratch', icon: <IconPuzzle size={16} /> },
+            { id: 'python', label: 'Python', icon: <IconPython size={16} /> }
           ].map(lang => (
             <button 
               key={lang.id}
@@ -142,8 +143,10 @@ const ContentEditor = () => {
                 setActiveTab(lang.id);
                 handleSelectLevel(1);
               }}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
             >
-              {lang.label}
+              {lang.icon}
+              <span>{lang.label}</span>
             </button>
           ))}
         </div>
@@ -194,20 +197,22 @@ const ContentEditor = () => {
                 className={`visibility-toggle-btn ${formData.visible ? 'visible' : 'hidden'}`}
                 onClick={handleToggleVisibility}
                 title="Habilitar u ocultar esta lección para los alumnos"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
               >
-                {formData.visible ? '👁️ Visible para Alumnos' : '🙈 Oculto para Alumnos'}
+                <IconEye size={16} /> {formData.visible ? 'Visible para Alumnos' : 'Oculto para Alumnos'}
               </button>
 
               <button 
                 type="button"
                 className="preview-btn" 
                 onClick={() => navigate(`/student/lesson/${langKey}/${selectedLevelId}`)}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
               >
-                ▶️ Ver como Estudiante
+                <IconPlay size={14} /> Ver como Estudiante
               </button>
               
-              <button type="button" className="save-btn" onClick={handleSave}>
-                💾 Guardar Cambios
+              <button type="button" className="save-btn" onClick={handleSave} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                <IconSave size={16} /> Guardar Cambios
               </button>
             </div>
           </div>
@@ -263,13 +268,15 @@ const ContentEditor = () => {
             <div className="file-upload-area">
               <p>Arrastra archivos o haz clic para adjuntar material de apoyo (guías, simuladores, diagramas):</p>
               <input type="file" id="file-input" onChange={handleAddFile} style={{ display: 'none' }} />
-              <label htmlFor="file-input" className="file-upload-btn">📎 Seleccionar Archivo</label>
+              <label htmlFor="file-input" className="file-upload-btn" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                <IconUpload size={14} /> Seleccionar Archivo
+              </label>
               
               <div className="uploaded-files">
                 {formData.files.map((file, idx) => (
-                  <span key={idx} className="file-chip">
-                    📄 {file} 
-                    <button type="button" onClick={() => handleRemoveFile(file)} className="remove-file-btn">✕</button>
+                  <span key={idx} className="file-chip" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                    <IconFileText size={14} /> {file} 
+                    <button type="button" onClick={() => handleRemoveFile(file)} className="remove-file-btn" aria-label="Eliminar"><IconClose size={12} /></button>
                   </span>
                 ))}
               </div>
@@ -288,7 +295,7 @@ const ContentEditor = () => {
                     onChange={(e) => handleHintChange(idx, e.target.value)}
                     placeholder={`Pista ${idx + 1}`}
                   />
-                  <button type="button" className="remove-hint-btn" onClick={() => handleRemoveHint(idx)}>✕</button>
+                  <button type="button" className="remove-hint-btn" onClick={() => handleRemoveHint(idx)} aria-label="Eliminar pista"><IconClose size={12} /></button>
                 </div>
               ))}
             </div>

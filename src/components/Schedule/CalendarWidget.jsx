@@ -1,6 +1,6 @@
 ﻿import React, { useState } from 'react';
 import { isColombianHoliday } from '../../utils/colombianHolidays';
-import { IconCalendar } from '../common/Icons';
+import { IconCalendar, IconSparkles } from '../common/Icons';
 import './CalendarWidget.css';
 
 const CalendarWidget = ({
@@ -147,7 +147,7 @@ const CalendarWidget = ({
         <span className="selected-date-title">Detalle del {selectedDate}:</span>
         {selectedHoliday.isHoliday ? (
           <div className="holiday-info-pill">
-            🎉 <strong>Festivo Nacional:</strong> {selectedHoliday.name} (Clase omitida)
+            <IconSparkles size={16} color="#00E676" /> <strong>Festivo Nacional:</strong> {selectedHoliday.name} (Clase omitida)
           </div>
         ) : coursesOnSelectedDate.length > 0 ? (
           <div className="courses-mini-list">

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { DatePickerModal } from './DateTimePicker';
-import { IconTarget, IconCalendar, IconCheck, IconClose } from '../common/Icons';
+import { IconTarget, IconCalendar, IconCheck, IconClose, IconUsers, IconUser } from '../common/Icons';
 import './LessonGoalModal.css';
 
 const LessonGoalModal = ({ isOpen, onClose, courses = [], students = [] }) => {
@@ -89,15 +89,17 @@ const LessonGoalModal = ({ isOpen, onClose, courses = [], students = [] }) => {
                   type="button"
                   className={`toggle-btn ${assignmentType === 'group' ? 'active' : ''}`}
                   onClick={() => setAssignmentType('group')}
+                  style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
                 >
-                  👥 Asignar por Curso Completo
+                  <IconUsers size={16} /> Asignar por Curso Completo
                 </button>
                 <button
                   type="button"
                   className={`toggle-btn ${assignmentType === 'individual' ? 'active' : ''}`}
                   onClick={() => setAssignmentType('individual')}
+                  style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
                 >
-                  👤 Asignar a Estudiante Individual
+                  <IconUser size={16} /> Asignar a Estudiante Individual
                 </button>
               </div>
             </div>

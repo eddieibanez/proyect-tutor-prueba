@@ -3,6 +3,15 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { AppContext } from '../../context/AppContext';
 import styles from './LanguageHub.module.css';
 import { levelData } from '../../data/levelData';
+import {
+  IconCheckCircle,
+  IconLock,
+  IconPlay,
+  IconAward,
+  IconCpu,
+  IconPuzzle,
+  IconPython
+} from '../common/Icons';
 
 export default function LanguageHub() {
   const { languageId } = useParams();
@@ -17,7 +26,7 @@ export default function LanguageHub() {
       <div className={styles.errorContainer}>
         <h2>Lenguaje no encontrado</h2>
         <button onClick={() => navigate('/student')} className={styles.backBtn}>
-          Volver al Dashboard
+          ← Volver al Dashboard
         </button>
       </div>
     );
@@ -35,10 +44,26 @@ export default function LanguageHub() {
 
   const getStatusIcon = (status) => {
     switch (status) {
-      case 'completed': return '✅';
-      case 'in-progress': return '📝';
-      case 'locked': return '🔒';
-      default: return '🔒';
+      case 'completed':
+        return <IconCheckCircle size={22} color="#00E676" />;
+      case 'in-progress':
+        return <IconPlay size={20} color="var(--primary, #00BCD4)" />;
+      case 'locked':
+      default:
+        return <IconLock size={20} color="var(--text-secondary, #94A3B8)" />;
+    }
+  };
+
+  const renderLanguageIcon = (langId) => {
+    switch (langId) {
+      case 'arduino':
+        return <IconCpu size={34} color="var(--primary, #00BCD4)" />;
+      case 'scratch':
+        return <IconPuzzle size={34} color="#FF9800" />;
+      case 'python':
+        return <IconPython size={34} color="#00E676" />;
+      default:
+        return <IconCpu size={34} color="var(--primary, #00BCD4)" />;
     }
   };
 
@@ -67,10 +92,10 @@ export default function LanguageHub() {
     <div className={styles.hubContainer}>
       <header className={styles.header}>
         <button onClick={() => navigate('/student')} className={styles.backBtn}>
-          &larr; Volver
+          <span>← Volver a Cursos</span>
         </button>
         <div className={styles.titleContainer}>
-          <span className={styles.langIcon}>{language.icon}</span>
+          <span className={styles.langIcon}>{renderLanguageIcon(languageId)}</span>
           <div>
             <h1 className={styles.langName}>Ruta de Aprendizaje: {language.name}</h1>
             <p className={styles.progressSummary}>
@@ -129,7 +154,8 @@ export default function LanguageHub() {
           disabled={completedLevels < 15 && !(isPreview && previewMode?.unlockedAll)}
           onClick={() => (completedLevels >= 15 || (isPreview && previewMode?.unlockedAll)) && navigate(`/student/exam/${languageId}`)}
         >
-          🏆 Examen Final
+          <IconAward size={24} color="#FFFFFF" />
+          <span>Examen Final de Certificación</span>
         </button>
         {completedLevels < 15 && !(isPreview && previewMode?.unlockedAll) && (
           <p className={styles.examHint}>Completa todos los niveles para desbloquear el examen final.</p>

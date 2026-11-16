@@ -6,7 +6,7 @@ import { useApp } from '../../context/AppContext';
 import CodeEditor from './CodeEditor';
 import ScratchIDE from './ScratchIDE';
 import Chatbot from '../Chatbot/Chatbot';
-import { IconBook, IconCode, IconTarget } from '../common/Icons';
+import { IconBook, IconCode, IconTarget, IconCpu, IconPuzzle, IconPython, IconLock, IconCheckCircle, IconPlay } from '../common/Icons';
 import './LessonView.css';
 
 const LessonView = () => {
@@ -80,7 +80,9 @@ const LessonView = () => {
             ← Volver a la Ruta
           </button>
           <div className="sidebar-lang-info">
-            <span className="lang-icon-badge">{levelData[langKey]?.icon || '💻'}</span>
+            <span className="lang-icon-badge">
+              {langKey === 'python' ? <IconPython size={24} /> : langKey === 'scratch' ? <IconPuzzle size={24} /> : <IconCpu size={24} />}
+            </span>
             <div>
               <h3>{levelData[langKey]?.name || languageId}</h3>
               <p>{prog.lessonsCompleted}/15 completadas ({pct}%)</p>
@@ -106,7 +108,9 @@ const LessonView = () => {
               >
                 <div className="item-row">
                   <span className="lesson-badge-num">Nivel {lvl.id}</span>
-                  <span className="lesson-status-icon">{done ? '✓' : cur ? '▶' : lk ? '🔒' : '○'}</span>
+                  <span className="lesson-status-icon">
+                    {done ? <IconCheckCircle size={14} color="#00e676" /> : cur ? <IconPlay size={10} color="#00d2ff" /> : lk ? <IconLock size={12} color="var(--text-secondary)" /> : '○'}
+                  </span>
                 </div>
                 <div className="lesson-item-title">{lvl.title}</div>
                 <div className="lesson-completion-indicator">

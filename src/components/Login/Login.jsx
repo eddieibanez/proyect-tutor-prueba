@@ -1,6 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppContext } from '../../context/AppContext';
+import { IconStudent, IconTeacher, IconKey, IconEdit } from '../common/Icons';
 import './Login.css';
 
 const Login = () => {
@@ -172,12 +173,16 @@ const Login = () => {
             <h2>¿Quién eres?</h2>
             <div className="role-cards">
               <div className="role-card" onClick={() => handleRoleSelect('estudiante')}>
-                <div className="role-icon">👨‍💻</div>
+                <div className="role-icon">
+                  <IconStudent size={44} color="var(--primary, #00BCD4)" />
+                </div>
                 <h3>Estudiante</h3>
                 <p>Aprende, resuelve retos y crea proyectos en Scratch, Arduino y Python.</p>
               </div>
               <div className="role-card" onClick={() => handleRoleSelect('profesor')}>
-                <div className="role-icon">👨‍🏫</div>
+                <div className="role-icon">
+                  <IconTeacher size={44} color="var(--secondary, #7C4DFF)" />
+                </div>
                 <h3>Profesor</h3>
                 <p>Gestiona cursos, monitorea diagnósticos en tiempo real y edita temas.</p>
               </div>
@@ -195,7 +200,7 @@ const Login = () => {
                   setError('');
                 }}
               >
-                🔑 Iniciar Sesión
+                <IconKey size={16} /> Iniciar Sesión
               </button>
               <button
                 type="button"
@@ -205,7 +210,7 @@ const Login = () => {
                   setError('');
                 }}
               >
-                📝 Registrarme
+                <IconEdit size={16} /> Registrarme
               </button>
             </div>
 

@@ -1,5 +1,6 @@
 ﻿import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
+import { IconUser, IconClose, IconCheckCircle, IconSave } from '../common/Icons';
 import './ProfileModal.css';
 
 const ProfileModal = ({ onClose }) => {
@@ -42,15 +43,15 @@ const ProfileModal = ({ onClose }) => {
       <div className="profile-modal-card" onClick={e => e.stopPropagation()}>
         <div className="profile-modal-header">
           <div>
-            <h3>👤 Mi Perfil y Datos Personales</h3>
+            <h3><IconUser size={22} color="var(--primary, #00BCD4)" /> Mi Perfil y Datos Personales</h3>
             <p>Actualiza tu identificación, datos personales y clave de acceso</p>
           </div>
-          <button type="button" className="close-btn" onClick={onClose}>✕</button>
+          <button type="button" className="close-btn" onClick={onClose}><IconClose size={20} /></button>
         </div>
 
         {savedSuccess && (
           <div className="profile-saved-banner">
-            ✅ ¡Información actualizada correctamente en la plataforma!
+            <IconCheckCircle size={18} color="#00E676" /> ¡Información actualizada correctamente en la plataforma!
           </div>
         )}
 
@@ -143,7 +144,7 @@ const ProfileModal = ({ onClose }) => {
               Cerrar
             </button>
             <button type="submit" className="btn-profile-save">
-              💾 Guardar Cambios
+              <IconSave size={16} /> Guardar Cambios
             </button>
           </div>
         </form>

@@ -15,7 +15,8 @@ import {
   IconCpu,
   IconLayers,
   IconTerminal,
-  IconChat
+  IconChat,
+  IconAlertTriangle
 } from '../common/Icons';
 
 const languageInfo = [
@@ -52,7 +53,7 @@ const StudentDashboard = () => {
 
   const handleStartRoute = (langId) => {
     if (enrolledCourses.length === 0) {
-      alert('⚠️ Para realizar las lecciones debes estar matriculado en al menos un curso oficial. Solicita a tu docente que te matricule en tu asignatura.');
+      alert('Para realizar las lecciones debes estar matriculado en al menos un curso oficial. Solicita a tu docente que te matricule en tu asignatura.');
       return;
     }
     navigate('/student/language/' + langId);
@@ -142,7 +143,10 @@ const StudentDashboard = () => {
         <section className={styles.embeddedMessengerApartado}>
           <div className={styles.apartadoHeaderRow}>
             <div className={styles.apartadoHeaderInfo}>
-              <h2>💬 Mensajería</h2>
+              <div className={styles.apartadoTitleRow}>
+                <IconChat size={22} color="var(--primary)" />
+                <h2>Mensajería</h2>
+              </div>
               <p>Comunícate en tiempo real con tus compañeros matriculados en tus cursos y consulta a tus docentes.</p>
             </div>
             <button
@@ -172,7 +176,9 @@ const StudentDashboard = () => {
 
             {enrolledCourses.length === 0 ? (
                 <div className={styles.emptyCoursesWarning}>
-                  <div className={styles.warningIcon}>⚠️</div>
+                  <div className={styles.warningIcon}>
+                    <IconAlertTriangle size={32} color="#FF9800" />
+                  </div>
                   <div className={styles.warningContent}>
                     <h4>No tienes asignaturas matriculadas</h4>
                     <p>Para desbloquear y realizar las lecciones prácticas debes estar matriculado en un curso. Solicita a tu docente que te agregue a su lista de clase.</p>

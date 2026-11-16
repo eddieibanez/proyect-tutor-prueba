@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { isColombianHoliday, DAY_NAMES } from '../../utils/colombianHolidays';
 import { TimePickerModal } from './DateTimePicker';
-import { IconClock, IconCalendar, IconCheck, IconClose } from '../common/Icons';
+import { IconClock, IconCalendar, IconCheck, IconClose, IconAlertTriangle } from '../common/Icons';
 import './CourseScheduleModal.css';
 
 const CourseScheduleModal = ({ course, isTeacher, onClose, onSaveSchedule, onToggleCancellation, allCourses = [] }) => {
@@ -139,7 +139,10 @@ const CourseScheduleModal = ({ course, isTeacher, onClose, onSaveSchedule, onTog
               {/* ALERTA DE CRUCE DE HORARIOS */}
               {conflicts.length > 0 && (
                 <div className="conflict-alert-box">
-                  <strong>⚠️ ¡Atención! Cruce de horarios detectado:</strong>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
+                    <IconAlertTriangle size={18} color="#FF9800" />
+                    <strong>¡Atención! Cruce de horarios detectado:</strong>
+                  </div>
                   <ul>
                     {conflicts.map((c, i) => (
                       <li key={i}>El {c.day} colisiona con <strong>{c.otherCourse}</strong> ({c.otherTime})</li>
@@ -151,7 +154,10 @@ const CourseScheduleModal = ({ course, isTeacher, onClose, onSaveSchedule, onTog
             </div>
           ) : (
             <div className="student-schedule-summary">
-              <h4>📅 Horario de Clase Establecido</h4>
+              <h4 style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <IconCalendar size={18} color="var(--primary)" />
+                Horario de Clase Establecido
+              </h4>
               <p>
                 <strong>Días:</strong> {selectedDays.map(d => DAY_NAMES[d] || d).join(', ') || 'Por definir'}
               </p>
