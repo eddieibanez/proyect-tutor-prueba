@@ -386,3 +386,31 @@
   text-align: center;
   padding: 3rem;
 }
+
+/* PESTAÑAS DE ALUMNOS VS COLEGAS DOCENTES */
+.teacher-msg-tabs-row {
+  display: flex;
+  gap: 6px;
+  padding: 10px 14px;
+  background: rgba(0, 0, 0, 0.12);
+  border-bottom: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
+}
+
+.t-msg-tab-btn {
+  flex: 1;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-secondary, #94a3b8);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.t-msg-tab-btn.active {
+  background: var(--primary, #00BCD4);
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 188, 212, 0.35);
+}

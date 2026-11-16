@@ -22,7 +22,7 @@ const CalendarWidget = ({
   const displayCourses = courses.filter(c => {
     if (userRole === 'teacher' || userRole === 'profesor') {
       if (userId && c.teacherId) return c.teacherId === userId;
-      return true; // Si no hay teacherId especificado, muestra los cursos disponibles
+      return !c.teacherId && (userId === 'teacher-main' || !userId);
     }
     // Para estudiantes: si tiene lista de enrolledStudents o grade coincidente
     return true;

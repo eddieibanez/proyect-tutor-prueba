@@ -46,8 +46,22 @@ const TeacherDashboard = () => {
   const [isCalendarDrawerOpen, setIsCalendarDrawerOpen] = useState(false);
   const [isGoalModalOpen, setIsGoalModalOpen] = useState(false);
 
-  // Conteo de mensajes no leídos
-  const unreadCount = messages.filter(m => m.sender === 'student' && !m.read).length;
+  // Cursos y estudiantes del docente activo
+  const myCourses = React.useMemo(() => {
+    return courses.filter(c => c.teacherId === user?.id || (!c.teacherId && (user?.id === 'teacher-main' || !user?.id)));
+  }, [courses, user?.id]);
+
+  const myCourseIds = React.useMemo(() => myCourses.map(c => c.id), [myCourses]);
+
+  const myStudents = React.useMemo(() => {
+    return students.filter(st => {
+      const stCourses = st.enrolledCourses || (st.courseId ? [st.courseId] : []);
+      return stCourses.some(id => myCourseIds.includes(id));
+    });
+  }, [students, myCourseIds]);
+
+  // Conteo de mensajes no leídos dirigidos a este docente
+  const unreadCount = messages.filter(m => (m.receiverId === user?.id || (!m.receiverId && m.sender === 'student')) && !m.read).length;
 
   return (
     <div className="teacher-panel-layout">
@@ -224,7 +238,7 @@ const TeacherDashboard = () => {
 
             <div className="drawer-body">
               <CalendarWidget
-                courses={courses}
+                courses={myCourses}
                 userRole="teacher"
                 userId={user?.id}
                 lessonGoals={lessonGoals}
@@ -240,8 +254,8 @@ const TeacherDashboard = () => {
       <LessonGoalModal
         isOpen={isGoalModalOpen}
         onClose={() => setIsGoalModalOpen(false)}
-        courses={courses}
-        students={students}
+        courses={myCourses}
+        students={myStudents}
       />
     </div>
   );

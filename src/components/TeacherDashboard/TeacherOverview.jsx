@@ -17,16 +17,38 @@ import './TeacherOverview.css';
 const TeacherOverview = ({ onNavigateTab, onOpenGoalModal }) => {
   const { user, courses = [], students = [], tasks = [], lessonGoals = [] } = useApp();
 
+  // Entorno aislado para el docente activo
+  const myCourses = useMemo(() => {
+    return courses.filter(c => c.teacherId === user?.id || (!c.teacherId && (user?.id === 'teacher-main' || !user?.id)));
+  }, [courses, user?.id]);
+
+  const myCourseIds = useMemo(() => myCourses.map(c => c.id), [myCourses]);
+
+  const myStudents = useMemo(() => {
+    return students.filter(st => {
+      const stCourses = st.enrolledCourses || (st.courseId ? [st.courseId] : []);
+      return stCourses.some(id => myCourseIds.includes(id));
+    });
+  }, [students, myCourseIds]);
+
+  const myTasks = useMemo(() => {
+    return tasks.filter(t => myCourseIds.includes(t.courseId) || t.createdBy === user?.id);
+  }, [tasks, myCourseIds, user?.id]);
+
+  const myGoals = useMemo(() => {
+    return lessonGoals.filter(g => myCourseIds.includes(g.courseId) || g.teacherId === user?.id);
+  }, [lessonGoals, myCourseIds, user?.id]);
+
   // Estadísticas del docente
   const stats = useMemo(() => {
-    const totalStudents = students.length;
-    const totalCourses = courses.length;
+    const totalStudents = myStudents.length;
+    const totalCourses = myCourses.length;
 
     let totalLessonsCompleted = 0;
     let studentsAtRisk = 0;
     let studentsExcellent = 0;
 
-    students.forEach(st => {
+    myStudents.forEach(st => {
       const ard = st.progress?.arduino?.lessonsCompleted || 0;
       const scr = st.progress?.scratch?.lessonsCompleted || 0;
       const pyt = st.progress?.python?.lessonsCompleted || 0;
@@ -40,7 +62,7 @@ const TeacherOverview = ({ onNavigateTab, onOpenGoalModal }) => {
       }
     });
 
-    const pendingTasks = tasks.filter(t => {
+    const pendingTasks = myTasks.filter(t => {
       const due = new Date(`${t.dueDate}T${t.dueTime || '23:59'}`);
       return due >= new Date();
     }).length;
@@ -52,9 +74,9 @@ const TeacherOverview = ({ onNavigateTab, onOpenGoalModal }) => {
       studentsAtRisk,
       studentsExcellent,
       pendingTasks,
-      activeGoals: lessonGoals.length
+      activeGoals: myGoals.length
     };
-  }, [students, courses, tasks, lessonGoals]);
+  }, [myStudents, myCourses, myTasks, myGoals]);
 
   return (
     <div className="teacher-overview-container">
@@ -165,10 +187,10 @@ const TeacherOverview = ({ onNavigateTab, onOpenGoalModal }) => {
           </div>
 
           <div className="courses-mini-list">
-            {courses.length === 0 ? (
+            {myCourses.length === 0 ? (
               <p className="empty-subtext">No hay cursos registrados en el sistema todavía.</p>
             ) : (
-              courses.slice(0, 4).map(c => (
+              myCourses.slice(0, 4).map(c => (
                 <div key={c.id} className="course-mini-row" style={{ borderLeftColor: c.color || 'var(--primary)' }}>
                   <div className="course-mini-main">
                     <div className="course-tag-line">
@@ -205,7 +227,7 @@ const TeacherOverview = ({ onNavigateTab, onOpenGoalModal }) => {
           </div>
 
           <div className="goals-mini-list">
-            {lessonGoals.length === 0 ? (
+            {myGoals.length === 0 ? (
               <div className="empty-goals-prompt">
                 <span className="empty-prompt-icon">🎯</span>
                 <p>No tienes metas de lección activas actualmente.</p>
@@ -218,7 +240,7 @@ const TeacherOverview = ({ onNavigateTab, onOpenGoalModal }) => {
                 </button>
               </div>
             ) : (
-              lessonGoals.slice(0, 4).map(g => (
+              myGoals.slice(0, 4).map(g => (
                 <div key={g.id} className="goal-mini-row">
                   <div className="goal-badge-box">
                     <span className="goal-level-num">Nivel {g.targetLevel}</span>

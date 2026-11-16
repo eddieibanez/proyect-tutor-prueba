@@ -5,7 +5,7 @@ import { IconTarget, IconCalendar, IconCheck, IconClose } from '../common/Icons'
 import './LessonGoalModal.css';
 
 const LessonGoalModal = ({ isOpen, onClose, courses = [], students = [] }) => {
-  const { assignLessonGoal, lessonGoals = [] } = useApp();
+  const { user, assignLessonGoal, lessonGoals = [] } = useApp();
 
   const [assignmentType, setAssignmentType] = useState('group'); // 'group' o 'individual'
   const [selectedCourseId, setSelectedCourseId] = useState(courses[0]?.id || '');
@@ -39,6 +39,8 @@ const LessonGoalModal = ({ isOpen, onClose, courses = [], students = [] }) => {
       language: selectedLanguage,
       targetLevel: parseInt(targetLevel, 10),
       deadline: deadlineDate,
+      teacherId: user?.id || 'teacher-main',
+      teacherName: `${user?.nombre || user?.name || 'Profesor'} ${user?.apellido || user?.lastName || ''}`.trim(),
       createdAt: new Date().toISOString()
     };
 

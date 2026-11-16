@@ -29,10 +29,16 @@ const TeacherCourses = ({ onOpenGoalModal }) => {
   const [showCourseModal, setShowCourseModal] = useState(false);
   const [showEditCourseModal, setShowEditCourseModal] = useState(false);
   const [showStudentModal, setShowStudentModal] = useState(false);
-  const [selectedCourseId, setSelectedCourseId] = useState(courses[0]?.id || null);
+  const [selectedCourseId, setSelectedCourseId] = useState(null);
   const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [showTasksModal, setShowTasksModal] = useState(false);
   const [showStudentSchedule, setShowStudentSchedule] = useState(false);
+
+  React.useEffect(() => {
+    if (!selectedCourseId && myCourses.length > 0) {
+      setSelectedCourseId(myCourses[0].id);
+    }
+  }, [myCourses, selectedCourseId]);
 
   // Estado para creación de curso
   const [newCourse, setNewCourse] = useState({
@@ -65,7 +71,9 @@ const TeacherCourses = ({ onOpenGoalModal }) => {
     grade: '6'
   });
 
-  const activeCourse = courses.find(c => c.id === selectedCourseId) || courses[0];
+  // Cursos aislados pertenecientes al docente activo
+  const myCourses = courses.filter(c => c.teacherId === user?.id || (!c.teacherId && (user?.id === 'teacher-main' || !user?.id)));
+  const activeCourse = myCourses.find(c => c.id === selectedCourseId) || myCourses[0];
   const enrolledStudents = students.filter(st => (st.enrolledCourses || []).includes(activeCourse?.id) || st.courseId === activeCourse?.id);
 
   // Verificación de colisiones y cruce de horarios entre asignaturas
@@ -121,7 +129,7 @@ const TeacherCourses = ({ onOpenGoalModal }) => {
       ...newCourse,
       schedule: scheduleStr,
       teacherId: user?.id || 'teacher-main',
-      teacherName: user?.nombre || user?.name || 'Profesor Titular'
+      teacherName: `${user?.nombre || user?.name || 'Profesor'} ${user?.apellido || user?.lastName || ''}`.trim()
     };
     const created = await Promise.resolve(addCourse(courseToCreate));
     setShowCourseModal(false);
@@ -176,7 +184,7 @@ const TeacherCourses = ({ onOpenGoalModal }) => {
     if (confirmDelete) {
       deleteCourse(courseId);
       if (selectedCourseId === courseId) {
-        const remaining = courses.filter(c => c.id !== courseId);
+        const remaining = myCourses.filter(c => c.id !== courseId);
         setSelectedCourseId(remaining[0]?.id || null);
       }
     }
@@ -237,14 +245,14 @@ const TeacherCourses = ({ onOpenGoalModal }) => {
         {/* LISTA DE CURSOS A LA IZQUIERDA */}
         <div className="courses-list-col">
           <div className="col-head-row">
-            <h3>Asignaturas Activas ({courses.length})</h3>
+            <h3>Asignaturas Activas ({myCourses.length})</h3>
           </div>
 
           <div className="courses-cards-stack">
-            {courses.length === 0 ? (
-              <p className="empty-notice">No tienes cursos creados. Presiona "+ Crear Nuevo Curso" arriba.</p>
+            {myCourses.length === 0 ? (
+              <p className="empty-notice">No tienes asignaturas creadas en tu entorno. Presiona "+ Crear Nuevo Curso" arriba para comenzar.</p>
             ) : (
-              courses.map(course => {
+              myCourses.map(course => {
                 const count = students.filter(s => (s.enrolledCourses || []).includes(course.id) || s.courseId === course.id).length;
                 const isSelected = activeCourse?.id === course.id;
 
@@ -304,7 +312,7 @@ const TeacherCourses = ({ onOpenGoalModal }) => {
               <p>Consulta las sesiones programadas, festivos y fechas asignadas para los estudiantes inscritos.</p>
             </div>
             <CalendarWidget
-              courses={courses}
+              courses={myCourses}
               userRole="teacher"
               userId={user?.id}
               lessonGoals={lessonGoals}

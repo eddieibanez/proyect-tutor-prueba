@@ -15,6 +15,7 @@ export const AppProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [courses, setCourses] = useState([]);
   const [students, setStudents] = useState([]);
+  const [teachers, setTeachers] = useState([]);
   const [messages, setMessages] = useState([]);
   const [tasks, setTasks] = useState([]);
   const [customContent, setCustomContent] = useState({});

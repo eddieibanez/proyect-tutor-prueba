@@ -4,8 +4,8 @@ import { IconChat, IconClose, IconSend, IconEdit, IconCheck } from '../common/Ic
 import './UnifiedMessenger.css';
 
 const UnifiedMessenger = ({ onClose, isEmbedded = false }) => {
-  const { user, students, courses, messages, sendMessage, editMessage } = useApp();
-  const [activeTab, setActiveTab] = useState('teachers'); // 'teachers' o 'students'
+  const { user, students, courses, teachers = [], messages, sendMessage, editMessage } = useApp();
+  const [activeTab, setActiveTab] = useState('teachers'); // Para alumnos: 'teachers' | 'students'. Para docentes: 'students' | 'colleagues'
   const [selectedContactId, setSelectedContactId] = useState(null);
   const [inputText, setInputText] = useState('');
   const [editingMsgId, setEditingMsgId] = useState(null);
@@ -13,24 +13,26 @@ const UnifiedMessenger = ({ onClose, isEmbedded = false }) => {
   const [searchContactTerm, setSearchContactTerm] = useState('');
 
   const isTeacher = user?.role === 'profesor';
+
+  // Si es estudiante: docentes de sus cursos matriculados
   const userEnrolled = user?.enrolledCourses || (user?.courseId ? [user?.courseId] : []);
-  const relevantCourses = courses.filter(c => userEnrolled.includes(c.id));
-  const coursesToUse = relevantCourses.length > 0 ? relevantCourses : courses;
+  const studentCourses = courses.filter(c => userEnrolled.includes(c.id));
+  const coursesForStudent = studentCourses.length > 0 ? studentCourses : courses;
 
-  // 1. Docentes disponibles con su nombre real y la asignatura que imparten
-  const teacherContacts = [];
-  const seenTeacherKeys = new Set();
+  const studentTeacherContacts = [];
+  const seenStudentTeacherKeys = new Set();
 
-  coursesToUse.forEach(c => {
+  coursesForStudent.forEach(c => {
     const tId = c.teacherId || 'teacher-main';
+    const tObj = (teachers || []).find(t => t.id === tId);
     const tName = (c.teacherName && c.teacherName !== 'Profesor Titular') 
       ? c.teacherName 
-      : (isTeacher ? (user.nombre || user.name || 'Docente') : 'Prof. Eddie Ibáñez');
+      : (tObj ? `${tObj.name} ${tObj.lastName || ''}`.trim() : 'Prof. Eddie Ibáñez');
     
     const key = `${tId}-${c.id}`;
-    if (!seenTeacherKeys.has(key)) {
-      seenTeacherKeys.add(key);
-      teacherContacts.push({
+    if (!seenStudentTeacherKeys.has(key)) {
+      seenStudentTeacherKeys.add(key);
+      studentTeacherContacts.push({
         id: tId,
         name: tName,
         role: 'profesor',
@@ -41,8 +43,8 @@ const UnifiedMessenger = ({ onClose, isEmbedded = false }) => {
     }
   });
 
-  if (teacherContacts.length === 0) {
-    teacherContacts.push({
+  if (studentTeacherContacts.length === 0) {
+    studentTeacherContacts.push({
       id: 'teacher-main',
       name: 'Prof. Eddie Ibáñez',
       role: 'profesor',
@@ -52,46 +54,73 @@ const UnifiedMessenger = ({ onClose, isEmbedded = false }) => {
     });
   }
 
-  // 2. Estudiantes con su curso respectivo visible en el subtítulo
-  const studentContacts = (students || []).filter(s => {
-    if (s.id === user?.id) return false;
-    if (isTeacher) return true;
-    if (userEnrolled.length > 0) {
-      const studentCourses = s.enrolledCourses || (s.courseId ? [s.courseId] : []);
-      const shareCourse = studentCourses.some(cId => userEnrolled.includes(cId));
-      if (shareCourse) return true;
-    }
-    return String(s.grade || s.grado) === String(user?.grade || user?.grado || '6');
+  // Si es docente: alumnos de sus asignaturas a cargo
+  const myCourses = courses.filter(c => c.teacherId === user?.id || (!c.teacherId && (user?.id === 'teacher-main' || !user?.id)));
+  const myCourseIds = myCourses.map(c => c.id);
+
+  const teacherStudentContacts = (students || []).filter(s => {
+    const sCourses = s.enrolledCourses || (s.courseId ? [s.courseId] : []);
+    return sCourses.some(id => myCourseIds.includes(id));
   }).map(s => {
-    const studentCourses = s.enrolledCourses || (s.courseId ? [s.courseId] : []);
-    const matchingCourse = courses.find(c => studentCourses.includes(c.id)) || courses.find(c => c.id === s.courseId);
-    const courseSub = matchingCourse 
-      ? `${matchingCourse.name} • ${s.grade || matchingCourse.grade || '6'}° Grado`
-      : `${s.grade || '6'}° Grado`;
+    const matchingCourse = myCourses.find(c => (s.enrolledCourses || []).includes(c.id) || s.courseId === c.id);
     return {
       ...s,
-      courseName: matchingCourse?.name || 'Asignatura General',
-      courseCode: matchingCourse?.code || '',
-      sub: courseSub
+      displayName: `${s.name || s.nombre} ${s.lastName || s.apellido || ''}`.trim(),
+      sub: matchingCourse ? `${matchingCourse.name} • ${s.grade || '6'}° Grado` : `${s.grade || '6'}° Grado`
     };
   });
 
-  const baseContactList = isTeacher
-    ? studentContacts
-    : (activeTab === 'teachers' ? teacherContacts : studentContacts);
+  // Colegas docentes
+  const colleagueTeachers = (teachers || []).filter(t => t.id !== user?.id).map(t => {
+    const tCourses = courses.filter(c => c.teacherId === t.id);
+    const cTitle = tCourses.length > 0 ? tCourses.map(c => c.name).join(', ') : 'Docente Colega';
+    return {
+      id: t.id,
+      name: t.name || t.nombre || 'Profesor',
+      lastName: t.lastName || t.apellido || '',
+      displayName: `${t.name || t.nombre || 'Profesor'} ${t.lastName || t.apellido || ''}`.trim(),
+      role: 'profesor',
+      sub: `${cTitle} • Plataforma`
+    };
+  });
+
+  // Compañeros de curso para estudiantes
+  const classmates = (students || []).filter(s => {
+    if (s.id === user?.id) return false;
+    if (userEnrolled.length > 0) {
+      const sCourses = s.enrolledCourses || (s.courseId ? [s.courseId] : []);
+      return sCourses.some(cId => userEnrolled.includes(cId));
+    }
+    return String(s.grade || s.grado) === String(user?.grade || user?.grado || '6');
+  }).map(s => {
+    const matchingCourse = courses.find(c => (s.enrolledCourses || []).includes(c.id) || s.courseId === c.id);
+    return {
+      ...s,
+      displayName: `${s.name || s.nombre} ${s.lastName || s.apellido || ''}`.trim(),
+      sub: matchingCourse ? `${matchingCourse.name} • ${s.grade || '6'}° Grado` : `${s.grade || '6'}° Grado`
+    };
+  });
+
+  // Determinar lista según rol y pestaña activa
+  let baseContactList = [];
+  if (isTeacher) {
+    baseContactList = activeTab === 'colleagues' ? colleagueTeachers : teacherStudentContacts;
+  } else {
+    baseContactList = activeTab === 'teachers' ? studentTeacherContacts : classmates;
+  }
 
   // Filtrado por buscador
   const contactList = baseContactList.filter(c => {
     const q = searchContactTerm.trim().toLowerCase();
     if (!q) return true;
-    const nameMatch = `${c.name || ''} ${c.lastName || ''}`.toLowerCase().includes(q);
+    const nameMatch = `${c.name || ''} ${c.lastName || ''} ${c.displayName || ''}`.toLowerCase().includes(q);
     const subMatch = (c.sub || '').toLowerCase().includes(q);
     return nameMatch || subMatch;
   });
 
   const activeContact = contactList.find(c => c.id === selectedContactId) || contactList[0];
 
-  // Filtrado bidireccional de conversación
+  // Conversación estrictamente 1 a 1
   const conversation = (messages || []).filter(m => {
     if (!activeContact) return false;
 
@@ -106,8 +135,8 @@ const UnifiedMessenger = ({ onClose, isEmbedded = false }) => {
     const isDirect = (sId === user?.id && rId === activeContact.id) ||
                      (sId === activeContact.id && rId === user?.id);
 
-    const isLegacy = m.student_id === (isTeacher ? activeContact.id : user?.id) ||
-                     m.studentId === (isTeacher ? activeContact.id : user?.id);
+    const isLegacy = (!isTeacher && m.student_id === user?.id && m.sender === 'teacher') ||
+                     (isTeacher && activeTab !== 'colleagues' && m.student_id === activeContact.id && (m.senderId === user?.id || m.receiverId === user?.id));
 
     return isDirect || isLegacy;
   });
@@ -122,9 +151,10 @@ const UnifiedMessenger = ({ onClose, isEmbedded = false }) => {
       senderName: `${user.name || user.nombre || 'Usuario'} ${user.lastName || user.apellido || ''}`.trim(),
       senderRole: user.role,
       receiverId: activeContact.id,
-      receiverName: activeContact.name,
-      studentId: isTeacher ? activeContact.id : user.id,
-      studentName: isTeacher ? activeContact.name : `${user.name || user.nombre}`,
+      receiverName: activeContact.displayName || activeContact.name,
+      receiverRole: activeContact.role || 'estudiante',
+      studentId: isTeacher && activeTab !== 'colleagues' ? activeContact.id : user.id,
+      studentName: isTeacher && activeTab !== 'colleagues' ? activeContact.name : `${user.name || user.nombre}`,
       sender: user.role === 'profesor' ? 'teacher' : 'student',
       text: clean,
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
@@ -171,32 +201,55 @@ const UnifiedMessenger = ({ onClose, isEmbedded = false }) => {
               <IconChat size={22} color="#00BCD4" />
               <h3>Mensajería</h3>
             </div>
-            <p>Comunícate con docentes y compañeros de tus cursos en tiempo real</p>
+            <p>
+              {isTeacher
+                ? 'Canales privados con tus estudiantes asignados y comunicación con colegas docentes'
+                : 'Comunícate con docentes y compañeros de tus cursos en tiempo real'}
+            </p>
           </div>
           <button type="button" className="close-btn" onClick={onClose} title="Cerrar mensajería">
             <IconClose size={20} />
           </button>
         </div>
 
-        {/* PESTAÑAS PARA ESTUDIANTES */}
-        {!isTeacher && (
-          <div className="messenger-tabs-row">
-            <button
-              type="button"
-              className={`msg-tab-btn ${activeTab === 'teachers' ? 'active' : ''}`}
-              onClick={() => { setActiveTab('teachers'); setSelectedContactId(null); }}
-            >
-              👨‍🏫 Mis Docentes ({teacherContacts.length})
-            </button>
-            <button
-              type="button"
-              className={`msg-tab-btn ${activeTab === 'students' ? 'active' : ''}`}
-              onClick={() => { setActiveTab('students'); setSelectedContactId(null); }}
-            >
-              👥 Compañeros de Curso ({studentContacts.length})
-            </button>
-          </div>
-        )}
+        {/* PESTAÑAS */}
+        <div className="messenger-tabs-row">
+          {isTeacher ? (
+            <>
+              <button
+                type="button"
+                className={`msg-tab-btn ${activeTab === 'students' ? 'active' : ''}`}
+                onClick={() => { setActiveTab('students'); setSelectedContactId(null); }}
+              >
+                👨‍🎓 Mis Alumnos ({teacherStudentContacts.length})
+              </button>
+              <button
+                type="button"
+                className={`msg-tab-btn ${activeTab === 'colleagues' ? 'active' : ''}`}
+                onClick={() => { setActiveTab('colleagues'); setSelectedContactId(null); }}
+              >
+                👥 Colegas Docentes ({colleagueTeachers.length})
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                type="button"
+                className={`msg-tab-btn ${activeTab === 'teachers' ? 'active' : ''}`}
+                onClick={() => { setActiveTab('teachers'); setSelectedContactId(null); }}
+              >
+                👨‍🏫 Mis Docentes ({studentTeacherContacts.length})
+              </button>
+              <button
+                type="button"
+                className={`msg-tab-btn ${activeTab === 'students' ? 'active' : ''}`}
+                onClick={() => { setActiveTab('students'); setSelectedContactId(null); }}
+              >
+                👥 Compañeros de Curso ({classmates.length})
+              </button>
+            </>
+          )}
+        </div>
 
         <div className="messenger-body-split">
           {/* LISTA LATERAL DE CONTACTOS */}
@@ -213,7 +266,7 @@ const UnifiedMessenger = ({ onClose, isEmbedded = false }) => {
             <div className="contacts-scroll">
               {contactList.length === 0 ? (
                 <div className="empty-contacts-hint">
-                  <p>No se encontraron contactos.</p>
+                  <p>No se encontraron contactos en esta sección.</p>
                 </div>
               ) : (
                 contactList.map(c => {
@@ -225,10 +278,10 @@ const UnifiedMessenger = ({ onClose, isEmbedded = false }) => {
                       onClick={() => setSelectedContactId(c.id)}
                     >
                       <div className="contact-avatar">
-                        {(c.name || 'U')[0].toUpperCase()}
+                        {(c.displayName || c.name || 'U')[0].toUpperCase()}
                       </div>
                       <div className="contact-meta">
-                        <span className="contact-name">{c.name} {c.lastName || ''}</span>
+                        <span className="contact-name">{c.displayName || c.name}</span>
                         <small className="contact-sub">{c.sub}</small>
                       </div>
                     </div>
@@ -244,10 +297,10 @@ const UnifiedMessenger = ({ onClose, isEmbedded = false }) => {
               <>
                 <div className="chat-pane-contact-bar">
                   <div className="contact-avatar-small">
-                    {(activeContact.name || 'U')[0].toUpperCase()}
+                    {(activeContact.displayName || activeContact.name || 'U')[0].toUpperCase()}
                   </div>
                   <div>
-                    <strong>{activeContact.name} {activeContact.lastName || ''}</strong>
+                    <strong>{activeContact.displayName || activeContact.name}</strong>
                     <div className="chat-sub-line">
                       <span className="contact-badge-course">{activeContact.sub}</span>
                       <span className="online-pill">● En línea</span>
@@ -259,13 +312,13 @@ const UnifiedMessenger = ({ onClose, isEmbedded = false }) => {
                   {conversation.length === 0 ? (
                     <div className="empty-chat-hint">
                       <div className="empty-chat-icon">💬</div>
-                      <h4>Conversación con {activeContact.name}</h4>
-                      <p>Inicia el diálogo escribiendo tus dudas o comentarios sobre las asignaturas y lecciones.</p>
+                      <h4>Conversación con {activeContact.displayName || activeContact.name}</h4>
+                      <p>Inicia el diálogo escribiendo tus dudas o notas de coordinación pedagógica.</p>
                     </div>
                   ) : (
                     conversation.map((msg, index) => {
                       const isMine = msg.senderId === user.id ||
-                        (isTeacher && msg.sender === 'teacher') ||
+                        (isTeacher && msg.sender === 'teacher' && msg.receiverId !== user.id) ||
                         (!isTeacher && msg.sender === 'student' && msg.senderId !== activeContact.id);
 
                       const timeStr = msg.created_at
@@ -291,7 +344,7 @@ const UnifiedMessenger = ({ onClose, isEmbedded = false }) => {
                             <div className="bubble-content">
                               <div className="bubble-header-row">
                                 <span className="bubble-author">
-                                  {isMine ? 'Tú' : (msg.senderName || activeContact.name)}
+                                  {isMine ? 'Tú' : (msg.senderName || activeContact.displayName || activeContact.name)}
                                 </span>
                                 {msg.edited && <span className="edited-indicator">(editado)</span>}
                               </div>
@@ -350,7 +403,7 @@ const UnifiedMessenger = ({ onClose, isEmbedded = false }) => {
                 <form className="chat-input-row" onSubmit={handleSendMessage}>
                   <input
                     type="text"
-                    placeholder={`Escribe un mensaje para ${activeContact.name}...`}
+                    placeholder={`Escribe un mensaje para ${activeContact.displayName || activeContact.name}...`}
                     value={inputText}
                     onChange={e => setInputText(e.target.value)}
                   />

@@ -16,7 +16,15 @@ import {
 import './StudentMonitor.css';
 
 const StudentMonitor = () => {
-  const { students, courses, updateStudentNote } = useApp();
+  const { user, students, courses, updateStudentNote } = useApp();
+
+  // Aislamiento por docente: solo asignaturas y alumnos del profesor activo
+  const myCourses = courses.filter(c => c.teacherId === user?.id || (!c.teacherId && (user?.id === 'teacher-main' || !user?.id)));
+  const myCourseIds = myCourses.map(c => c.id);
+  const myStudents = students.filter(st => {
+    const stCourses = st.enrolledCourses || (st.courseId ? [st.courseId] : []);
+    return stCourses.some(id => myCourseIds.includes(id));
+  });
   const [selectedCourseId, setSelectedCourseId] = useState('all');
   const [filterGrade, setFilterGrade] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
@@ -25,16 +33,17 @@ const StudentMonitor = () => {
   const [studentNotes, setStudentNotes] = useState({});
   const [saveToast, setSaveToast] = useState('');
 
-  // Filtrado de estudiantes
-  const filteredStudents = students.filter(st => {
-    const matchCourse = selectedCourseId === 'all' || st.courseId === selectedCourseId;
+  // Filtrado de estudiantes del docente
+  const filteredStudents = myStudents.filter(st => {
+    const stCourses = st.enrolledCourses || (st.courseId ? [st.courseId] : []);
+    const matchCourse = selectedCourseId === 'all' || stCourses.includes(selectedCourseId) || st.courseId === selectedCourseId;
     const matchGrade = filterGrade === 'all' || String(st.grade) === filterGrade;
     const matchStatus = filterStatus === 'all' || st.status === filterStatus;
     const matchSearch = !search || `${st.name} ${st.lastName || ''}`.toLowerCase().includes(search.toLowerCase());
     return matchCourse && matchGrade && matchStatus && matchSearch;
   });
 
-  const currentCourse = courses.find(c => c.id === selectedCourseId);
+  const currentCourse = myCourses.find(c => c.id === selectedCourseId);
   const courseName = currentCourse ? currentCourse.name : 'Todos los Cursos';
 
   const handleSaveNote = (studentId) => {
@@ -172,8 +181,8 @@ const StudentMonitor = () => {
               value={selectedCourseId}
               onChange={e => setSelectedCourseId(e.target.value)}
             >
-              <option value="all">Todos los Cursos</option>
-              {courses.map(c => (
+              <option value="all">Todos mis Cursos</option>
+              {myCourses.map(c => (
                 <option key={c.id} value={c.id}>
                   [{c.code}] {c.name} ({c.grade}° Grado)
                 </option>
