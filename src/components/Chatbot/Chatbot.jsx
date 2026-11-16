@@ -16,17 +16,17 @@ const Chatbot = ({ languageId = 'general', levelId = 1, lessonData = null }) => 
       {
         id: 'welcome',
         sender: 'bot',
-        text: `¡Hola! Soy tu tutor pedagógico de IA para ${String(languageId).toUpperCase()} (Nivel ${levelId}). No te daré la solución directa ni el código terminado, pero sí te guiaré paso a paso con preguntas y recordatorios para que descubras el camino correcto. ¿En qué parte tienes dudas?`,
+        text: `¡Hola! Soy tu tutor pedagógico de IA para ${String(languageId).toUpperCase()} (Nivel ${levelId}). No te daré el código resuelto, pero sí te guiaré paso a paso para que aprendas a razonarlo. ¿En qué parte tienes dudas?`,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       }
     ]);
   }, [languageId, levelId]);
 
   useEffect(() => {
-    if (messagesEndRef.current) {
+    if (messagesEndRef.current && isOpen) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [messages, isTyping]);
+  }, [messages, isTyping, isOpen]);
 
   const toggleChat = () => setIsOpen(!isOpen);
 
@@ -90,9 +90,8 @@ REGLAS CRÍTICAS PEDAGÓGICAS:
     }
   };
 
-  const handleSend = async (e) => {
-    e?.preventDefault();
-    const clean = inputValue.trim();
+  const handleSendPrompt = async (textToSend) => {
+    const clean = (textToSend || inputValue).trim();
     if (!clean || isTyping) return;
 
     const userMsg = {
@@ -132,61 +131,98 @@ REGLAS CRÍTICAS PEDAGÓGICAS:
     }
   };
 
+  const handleFormSubmit = (e) => {
+    e.preventDefault();
+    handleSendPrompt(inputValue);
+  };
+
+  const quickChips = [
+    '💡 Dame una pista',
+    '🔍 ¿Por qué falla mi lógica?',
+    languageId === 'arduino' ? '⚡ ¿Cómo uso el pin y delay?' : '🐍 ¿Cómo estructuro el ciclo?'
+  ];
+
   return (
-    <div className="chatbot-wrapper">
-      {!isOpen && (
+    <div className="tutor-ai-wrapper">
+      {!isOpen ? (
         <button
           type="button"
-          className="chatbot-floating-toggle"
+          className="tutor-ai-toggle-btn"
           onClick={toggleChat}
-          title="Abrir Tutor IA de Programación"
-          aria-label="Abrir Asistente Tutor IA"
+          title="Abrir Tutor IA Pedagógico"
         >
-          <IconChat size={22} color="#ffffff" />
-          <span className="chatbot-pill-label">Tutor IA</span>
+          <div className="tutor-toggle-icon">🤖</div>
+          <span className="tutor-toggle-label">Tutor IA</span>
         </button>
-      )}
-
-      {isOpen && (
-        <div className="chatbot-window-panel">
-          <header className="chatbot-window-header">
-            <div className="chatbot-header-title">
-              <span className="chatbot-ai-status-dot"></span>
+      ) : (
+        <div className="tutor-ai-window">
+          {/* Cabecera Proporcional */}
+          <div className="tutor-ai-header">
+            <div className="tutor-header-title">
+              <div className="tutor-avatar-icon">🤖</div>
               <div>
                 <h4>Tutor Pedagógico IA</h4>
-                <p className="chatbot-header-sub">{String(languageId).toUpperCase()} • Nivel {levelId}</p>
+                <span className="tutor-level-badge">{languageId.toUpperCase()} • Nivel {levelId}</span>
               </div>
             </div>
-            <button type="button" className="chatbot-close-btn" onClick={toggleChat} title="Cerrar chat">
-              <IconClose size={18} color="currentColor" />
+            <button type="button" className="tutor-close-btn" onClick={toggleChat} title="Cerrar ventana">
+              <IconClose size={16} />
             </button>
-          </header>
+          </div>
 
-          <div className="chatbot-messages-area">
+          {/* Área de Mensajes */}
+          <div className="tutor-messages-body">
             {messages.map(m => (
-              <div key={m.id} className={`chat-bubble ${m.sender === 'user' ? 'bubble-user' : 'bubble-bot'}`}>
-                <div className="chat-bubble-content">{m.text}</div>
-                <span className="chat-bubble-time">{m.timestamp}</span>
+              <div key={m.id} className={`tutor-bubble-row ${m.sender === 'user' ? 'mine' : 'bot'}`}>
+                <div className="tutor-bubble-content">
+                  <p>{m.text}</p>
+                  <span className="tutor-timestamp">{m.timestamp}</span>
+                </div>
               </div>
             ))}
             {isTyping && (
-              <div className="chat-bubble bubble-bot typing-indicator">
-                <span></span><span></span><span></span>
+              <div className="tutor-bubble-row bot">
+                <div className="tutor-bubble-content typing">
+                  <span className="dot"></span>
+                  <span className="dot"></span>
+                  <span className="dot"></span>
+                </div>
               </div>
             )}
             <div ref={messagesEndRef} />
           </div>
 
-          <form className="chatbot-input-bar" onSubmit={handleSend}>
+          {/* Chips de Preguntas Frecuentes Rápidas */}
+          <div className="tutor-chips-row">
+            {quickChips.map((chip, idx) => (
+              <button
+                key={idx}
+                type="button"
+                className="tutor-chip-btn"
+                onClick={() => handleSendPrompt(chip)}
+                disabled={isTyping}
+              >
+                {chip}
+              </button>
+            ))}
+          </div>
+
+          {/* Formulario de Entrada */}
+          <form className="tutor-input-form" onSubmit={handleFormSubmit}>
             <input
               type="text"
               value={inputValue}
               onChange={e => setInputValue(e.target.value)}
-              placeholder="Pregúntale al tutor sobre tu algoritmo..."
+              placeholder="Pregúntale al tutor..."
               disabled={isTyping}
             />
-            <button type="submit" disabled={!inputValue.trim() || isTyping} className="chatbot-send-btn">
-              <IconSend size={18} color="#ffffff" />
+            <button
+              type="submit"
+              disabled={!inputValue.trim() || isTyping}
+              className="tutor-send-btn"
+              title="Enviar consulta"
+            >
+              <IconSend size={15} color="#ffffff" />
             </button>
           </form>
         </div>

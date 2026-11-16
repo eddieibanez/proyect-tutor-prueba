@@ -48,7 +48,7 @@ const Navbar = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
-  // CÃ¡lculo de mensajes no leÃ­dos para la insignia (dot rojo)
+  // Cálculo de mensajes no leídos para la insignia (dot rojo)
   const unreadMessagesCount = useMemo(() => {
     if (!user || !messages) return 0;
     return messages.filter(m => {
@@ -59,7 +59,7 @@ const Navbar = () => {
     }).length;
   }, [messages, user]);
 
-  // CÃ¡lculo de notificaciones no leÃ­das para la insignia (dot amarillo / rojo)
+  // Cálculo de notificaciones no leídas para la insignia (dot amarillo / rojo)
   const unreadNotifsCount = useMemo(() => {
     if (!user) return 0;
     const readIds = JSON.parse(localStorage.getItem('codecraft_read_notifs') || '[]');
@@ -219,7 +219,7 @@ const Navbar = () => {
               </>
             )}
 
-            {/* BOTÃ“N CAMBIO DE MODO CLARO / OSCURO CON ICONOS SVG */}
+            {/* BOTÓN CAMBIO DE MODO CLARO / OSCURO CON ICONOS SVG */}
             <button 
               type="button" 
               className="btn-theme-toggle" 
@@ -245,7 +245,7 @@ const Navbar = () => {
                   <span 
                     className="user-name clickable-profile" 
                     onClick={() => setShowProfile(true)} 
-                    title="Clic para editar tu informaciÃ³n personal y clave"
+                    title="Clic para editar tu información personal y clave"
                   >
                     {previewMode?.active 
                       ? `${realUser?.nombre || realUser?.name || 'Profesor'} ${realUser?.apellido || realUser?.lastName || ''}`
@@ -254,8 +254,8 @@ const Navbar = () => {
                   </span>
                   <span className="user-badge">
                     {previewMode?.active 
-                      ? `Vista ${previewMode.grade}Â° Grado` 
-                      : isTeacherAccount ? 'Profesor' : `${user.grado || user.grade}Â° Grado`
+                      ? `Vista ${previewMode.grade}° Grado` 
+                      : isTeacherAccount ? 'Profesor' : `${user.grado || user.grade}° Grado`
                     }
                   </span>
                 </div>

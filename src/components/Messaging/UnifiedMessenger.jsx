@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { IconChat, IconClose, IconSend, IconEdit, IconCheck } from '../common/Icons';
 import './UnifiedMessenger.css';
@@ -10,36 +10,88 @@ const UnifiedMessenger = ({ onClose, isEmbedded = false }) => {
   const [inputText, setInputText] = useState('');
   const [editingMsgId, setEditingMsgId] = useState(null);
   const [editText, setEditText] = useState('');
+  const [searchContactTerm, setSearchContactTerm] = useState('');
 
   const isTeacher = user?.role === 'profesor';
+  const userEnrolled = user?.enrolledCourses || (user?.courseId ? [user?.courseId] : []);
+  const relevantCourses = courses.filter(c => userEnrolled.includes(c.id));
+  const coursesToUse = relevantCourses.length > 0 ? relevantCourses : courses;
 
-  // 1. Docentes disponibles
-  const teacherContacts = [
-    { id: 'teacher-main', name: 'Profesor Titular', role: 'profesor', sub: 'Docente de InformÃ¡tica & RobÃ³tica' }
-  ];
+  // 1. Docentes disponibles con su nombre real y la asignatura que imparten
+  const teacherContacts = [];
+  const seenTeacherKeys = new Set();
 
-  // 2. Estudiantes registrados (habilitados si comparten cursos matriculados o en su grado escolar)
-  const userEnrolled = user?.enrolledCourses || [];
+  coursesToUse.forEach(c => {
+    const tId = c.teacherId || 'teacher-main';
+    const tName = (c.teacherName && c.teacherName !== 'Profesor Titular') 
+      ? c.teacherName 
+      : (isTeacher ? (user.nombre || user.name || 'Docente') : 'Prof. Eddie Ibáñez');
+    
+    const key = `${tId}-${c.id}`;
+    if (!seenTeacherKeys.has(key)) {
+      seenTeacherKeys.add(key);
+      teacherContacts.push({
+        id: tId,
+        name: tName,
+        role: 'profesor',
+        courseName: c.name,
+        courseCode: c.code,
+        sub: `${c.name} (${c.code})`
+      });
+    }
+  });
+
+  if (teacherContacts.length === 0) {
+    teacherContacts.push({
+      id: 'teacher-main',
+      name: 'Prof. Eddie Ibáñez',
+      role: 'profesor',
+      courseName: 'Informática y Robótica',
+      courseCode: 'DOC-TIT',
+      sub: 'Docente Titular de Programación'
+    });
+  }
+
+  // 2. Estudiantes con su curso respectivo visible en el subtítulo
   const studentContacts = (students || []).filter(s => {
     if (s.id === user?.id) return false;
     if (isTeacher) return true;
-    // Si el usuario tiene cursos matriculados, mostrar compañeros de esos mismos cursos
     if (userEnrolled.length > 0) {
       const studentCourses = s.enrolledCourses || (s.courseId ? [s.courseId] : []);
       const shareCourse = studentCourses.some(cId => userEnrolled.includes(cId));
       if (shareCourse) return true;
     }
-    // Si no tienen cursos asignados explícitamente, habilitar compañeros de su mismo grado
     return String(s.grade || s.grado) === String(user?.grade || user?.grado || '6');
+  }).map(s => {
+    const studentCourses = s.enrolledCourses || (s.courseId ? [s.courseId] : []);
+    const matchingCourse = courses.find(c => studentCourses.includes(c.id)) || courses.find(c => c.id === s.courseId);
+    const courseSub = matchingCourse 
+      ? `${matchingCourse.name} • ${s.grade || matchingCourse.grade || '6'}° Grado`
+      : `${s.grade || '6'}° Grado`;
+    return {
+      ...s,
+      courseName: matchingCourse?.name || 'Asignatura General',
+      courseCode: matchingCourse?.code || '',
+      sub: courseSub
+    };
   });
 
-  const contactList = isTeacher
+  const baseContactList = isTeacher
     ? studentContacts
     : (activeTab === 'teachers' ? teacherContacts : studentContacts);
 
+  // Filtrado por buscador
+  const contactList = baseContactList.filter(c => {
+    const q = searchContactTerm.trim().toLowerCase();
+    if (!q) return true;
+    const nameMatch = `${c.name || ''} ${c.lastName || ''}`.toLowerCase().includes(q);
+    const subMatch = (c.sub || '').toLowerCase().includes(q);
+    return nameMatch || subMatch;
+  });
+
   const activeContact = contactList.find(c => c.id === selectedContactId) || contactList[0];
 
-  // Filtrado bidireccional fiel con soporte de deserializaciÃ³n JSON de student_name
+  // Filtrado bidireccional de conversación
   const conversation = (messages || []).filter(m => {
     if (!activeContact) return false;
 
@@ -93,7 +145,6 @@ const UnifiedMessenger = ({ onClose, isEmbedded = false }) => {
     setEditText('');
   };
 
-  // Helper para dividir mensajes por dÃ­as ("Hoy", "Ayer", o fecha completa)
   const getDayDividerLabel = (dateStr) => {
     if (!dateStr) return 'Hoy';
     const msgDate = new Date(dateStr);
@@ -113,21 +164,21 @@ const UnifiedMessenger = ({ onClose, isEmbedded = false }) => {
   return (
     <div className="messenger-modal-overlay" onClick={onClose}>
       <div className="messenger-modal-card" onClick={e => e.stopPropagation()}>
-        {/* ENCABEZADO CON ICONOS SVG */}
+        {/* ENCABEZADO */}
         <div className="messenger-header">
           <div className="header-info">
             <div className="header-title-row">
               <IconChat size={22} color="#00BCD4" />
-              <h3>MensajerÃ­a y TutorÃ­a en Tiempo Real</h3>
+              <h3>Mensajería</h3>
             </div>
-            <p>ComunÃ­cate con docentes y compaÃ±eros de clase</p>
+            <p>Comunícate con docentes y compañeros de tus cursos en tiempo real</p>
           </div>
-          <button type="button" className="close-btn" onClick={onClose} title="Cerrar mensajerÃ­a">
+          <button type="button" className="close-btn" onClick={onClose} title="Cerrar mensajería">
             <IconClose size={20} />
           </button>
         </div>
 
-        {/* PESTAÃ‘AS PARA ESTUDIANTES */}
+        {/* PESTAÑAS PARA ESTUDIANTES */}
         {!isTeacher && (
           <div className="messenger-tabs-row">
             <button
@@ -135,14 +186,14 @@ const UnifiedMessenger = ({ onClose, isEmbedded = false }) => {
               className={`msg-tab-btn ${activeTab === 'teachers' ? 'active' : ''}`}
               onClick={() => { setActiveTab('teachers'); setSelectedContactId(null); }}
             >
-              Mis Docentes
+              👨‍🏫 Mis Docentes ({teacherContacts.length})
             </button>
             <button
               type="button"
               className={`msg-tab-btn ${activeTab === 'students' ? 'active' : ''}`}
               onClick={() => { setActiveTab('students'); setSelectedContactId(null); }}
             >
-              CompaÃ±eros de Clase ({studentContacts.length})
+              👥 Compañeros de Curso ({studentContacts.length})
             </button>
           </div>
         )}
@@ -150,28 +201,40 @@ const UnifiedMessenger = ({ onClose, isEmbedded = false }) => {
         <div className="messenger-body-split">
           {/* LISTA LATERAL DE CONTACTOS */}
           <div className="messenger-contacts-list">
-            <div className="contacts-head">
-              <span>{isTeacher ? 'Alumnos' : activeTab === 'teachers' ? 'Docentes' : 'CompaÃ±eros'}</span>
+            <div className="contacts-search-box">
+              <input
+                type="text"
+                placeholder="🔍 Buscar contacto o curso..."
+                value={searchContactTerm}
+                onChange={e => setSearchContactTerm(e.target.value)}
+                className="contacts-search-input"
+              />
             </div>
             <div className="contacts-scroll">
-              {contactList.map(c => {
-                const isSelected = activeContact?.id === c.id;
-                return (
-                  <div
-                    key={c.id}
-                    className={`contact-item ${isSelected ? 'active' : ''}`}
-                    onClick={() => setSelectedContactId(c.id)}
-                  >
-                    <div className="contact-avatar">
-                      {c.name ? c.name.charAt(0).toUpperCase() : 'U'}
+              {contactList.length === 0 ? (
+                <div className="empty-contacts-hint">
+                  <p>No se encontraron contactos.</p>
+                </div>
+              ) : (
+                contactList.map(c => {
+                  const isSelected = activeContact?.id === c.id;
+                  return (
+                    <div
+                      key={c.id}
+                      className={`contact-item ${isSelected ? 'active' : ''}`}
+                      onClick={() => setSelectedContactId(c.id)}
+                    >
+                      <div className="contact-avatar">
+                        {(c.name || 'U')[0].toUpperCase()}
+                      </div>
+                      <div className="contact-meta">
+                        <span className="contact-name">{c.name} {c.lastName || ''}</span>
+                        <small className="contact-sub">{c.sub}</small>
+                      </div>
                     </div>
-                    <div className="contact-meta">
-                      <span className="contact-name">{c.name} {c.lastName || ''}</span>
-                      <small className="contact-sub">{c.grade ? `${c.grade}Â° Grado` : c.sub || 'Usuario'}</small>
-                    </div>
-                  </div>
-                );
-              })}
+                  );
+                })
+              )}
             </div>
           </div>
 
@@ -181,18 +244,23 @@ const UnifiedMessenger = ({ onClose, isEmbedded = false }) => {
               <>
                 <div className="chat-pane-contact-bar">
                   <div className="contact-avatar-small">
-                    {activeContact.name.charAt(0).toUpperCase()}
+                    {(activeContact.name || 'U')[0].toUpperCase()}
                   </div>
                   <div>
                     <strong>{activeContact.name} {activeContact.lastName || ''}</strong>
-                    <span className="online-pill">â— En lÃ­nea</span>
+                    <div className="chat-sub-line">
+                      <span className="contact-badge-course">{activeContact.sub}</span>
+                      <span className="online-pill">● En línea</span>
+                    </div>
                   </div>
                 </div>
 
                 <div className="chat-messages-container">
                   {conversation.length === 0 ? (
                     <div className="empty-chat-hint">
-                      <p>No hay mensajes previos en esta conversaciÃ³n. Â¡Escribe un mensaje para comenzar!</p>
+                      <div className="empty-chat-icon">💬</div>
+                      <h4>Conversación con {activeContact.name}</h4>
+                      <p>Inicia el diálogo escribiendo tus dudas o comentarios sobre las asignaturas y lecciones.</p>
                     </div>
                   ) : (
                     conversation.map((msg, index) => {
@@ -204,7 +272,6 @@ const UnifiedMessenger = ({ onClose, isEmbedded = false }) => {
                         ? new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
                         : msg.time || 'Ahora';
 
-                      // Separador de dÃ­as
                       const showDayDivider = index === 0 || (
                         new Date(msg.created_at || Date.now()).toDateString() !==
                         new Date(conversation[index - 1].created_at || Date.now()).toDateString()
@@ -224,7 +291,7 @@ const UnifiedMessenger = ({ onClose, isEmbedded = false }) => {
                             <div className="bubble-content">
                               <div className="bubble-header-row">
                                 <span className="bubble-author">
-                                  {isMine ? 'TÃº' : (msg.senderName || activeContact.name)}
+                                  {isMine ? 'Tú' : (msg.senderName || activeContact.name)}
                                 </span>
                                 {msg.edited && <span className="edited-indicator">(editado)</span>}
                               </div>
@@ -266,9 +333,9 @@ const UnifiedMessenger = ({ onClose, isEmbedded = false }) => {
                                     type="button"
                                     className="btn-edit-trigger"
                                     onClick={() => handleStartEdit(msg)}
-                                    title="Editar mensaje en tiempo real"
+                                    title="Editar mensaje"
                                   >
-                                    <IconEdit size={14} />
+                                    <IconEdit size={13} />
                                   </button>
                                 )}
                               </div>
@@ -295,7 +362,7 @@ const UnifiedMessenger = ({ onClose, isEmbedded = false }) => {
               </>
             ) : (
               <div className="no-contact-selected">
-                <p>Selecciona un contacto para iniciar la conversaciÃ³n.</p>
+                <p>Selecciona un contacto para iniciar la conversación.</p>
               </div>
             )}
           </div>
@@ -306,4 +373,3 @@ const UnifiedMessenger = ({ onClose, isEmbedded = false }) => {
 };
 
 export default UnifiedMessenger;
-

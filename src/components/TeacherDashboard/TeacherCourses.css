@@ -704,3 +704,228 @@
   background: rgba(255, 255, 255, 0.08) !important;
   color: #ffffff !important;
 }
+
+/* ESTILOS DE EDICIÓN DE CURSOS Y DETECCIÓN DE CRUCE DE HORARIOS */
+.card-action-mini-btns {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-mini-edit {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.15));
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-mini-edit:hover {
+  background: var(--primary, #00BCD4);
+  color: white;
+  transform: translateY(-1px);
+}
+
+.banner-stats-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.btn-banner-edit-course {
+  background: linear-gradient(135deg, rgba(0, 188, 212, 0.2), rgba(124, 77, 255, 0.2));
+  border: 1px solid var(--primary, #00BCD4);
+  color: var(--text-primary, #ffffff);
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-banner-edit-course:hover {
+  background: var(--primary, #00BCD4);
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(0, 188, 212, 0.35);
+}
+
+.conflict-warning-box {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid #ef4444;
+  color: #f87171;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 0.84rem;
+  line-height: 1.4;
+  margin-bottom: 12px;
+}
+
+/* PESTAÑAS Y BUSCADOR DE ALUMNOS REGISTRADOS */
+.student-enrollment-modal {
+  width: 580px !important;
+  max-width: 95vw;
+}
+
+.student-modal-tab-bar {
+  display: flex;
+  gap: 8px;
+  border-bottom: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
+  padding-bottom: 10px;
+  margin-bottom: 14px;
+}
+
+.student-modal-tab-bar .tab-btn {
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-secondary, #94a3b8);
+  font-size: 0.84rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.student-modal-tab-bar .tab-btn.active {
+  background: var(--primary, #00BCD4);
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 188, 212, 0.3);
+}
+
+.search-filters-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.search-input-wrapper {
+  position: relative;
+  flex: 1;
+}
+
+.search-input-wrapper .search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.9rem;
+  opacity: 0.6;
+}
+
+.student-search-input {
+  width: 100%;
+  padding: 8px 12px 8px 32px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.15));
+  background: var(--bg-primary, #0f172a);
+  color: var(--text-primary, #f8fafc);
+  font-size: 0.85rem;
+  outline: none;
+}
+
+.student-search-input:focus {
+  border-color: var(--primary, #00BCD4);
+}
+
+.grade-filter-select {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.15));
+  background: var(--bg-primary, #0f172a);
+  color: var(--text-primary, #f8fafc);
+  font-size: 0.85rem;
+  outline: none;
+  cursor: pointer;
+}
+
+.students-candidates-list {
+  max-height: 260px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-right: 4px;
+}
+
+.student-candidate-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.student-candidate-card:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(0, 188, 212, 0.3);
+}
+
+.candidate-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.candidate-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #00BCD4, #7C4DFF);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+.candidate-sub {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-secondary, #94a3b8);
+}
+
+.badge-already-enrolled {
+  font-size: 0.78rem;
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-weight: 600;
+}
+
+.btn-enroll-action {
+  background: var(--primary, #00BCD4);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-enroll-action:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 188, 212, 0.4);
+}
+
+.empty-candidates {
+  text-align: center;
+  padding: 24px;
+  color: var(--text-secondary, #94a3b8);
+  font-size: 0.85rem;
+}

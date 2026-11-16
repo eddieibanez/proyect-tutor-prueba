@@ -692,6 +692,64 @@ export const AppProvider = ({ children }) => {
     }
   };
 
+  const updateCourse = async (courseId, updatedFields) => {
+    const updated = courses.map(c => (c.id === courseId ? { ...c, ...updatedFields } : c));
+    setCourses(updated);
+    localStorage.setItem('codecraft_courses', JSON.stringify(updated));
+
+    try {
+      await supabase.from('courses').update({
+        name: updatedFields.name,
+        code: updatedFields.code,
+        grade: updatedFields.grade ? String(updatedFields.grade) : undefined,
+        description: updatedFields.description,
+        schedule: updatedFields.schedule,
+        color: updatedFields.color
+      }).eq('id', courseId);
+    } catch (e) {
+      console.warn('Error al actualizar curso en Supabase:', e);
+    }
+    return updated.find(c => c.id === courseId);
+  };
+
+  const enrollStudentInCourse = async (studentId, courseId) => {
+    const updatedStudents = students.map(s => {
+      if (s.id === studentId) {
+        const currentCourses = s.enrolledCourses || (s.courseId ? [s.courseId] : []);
+        if (currentCourses.includes(courseId)) return s;
+        const newCourses = [...currentCourses, courseId];
+        return {
+          ...s,
+          enrolledCourses: newCourses,
+          courseId: newCourses[0] || null
+        };
+      }
+      return s;
+    });
+
+    setStudents(updatedStudents);
+    localStorage.setItem('codecraft_students', JSON.stringify(updatedStudents));
+
+    if (user && user.id === studentId) {
+      const currentCourses = user.enrolledCourses || (user.courseId ? [user.courseId] : []);
+      if (!currentCourses.includes(courseId)) {
+        const newCourses = [...currentCourses, courseId];
+        const updatedUser = { ...user, enrolledCourses: newCourses, courseId: newCourses[0] || null };
+        setUser(updatedUser);
+        localStorage.setItem('codecraft_user', JSON.stringify(updatedUser));
+      }
+    }
+
+    try {
+      await supabase.from('enrollments').upsert({
+        student_id: studentId,
+        course_id: courseId
+      });
+    } catch (e) {
+      console.warn('Error al matricular estudiante en Supabase:', e);
+    }
+  };
+
   const addStudent = async (studentData) => {
     const newStudent = {
       ...studentData,
@@ -971,6 +1029,8 @@ export const AppProvider = ({ children }) => {
       saveExamScore,
       addCourse,
       deleteCourse,
+      updateCourse,
+      enrollStudentInCourse,
       addStudent,
       deleteStudent,
       saveCustomContent,

@@ -22,7 +22,7 @@ const languageInfo = [
   {
     id: 'arduino',
     name: 'C++ Arduino',
-    description: 'Aprende a programar hardware, microcontroladores y sensores con rigor sintÃ¡ctico.',
+    description: 'Aprende a programar hardware, microcontroladores y sensores con rigor sintáctico.',
     icon: <IconCpu size={32} color="#00BCD4" />,
     colorClass: 'cardArduino'
   },
@@ -36,7 +36,7 @@ const languageInfo = [
   {
     id: 'python',
     name: 'Python 3',
-    description: 'Domina lÃ³gica pura, estructuras de datos, scripts y algoritmos modernos.',
+    description: 'Domina lógica pura, estructuras de datos, scripts y algoritmos modernos.',
     icon: <IconTerminal size={32} color="#4CAF50" />,
     colorClass: 'cardPython'
   }
@@ -45,6 +45,18 @@ const languageInfo = [
 const StudentDashboard = () => {
   const { user, courses, lessonGoals = [], tasks = [] } = useContext(AppContext);
   const navigate = useNavigate();
+
+  // Cursos en los que el estudiante está efectivamente matriculado
+  const enrolledCourseIds = user?.enrolledCourses || (user?.courseId ? [user?.courseId] : []);
+  const enrolledCourses = courses.filter(c => enrolledCourseIds.includes(c.id));
+
+  const handleStartRoute = (langId) => {
+    if (enrolledCourses.length === 0) {
+      alert('⚠️ Para realizar las lecciones debes estar matriculado en al menos un curso oficial. Solicita a tu docente que te matricule en tu asignatura.');
+      return;
+    }
+    navigate('/student/language/' + langId);
+  };
 
   // Estados para modales de horario, tareas por curso, centro de tareas y mensajería
   const [selectedCourseForSchedule, setSelectedCourseForSchedule] = useState(null);
@@ -79,8 +91,8 @@ const StudentDashboard = () => {
     <div className={styles.dashboardContainer}>
       <header className={styles.dashboardHeader}>
         <div className={styles.welcomeText}>
-          <h1>Â¡Hola, {user ? (user.nombre || user.name) : 'Estudiante'}!</h1>
-          <p>Explora tus cursos matriculados, consulta tu calendario de clases y continÃºa tu ruta de aprendizaje.</p>
+          <h1>¡Hola, {user ? (user.nombre || user.name) : 'Estudiante'}!</h1>
+          <p>Explora tus cursos matriculados, consulta tu calendario de clases y continúa tu ruta de aprendizaje.</p>
         </div>
 
         <div className={styles.statsSummary}>
@@ -101,7 +113,7 @@ const StudentDashboard = () => {
             title="Ir al apartado de Mensajería"
           >
             <IconChat size={16} />
-            <span>{activeSectionTab === 'messages' ? 'Ver Mis Cursos' : 'Apartado de Mensajería'}</span>
+            <span>{activeSectionTab === 'messages' ? 'Ver Mis Cursos' : 'Mensajería'}</span>
           </button>
         </div>
       </header>
@@ -117,7 +129,7 @@ const StudentDashboard = () => {
                   <span className={styles.goalDeadlineText}>Plazo: {g.deadline}</span>
                 </div>
                 <p className={styles.goalCardDesc}>
-                  Tu docente estableciÃ³ la meta de llegar hasta la <strong>LecciÃ³n Nivel {g.targetLevel}</strong> antes de la fecha lÃ­mite.
+                  Tu docente estableció la meta de llegar hasta la <strong>Lección Nivel {g.targetLevel}</strong> antes de la fecha límite.
                 </p>
               </div>
             ))}
@@ -125,12 +137,12 @@ const StudentDashboard = () => {
         </section>
       )}
 
-      {/* DISPOSICIÃ“N EN REJILLA: CURSOS A LA IZQUIERDA Y CALENDARIO FIJO ABIERTO A LA DERECHA */}
+      {/* DISPOSICIÓN EN REJILLA: CURSOS A LA IZQUIERDA Y CALENDARIO FIJO ABIERTO A LA DERECHA */}
       {activeSectionTab === 'messages' ? (
         <section className={styles.embeddedMessengerApartado}>
           <div className={styles.apartadoHeaderRow}>
             <div className={styles.apartadoHeaderInfo}>
-              <h2>💬 Apartado de Mensajería y Canales de Comunicación</h2>
+              <h2>💬 Mensajería</h2>
               <p>Comunícate en tiempo real con tus compañeros matriculados en tus cursos y consulta a tus docentes.</p>
             </div>
             <button
@@ -148,20 +160,29 @@ const StudentDashboard = () => {
       ) : (
         <div className={styles.mainLayoutSplit}>
         <div className={styles.leftContentCol}>
-          {/* SECCIÃ“N 1: CURSOS Y CLASES MATRICULADAS */}
+          {/* SECCIÓN 1: CURSOS Y CLASES MATRICULADAS */}
           <section className={styles.coursesSection}>
             <div className={styles.sectionHeader}>
               <h2>Mis Cursos Matriculados</h2>
               <span className={styles.sectionSub}>Sesiones semanales, tareas y horarios oficiales</span>
             </div>
 
-            <div className={styles.coursesGrid}>
-              {courses.map((course) => (
+            {enrolledCourses.length === 0 ? (
+                <div className={styles.emptyCoursesWarning}>
+                  <div className={styles.warningIcon}>⚠️</div>
+                  <div className={styles.warningContent}>
+                    <h4>No tienes asignaturas matriculadas</h4>
+                    <p>Para desbloquear y realizar las lecciones prácticas debes estar matriculado en un curso. Solicita a tu docente que te agregue a su lista de clase.</p>
+                  </div>
+                </div>
+              ) : (
+                <div className={styles.coursesGrid}>
+                  {enrolledCourses.map((course) => (
                 <div key={course.id} className={styles.courseCard} style={{ borderTopColor: course.color || 'var(--primary)' }}>
                   <div className={styles.courseCardTop}>
                     <div className={styles.courseMeta}>
                       <span className={styles.courseCodeBadge}>{course.code}</span>
-                      <span className={styles.courseGradeText}>{course.grade}Â° Grado</span>
+                      <span className={styles.courseGradeText}>{course.grade}° Grado</span>
                     </div>
                     <h3 className={styles.courseName}>{course.name}</h3>
                     <p className={styles.courseDesc}>{course.description}</p>
@@ -195,15 +216,16 @@ const StudentDashboard = () => {
                     </button>
                   </div>
                 </div>
-              ))}
-            </div>
+                  ))}
+                </div>
+              )}
           </section>
 
-          {/* SECCIÃ“N 2: RUTAS DE APRENDIZAJE POR LENGUAJE */}
+          {/* SECCIÓN 2: RUTAS DE APRENDIZAJE POR LENGUAJE */}
           <section className={styles.languagesSection}>
             <div className={styles.sectionHeader}>
-              <h2>Rutas de ProgramaciÃ³n Interactivas</h2>
-              <span className={styles.sectionSub}>Completa tus niveles y rinde el examen final de certificaciÃ³n</span>
+              <h2>Rutas de Programación Interactivas</h2>
+              <span className={styles.sectionSub}>Completa tus niveles y rinde el examen final de certificación</span>
             </div>
 
             <div className={styles.cardsGrid}>
@@ -215,7 +237,7 @@ const StudentDashboard = () => {
                   <div
                     key={lang.id}
                     className={styles.languageCard + ' ' + styles[lang.colorClass]}
-                    onClick={() => navigate('/student/language/' + lang.id)}
+                    onClick={() => handleStartRoute(lang.id)}
                   >
                     <div className={styles.cardHeader}>
                       <div className={styles.cardIconBox}>{lang.icon}</div>
@@ -243,10 +265,10 @@ const StudentDashboard = () => {
                       className={styles.btnContinue}
                       onClick={(e) => {
                         e.stopPropagation();
-                        navigate('/student/language/' + lang.id);
+                        handleStartRoute(lang.id);
                       }}
                     >
-                      Continuar Ruta â†’
+                      Continuar Ruta →
                     </button>
                   </div>
                 );
@@ -262,7 +284,7 @@ const StudentDashboard = () => {
             <div className={styles.messengerCardHeader}>
               <div className={styles.messengerHeaderTitle}>
                 <IconChat size={18} color="var(--primary)" />
-                <h4>Mensajería del Curso</h4>
+                <h4>Mensajería</h4>
               </div>
               <span className={styles.chatActiveBadge}>En vivo</span>
             </div>
@@ -274,7 +296,7 @@ const StudentDashboard = () => {
               className={styles.btnOpenCourseMessenger}
               onClick={() => setActiveSectionTab('messages')}
             >
-              {activeSectionTab === 'messages' ? '✓ Estás en Mensajería' : 'Abrir Apartado de Mensajes →'}
+              {activeSectionTab === 'messages' ? '✓ Estás en Mensajería' : 'Abrir Mensajería →'}
             </button>
           </div>
 

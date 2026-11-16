@@ -21,6 +21,8 @@ const CodeEditor = ({ language = 'arduino', initialCode = '', expectedOutput = '
     pinValues: {},
     isSimulatingDelay: false
   });
+  const [isSimulatingLoop, setIsSimulatingLoop] = useState(false);
+  const stopSimulationRef = useRef(false);
 
   const textareaRef = useRef(null);
 
@@ -137,29 +139,18 @@ const CodeEditor = ({ language = 'arduino', initialCode = '', expectedOutput = '
     return errors;
   };
 
-  // SIMULADOR ARDUINO CON EJECUCIÓN TEMPORIZADA DE DELAY(MS)
-  const simulateArduinoWithDelay = async (src) => {
-    const errors = validateArduinoStrict(src);
-    if (errors.length > 0) {
-      return {
-        success: false,
-        output: errors.join('\n')
-      };
-    }
+  // SIMULADOR ARDUINO CON EJECUCIÓN CONTINUA DE VOID LOOP()
+  const startArduinoContinuousSimulation = async (src, initialOutput = '') => {
+    stopSimulationRef.current = false;
+    setIsSimulatingLoop(true);
+    setIsRunning(false);
 
-    const logs = [];
-    logs.push('[Compilador AVR-GCC] Compilado sin errores.');
-    logs.push('[Arduino Hardware] Cargando binario a memoria flash...');
-
-    // Detectar pin configurado
     let activePin = 13;
     const pmMatch = src.match(/pinMode\s*\(\s*(\w+)\s*,\s*OUTPUT\s*\)/);
     if (pmMatch && !isNaN(pmMatch[1])) {
       activePin = parseInt(pmMatch[1], 10);
-      logs.push(`[GPIO] Pin ${activePin} configurado como OUTPUT.`);
     }
 
-    // Parsear delays
     const delayMatches = src.match(/delay\s*\(\s*([0-9]+)\s*\)/g) || [];
     let delayMs = 1000;
     if (delayMatches.length > 0) {
@@ -167,24 +158,49 @@ const CodeEditor = ({ language = 'arduino', initialCode = '', expectedOutput = '
       if (dVal && dVal[1]) delayMs = parseInt(dVal[1], 10);
     }
 
-    // Simular secuencia de parpadeo con retardo real
-    setArduinoState(prev => ({ ...prev, activePin, ledOn: true, isSimulatingDelay: true }));
-    logs.push(`[Circuito] Pin ${activePin} -> HIGH (LED Encendido)`);
-    logs.push(`[Temporizador] delay(${delayMs}ms) en ejecución...`);
-    setOutput(logs.join('\n'));
+    const waitTime = Math.min(1800, Math.max(400, delayMs));
 
-    // Espera real proporcional al delay (acotada entre 500ms y 2500ms para UX fluida)
-    const waitTime = Math.min(2500, Math.max(500, delayMs));
-    await new Promise(res => setTimeout(res, waitTime));
+    let headerMsg = initialOutput ? `${initialOutput}\n\n` : '';
+    headerMsg += `⚡ [Arduino Hardware] Hardware encendido. Ejecutando ciclo infinito 'void loop()'...\n(Presiona "Detener Simulación" para apagar el microcontrolador y pausar el circuito)\n`;
+    setOutput(headerMsg);
+
+    let cycle = 0;
+    while (!stopSimulationRef.current) {
+      cycle++;
+      // Estado HIGH
+      setArduinoState(prev => ({ ...prev, activePin, ledOn: true, isSimulatingDelay: true }));
+      await new Promise(r => setTimeout(r, waitTime));
+      if (stopSimulationRef.current) break;
+
+      // Estado LOW
+      setArduinoState(prev => ({ ...prev, ledOn: false, isSimulatingDelay: false }));
+      await new Promise(r => setTimeout(r, waitTime));
+      if (stopSimulationRef.current) break;
+
+      // Actualizar registro en terminal sin saturar
+      if (cycle % 2 === 0) {
+        setOutput(prev => {
+          const lines = prev.split('\n');
+          if (lines.length > 20) lines.splice(5, lines.length - 15);
+          return `${lines.join('\n')}\n[loop] Ciclo #${cycle} ejecutado en Pin ${activePin} (HIGH -> LOW)`;
+        });
+      }
+    }
 
     setArduinoState(prev => ({ ...prev, ledOn: false, isSimulatingDelay: false }));
-    logs.push(`[Circuito] Pin ${activePin} -> LOW (LED Apagado)`);
-    logs.push(`[OK] Ciclo de simulación Arduino completado con éxito.`);
+    setIsSimulatingLoop(false);
+    setIsRunning(false);
+    setOutput(prev => `${prev}\n\n⏹️ [Simulación Detenida] Se ha apagado el circuito y detenido el ciclo loop().`);
+  };
 
-    return {
-      success: true,
-      output: logs.join('\n')
-    };
+  const handleStopSimulation = () => {
+    stopSimulationRef.current = true;
+    setIsSimulatingLoop(false);
+    setIsRunning(false);
+    setArduinoState(prev => ({ ...prev, ledOn: false, isSimulatingDelay: false }));
+    if (language === 'python') {
+      setOutput(prev => `${prev}\n\n⏹️ [Ejecución Detenida] Proceso de Python cancelado por el usuario.`);
+    }
   };
 
   // RESALTADO DE SINTAXIS AUTOMÁTICO ESTILO VS CODE PARA PYTHON Y ARDUINO C++
@@ -504,6 +520,8 @@ REGLAS:
     setOutput(`[Consola Gemini] Verificando sintaxis y ejecutando código...`);
     setAiGuidance('');
 
+    stopSimulationRef.current = false;
+
     // 1. Intentar verificación y ejecución con Gemini AI como consola
     const aiEngineResult = await executeWithGeminiEngine(code, language);
 
@@ -511,9 +529,9 @@ REGLAS:
       setOutput(aiEngineResult.output);
       setIsSuccess(aiEngineResult.success);
 
-      // Si es Arduino y tuvo éxito, actualizar el circuito simulado
       if (language === 'arduino' && aiEngineResult.success) {
-        simulateArduinoWithDelay(code).catch(() => {});
+        startArduinoContinuousSimulation(code, aiEngineResult.output);
+        return;
       }
 
       setIsRunning(false);
@@ -526,15 +544,19 @@ REGLAS:
 
     // 2. Fallback local si la API está fuera de línea o sin conectividad
     if (language === 'arduino') {
-      const result = await simulateArduinoWithDelay(code);
-      setOutput(result.output);
-      setIsSuccess(result.success);
-      setIsRunning(false);
-      if (!result.success) {
-        callGeminiForGuidance(result.output);
+      const errors = validateArduinoStrict(code);
+      if (errors.length > 0) {
+        setOutput(errors.join('\n'));
+        setIsSuccess(false);
+        setIsRunning(false);
+        callGeminiForGuidance(errors.join('\n'));
+      } else {
+        setIsSuccess(true);
+        startArduinoContinuousSimulation(code, '[Compilador AVR-GCC] Sintaxis verificada correctamente.');
       }
     } else {
       setTimeout(() => {
+        if (stopSimulationRef.current) return;
         const result = simulatePython(code);
         setOutput(result.output);
         setIsSuccess(result.success);
@@ -547,6 +569,9 @@ REGLAS:
   };
 
   const handleReset = () => {
+    stopSimulationRef.current = true;
+    setIsSimulatingLoop(false);
+    setIsRunning(false);
     setCode(initialCode || '');
     setOutput('');
     setIsSuccess(false);
@@ -572,16 +597,27 @@ REGLAS:
           <button type="button" className="vsc-btn secondary" onClick={handleReset} title="Restablecer">
             Restablecer
           </button>
-          <button
-            type="button"
-            className={`vsc-btn run ${isRunning ? 'running' : ''}`}
-            onClick={handleRun}
-            disabled={isRunning}
-            title="Compilar y Simular"
-          >
-            <IconPlay size={14} />
-            <span>{isRunning ? 'Ejecutando...' : 'Ejecutar'}</span>
-          </button>
+          {isSimulatingLoop || isRunning ? (
+            <button
+              type="button"
+              className="vsc-btn stop-btn"
+              onClick={handleStopSimulation}
+              title="Detener y apagar la simulación"
+            >
+              <span className="stop-icon">⏹</span>
+              <span>{language === 'arduino' ? 'Detener Simulación' : 'Detener Ejecución'}</span>
+            </button>
+          ) : (
+            <button
+              type="button"
+              className="vsc-btn run"
+              onClick={handleRun}
+              title={language === 'arduino' ? 'Compilar y Simular Bucle Continuo' : 'Compilar y Ejecutar'}
+            >
+              <IconPlay size={14} />
+              <span>{language === 'arduino' ? 'Iniciar Simulación' : 'Ejecutar'}</span>
+            </button>
+          )}
         </div>
       </div>
 

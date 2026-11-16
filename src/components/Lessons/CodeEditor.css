@@ -395,3 +395,29 @@
 .hl-text {
   color: #D4D4D4; /* Color de texto base nítido */
 }
+
+/* BOTÓN DE DETENER SIMULACIÓN / EJECUCIÓN */
+.vsc-btn.stop-btn {
+  background: #e11d48;
+  color: #ffffff;
+  font-weight: 700;
+  animation: pulseStopBtn 1.8s infinite;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.vsc-btn.stop-btn:hover {
+  background: #be123c;
+  transform: translateY(-1px);
+}
+
+.stop-icon {
+  font-size: 0.9rem;
+}
+
+@keyframes pulseStopBtn {
+  0% { box-shadow: 0 0 0 0 rgba(225, 29, 72, 0.45); }
+  70% { box-shadow: 0 0 0 8px rgba(225, 29, 72, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(225, 29, 72, 0); }
+}
