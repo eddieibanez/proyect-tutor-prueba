@@ -19,10 +19,12 @@ const CalendarWidget = ({
 
   // Si es docente: filtrar cursos donde el docente es el creador/líder (o todos si no tiene filtro específico)
   // Si es estudiante: mostrar los cursos en los que está matriculado
-  const displayCourses = courses.filter(c => {
+  const displayCourses = (courses || []).filter(c => {
     if (userRole === 'teacher' || userRole === 'profesor') {
-      if (userId && c.teacherId) return c.teacherId === userId;
-      return !c.teacherId && (userId === 'teacher-main' || !userId);
+      if (userId) {
+        return c.teacherId === userId || (!c.teacherId && userId === 'teacher-main');
+      }
+      return true;
     }
     // Para estudiantes: si tiene lista de enrolledStudents o grade coincidente
     return true;

@@ -154,7 +154,10 @@ const StudentDashboard = () => {
             </button>
           </div>
           <div className={styles.embeddedMessengerWrapper}>
-            <UnifiedMessenger isEmbedded={true} />
+            <UnifiedMessenger
+              isEmbedded={true}
+              onClose={() => setActiveSectionTab('overview')}
+            />
           </div>
         </section>
       ) : (

@@ -192,8 +192,8 @@ const UnifiedMessenger = ({ onClose, isEmbedded = false }) => {
   };
 
   return (
-    <div className="messenger-modal-overlay" onClick={onClose}>
-      <div className="messenger-modal-card" onClick={e => e.stopPropagation()}>
+    <div className={`messenger-container ${isEmbedded ? 'messenger-embedded-view' : 'messenger-modal-overlay'}`} onClick={!isEmbedded ? onClose : undefined}>
+      <div className={`messenger-modal-card ${isEmbedded ? 'embedded-card' : ''}`} onClick={e => e.stopPropagation()}>
         {/* ENCABEZADO */}
         <div className="messenger-header">
           <div className="header-info">
@@ -207,7 +207,16 @@ const UnifiedMessenger = ({ onClose, isEmbedded = false }) => {
                 : 'Comunícate con docentes y compañeros de tus cursos en tiempo real'}
             </p>
           </div>
-          <button type="button" className="close-btn" onClick={onClose} title="Cerrar mensajería">
+          <button
+            type="button"
+            className="close-btn"
+            onClick={(e) => {
+              e.stopPropagation();
+              if (onClose) onClose();
+            }}
+            title={isEmbedded ? "Volver a Mis Cursos" : "Cerrar mensajería"}
+            aria-label="Cerrar mensajería"
+          >
             <IconClose size={20} />
           </button>
         </div>

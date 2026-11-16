@@ -1,5 +1,5 @@
 /* UnifiedMessenger.css - Diseño Profesional y Original */
-.messenger-modal-overlay {
+.messenger-container.messenger-modal-overlay {
   position: fixed;
   inset: 0;
   background: rgba(10, 15, 29, 0.7);
@@ -10,6 +10,18 @@
   z-index: 10500;
   padding: 16px;
   animation: fadeInModal 0.2s ease-out;
+}
+
+.messenger-container.messenger-embedded-view {
+  position: relative;
+  inset: auto;
+  background: transparent;
+  backdrop-filter: none;
+  display: block;
+  z-index: 1;
+  padding: 0;
+  animation: none;
+  width: 100%;
 }
 
 @keyframes fadeInModal {
@@ -30,6 +42,14 @@
   flex-direction: column;
   overflow: hidden;
   color: var(--text-primary, #f8fafc);
+}
+
+.messenger-modal-card.embedded-card {
+  max-width: 100%;
+  height: 680px;
+  max-height: none;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
 }
 
 [data-theme="light"] .messenger-modal-card {

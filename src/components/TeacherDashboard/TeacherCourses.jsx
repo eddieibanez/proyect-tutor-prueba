@@ -34,8 +34,18 @@ const TeacherCourses = ({ onOpenGoalModal }) => {
   const [showTasksModal, setShowTasksModal] = useState(false);
   const [showStudentSchedule, setShowStudentSchedule] = useState(false);
 
+  // Cursos aislados pertenecientes al docente activo
+  const myCourses = React.useMemo(() => {
+    return courses.filter(c => c.teacherId === user?.id || (!c.teacherId && (user?.id === 'teacher-main' || !user?.id)));
+  }, [courses, user?.id]);
+
+  const activeCourse = myCourses.find(c => c.id === selectedCourseId) || myCourses[0];
+  const enrolledStudents = students.filter(st => (st.enrolledCourses || []).includes(activeCourse?.id) || st.courseId === activeCourse?.id);
+
   React.useEffect(() => {
     if (!selectedCourseId && myCourses.length > 0) {
+      setSelectedCourseId(myCourses[0].id);
+    } else if (selectedCourseId && myCourses.length > 0 && !myCourses.some(c => c.id === selectedCourseId)) {
       setSelectedCourseId(myCourses[0].id);
     }
   }, [myCourses, selectedCourseId]);
@@ -70,11 +80,6 @@ const TeacherCourses = ({ onOpenGoalModal }) => {
     age: 12,
     grade: '6'
   });
-
-  // Cursos aislados pertenecientes al docente activo
-  const myCourses = courses.filter(c => c.teacherId === user?.id || (!c.teacherId && (user?.id === 'teacher-main' || !user?.id)));
-  const activeCourse = myCourses.find(c => c.id === selectedCourseId) || myCourses[0];
-  const enrolledStudents = students.filter(st => (st.enrolledCourses || []).includes(activeCourse?.id) || st.courseId === activeCourse?.id);
 
   // Verificación de colisiones y cruce de horarios entre asignaturas
   const checkScheduleConflict = (days, start, end, excludeCourseId = null) => {

@@ -165,7 +165,16 @@ REGLAS CRÍTICAS PEDAGÓGICAS:
                 <span className="tutor-level-badge">{languageId.toUpperCase()} • Nivel {levelId}</span>
               </div>
             </div>
-            <button type="button" className="tutor-close-btn" onClick={toggleChat} title="Cerrar ventana">
+            <button
+              type="button"
+              className="tutor-close-btn"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsOpen(false);
+              }}
+              title="Cerrar ventana"
+              aria-label="Cerrar ventana del tutor"
+            >
               <IconClose size={16} />
             </button>
           </div>
