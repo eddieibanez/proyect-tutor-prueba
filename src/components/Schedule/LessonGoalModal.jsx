@@ -151,19 +151,17 @@ const LessonGoalModal = ({ isOpen, onClose, courses = [], students = [] }) => {
                 <label className="form-label">Lección Meta Máxima (1 a 15):</label>
                 <span className="goal-level-badge">Nivel {targetLevel}</span>
               </div>
-              <input
-                type="range"
-                min="1"
-                max="15"
+              <select
+                className="goal-select-dropdown"
                 value={targetLevel}
-                onChange={e => setTargetLevel(e.target.value)}
-                className="goal-slider"
-              />
-              <div className="slider-ticks">
-                <span>Nivel 1</span>
-                <span>Nivel 8</span>
-                <span>Nivel 15</span>
-              </div>
+                onChange={e => setTargetLevel(parseInt(e.target.value, 10))}
+              >
+                {Array.from({ length: 15 }, (_, i) => i + 1).map(num => (
+                  <option key={num} value={num}>
+                    Nivel {num}: {num <= 5 ? 'Fundamentos Iniciales' : num <= 10 ? 'Estructuras y Algoritmos' : 'Retos Avanzados y Proyecto'}
+                  </option>
+                ))}
+              </select>
             </div>
 
             {/* Fecha Límite con selector interactivo */}

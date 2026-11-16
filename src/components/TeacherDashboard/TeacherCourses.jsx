@@ -7,7 +7,7 @@ import CourseTasksModal from '../Tasks/CourseTasksModal';
 import StudentScheduleView from '../Schedule/StudentScheduleView';
 
 const TeacherCourses = ({ onOpenGoalModal }) => {
-  const { courses, students, addCourse, deleteCourse, addStudent, deleteStudent, updateCourseSchedule, toggleCourseDateCancellation } = useApp();
+  const { user, courses, students, addCourse, deleteCourse, addStudent, deleteStudent, updateCourseSchedule, toggleCourseDateCancellation, lessonGoals, tasks } = useApp();
   const [showCourseModal, setShowCourseModal] = useState(false);
   const [showStudentModal, setShowStudentModal] = useState(false);
   const [selectedCourseId, setSelectedCourseId] = useState(courses[0]?.id || null);
@@ -23,9 +23,11 @@ const TeacherCourses = ({ onOpenGoalModal }) => {
     scheduleDays: ['1', '3'],
     startTime: '08:00',
     endTime: '09:30',
-    color: '#00838F'
+    color: '#00838F',
+    startDate: new Date().toISOString().split('T')[0]
   });
-  const [createTimePickerField, setCreateTimePickerField] = useState(null); // 'start' | 'end'
+  const [createTimePickerField, setCreateTimePickerField] = useState(null);
+  const [showCreateDatePicker, setShowCreateDatePicker] = useState(false); // 'start' | 'end'
 
   const [newStudent, setNewStudent] = useState({
     name: '',
@@ -162,6 +164,21 @@ const TeacherCourses = ({ onOpenGoalModal }) => {
 
         {/* DETALLE DEL CURSO Y ESTUDIANTES MATRICULADOS */}
         <div className="course-detail-col">
+          {/* CALENDARIO DE CLASES Y HORARIOS DE LOS CURSOS */}
+          <div className="courses-calendar-container-card">
+            <div className="card-calendar-head">
+              <h4>📅 Calendario Académico de Cursos y Horarios</h4>
+              <p>Consulta las sesiones programadas, festivos y fechas asignadas para los estudiantes inscritos.</p>
+            </div>
+            <CalendarWidget
+              courses={courses}
+              userRole="teacher"
+              userId={user?.id}
+              lessonGoals={lessonGoals}
+              tasks={tasks}
+              customTitle="Horario General de Clases Docente"
+            />
+          </div>
           {activeCourse ? (
             <div className="course-detail-card">
               <div className="detail-top-banner">
@@ -324,9 +341,24 @@ const TeacherCourses = ({ onOpenGoalModal }) => {
                 </div>
               </div>
 
+              <div className="form-field">
+                <label>Fecha de Inicio del Curso / Semestre:</label>
+                <div className="date-picker-trigger-wrap">
+                  <button
+                    type="button"
+                    className="date-picker-trigger-btn"
+                    onClick={() => setShowCreateDatePicker(true)}
+                  >
+                    <IconCalendar size={16} />
+                    <span>{newCourse.startDate || 'Seleccionar fecha...'}</span>
+                  </button>
+                  <small className="field-hint">Esta fecha determinará cuándo aparecen las clases en el calendario del estudiante.</small>
+                </div>
+              </div>
+
               <div className="form-row-2">
                 <div className="form-field">
-                  <label>Hora de Inicio:</label>
+                  <label>Hora de Inicio de Clase:</label>
                   <button
                     type="button"
                     className="time-picker-trigger-btn"
@@ -338,7 +370,7 @@ const TeacherCourses = ({ onOpenGoalModal }) => {
                 </div>
 
                 <div className="form-field">
-                  <label>Hora de Finalización:</label>
+                  <label>Hora de Finalización de Clase:</label>
                   <button
                     type="button"
                     className="time-picker-trigger-btn"
@@ -370,6 +402,18 @@ const TeacherCourses = ({ onOpenGoalModal }) => {
       )}
 
       {/* TIME PICKER MODAL INTERACTIVO PARA CREAR CURSO */}
+      {showCreateDatePicker && (
+        <DatePickerModal
+          isOpen={showCreateDatePicker}
+          onClose={() => setShowCreateDatePicker(false)}
+          initialDate={newCourse.startDate}
+          onSelectDate={(selected) => {
+            setNewCourse(prev => ({ ...prev, startDate: selected }));
+            setShowCreateDatePicker(false);
+          }}
+        />
+      )}
+
       {createTimePickerField && (
         <TimePickerModal
           isOpen={!!createTimePickerField}

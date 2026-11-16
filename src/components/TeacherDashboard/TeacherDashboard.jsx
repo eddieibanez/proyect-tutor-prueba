@@ -26,7 +26,7 @@ import './TeacherDashboard.css';
 
 const TeacherDashboard = () => {
   const navigate = useNavigate();
-  const { user, messages, enablePreview, courses, students } = useApp();
+  const { user, messages, enablePreview, courses, students, lessonGoals, tasks } = useApp();
 
   const [searchParams, setSearchParams] = useSearchParams();
   const initialTab = searchParams.get('tab') || 'dashboard';
