@@ -677,6 +677,7 @@ export const AppProvider = ({ children }) => {
     } catch (e) {
       console.warn('Error al crear curso en Supabase:', e);
     }
+    return newCourse;
   };
 
   const deleteCourse = async (courseId) => {

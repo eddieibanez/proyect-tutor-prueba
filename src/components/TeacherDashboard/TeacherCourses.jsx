@@ -5,6 +5,9 @@ import CalendarWidget from '../Schedule/CalendarWidget';
 import CourseScheduleModal from '../Schedule/CourseScheduleModal';
 import CourseTasksModal from '../Tasks/CourseTasksModal';
 import StudentScheduleView from '../Schedule/StudentScheduleView';
+import { DAY_NAMES } from '../../utils/colombianHolidays';
+import { TimePickerModal, DatePickerModal } from '../Schedule/DateTimePicker';
+import { IconClock, IconCalendar } from '../common/Icons';
 
 const TeacherCourses = ({ onOpenGoalModal }) => {
   const { user, courses, students, addCourse, deleteCourse, addStudent, deleteStudent, updateCourseSchedule, toggleCourseDateCancellation, lessonGoals, tasks } = useApp();
@@ -36,7 +39,7 @@ const TeacherCourses = ({ onOpenGoalModal }) => {
     grade: '6'
   });
 
-  const handleCreateCourse = (e) => {
+  const handleCreateCourse = async (e) => {
     e.preventDefault();
     if (!newCourse.name || !newCourse.code) {
       alert('Por favor completa el nombre y código del curso.');
@@ -49,9 +52,9 @@ const TeacherCourses = ({ onOpenGoalModal }) => {
       teacherId: user?.id || 'teacher-main',
       teacherName: user?.nombre || user?.name || 'Profesor Titular'
     };
-    const created = addCourse(courseToCreate);
+    const created = await Promise.resolve(addCourse(courseToCreate));
     setShowCourseModal(false);
-    setSelectedCourseId(created.id);
+    if (created && created.id) setSelectedCourseId(created.id);
     setNewCourse({
       name: '',
       code: '',
