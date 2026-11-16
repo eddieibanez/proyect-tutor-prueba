@@ -436,3 +436,66 @@
 .picker-select-inline:focus {
   border-color: var(--primary, #6366f1);
 }
+
+/* ESTILOS CARD SELECTOR DE FECHA COMPACTO CON DESPLEGABLES */
+.picker-card.date-card {
+  width: 380px;
+  max-width: 95vw;
+}
+
+.picker-header-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.picker-selected-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  background: rgba(0, 188, 212, 0.08);
+  border: 1px solid rgba(0, 188, 212, 0.25);
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-bottom: 14px;
+}
+
+.preview-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  font-weight: 700;
+  color: var(--primary, #00BCD4);
+}
+
+.preview-date-value {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary, #ffffff);
+}
+
+[data-theme="light"] .preview-date-value {
+  color: #0f172a;
+}
+
+.picker-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border, rgba(255, 255, 255, 0.1));
+}
+
+[data-theme="light"] .picker-select-inline {
+  background: #ffffff;
+  color: #0f172a;
+  border-color: #cbd5e1;
+}
+
+[data-theme="light"] .picker-dropdowns-row {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}

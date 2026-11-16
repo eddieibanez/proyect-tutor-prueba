@@ -16,28 +16,7 @@ export const DatePickerModal = ({ isOpen, onClose, onSelectDate, initialDate }) 
   ];
 
   const getDaysInMonth = (y, m) => new Date(y, m + 1, 0).getDate();
-  const getFirstDay = (y, m) => new Date(y, m, 1).getDay();
-
   const totalDays = getDaysInMonth(viewYear, viewMonth);
-  const firstDay = getFirstDay(viewYear, viewMonth);
-  const prevMonthDays = getDaysInMonth(viewYear, viewMonth - 1);
-
-  const prevDays = [];
-  for (let i = firstDay - 1; i >= 0; i--) {
-    prevDays.push(prevMonthDays - i);
-  }
-
-  const currentDays = [];
-  for (let d = 1; d <= totalDays; d++) {
-    currentDays.push(d);
-  }
-
-  const totalSlots = prevDays.length + currentDays.length;
-  const nextDays = [];
-  const remaining = (totalSlots % 7 === 0) ? 0 : 7 - (totalSlots % 7);
-  for (let d = 1; d <= remaining; d++) {
-    nextDays.push(d);
-  }
 
   const handlePrevMonth = () => {
     if (viewMonth === 0) {
@@ -68,7 +47,7 @@ export const DatePickerModal = ({ isOpen, onClose, onSelectDate, initialDate }) 
       <div className="picker-card date-card" onClick={e => e.stopPropagation()}>
         <div className="picker-header-nav">
           <span className="picker-title-label">
-            {monthNames[viewMonth]} {viewYear}
+            📅 Selector de Fecha
           </span>
           <div className="picker-nav-arrows">
             <button type="button" className="arrow-btn" onClick={handlePrevMonth} title="Mes anterior">▲</button>
@@ -76,10 +55,21 @@ export const DatePickerModal = ({ isOpen, onClose, onSelectDate, initialDate }) 
           </div>
         </div>
 
+        <div className="picker-selected-preview">
+          <span className="preview-label">Fecha seleccionada</span>
+          <span className="preview-date-value">
+            {selectedDay} de {monthNames[viewMonth]} de {viewYear}
+          </span>
+        </div>
+
         <div className="picker-dropdowns-row">
           <div className="picker-dropdown-group">
             <label className="picker-dropdown-label">Día:</label>
-            <select className="picker-select-inline" value={selectedDay} onChange={e => setSelectedDay(parseInt(e.target.value, 10))}>
+            <select
+              className="picker-select-inline"
+              value={selectedDay}
+              onChange={e => setSelectedDay(parseInt(e.target.value, 10))}
+            >
               {Array.from({ length: totalDays }, (_, i) => i + 1).map(d => (
                 <option key={d} value={d}>Día {d}</option>
               ))}
@@ -87,12 +77,16 @@ export const DatePickerModal = ({ isOpen, onClose, onSelectDate, initialDate }) 
           </div>
           <div className="picker-dropdown-group">
             <label className="picker-dropdown-label">Mes:</label>
-            <select className="picker-select-inline" value={viewMonth} onChange={e => {
-              const newM = parseInt(e.target.value, 10);
-              setViewMonth(newM);
-              const maxD = getDaysInMonth(viewYear, newM);
-              if (selectedDay > maxD) setSelectedDay(maxD);
-            }}>
+            <select
+              className="picker-select-inline"
+              value={viewMonth}
+              onChange={e => {
+                const newM = parseInt(e.target.value, 10);
+                setViewMonth(newM);
+                const maxD = getDaysInMonth(viewYear, newM);
+                if (selectedDay > maxD) setSelectedDay(maxD);
+              }}
+            >
               {monthNames.map((name, i) => (
                 <option key={i} value={i}>{name}</option>
               ))}
@@ -100,40 +94,16 @@ export const DatePickerModal = ({ isOpen, onClose, onSelectDate, initialDate }) 
           </div>
           <div className="picker-dropdown-group">
             <label className="picker-dropdown-label">Año:</label>
-            <select className="picker-select-inline" value={viewYear} onChange={e => setViewYear(parseInt(e.target.value, 10))}>
+            <select
+              className="picker-select-inline"
+              value={viewYear}
+              onChange={e => setViewYear(parseInt(e.target.value, 10))}
+            >
               {Array.from({ length: 10 }, (_, i) => 2024 + i).map(y => (
                 <option key={y} value={y}>{y}</option>
               ))}
             </select>
           </div>
-        </div>
-
-        <div className="weekdays-strip">
-          {['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sá'].map((w, i) => (
-            <span key={i} className="weekday-header">{w}</span>
-          ))}
-        </div>
-
-        <div className="calendar-grid-cells">
-          {prevDays.map((d, i) => (
-            <span key={`prev-${i}`} className="day-cell outside">{d}</span>
-          ))}
-          {currentDays.map(d => {
-            const isSelected = d === selectedDay;
-            return (
-              <button
-                key={`curr-${d}`}
-                type="button"
-                className={`day-cell-btn ${isSelected ? 'active-day' : ''}`}
-                onClick={() => setSelectedDay(d)}
-              >
-                {d}
-              </button>
-            );
-          })}
-          {nextDays.map((d, i) => (
-            <span key={`next-${i}`} className="day-cell outside">{d}</span>
-          ))}
         </div>
 
         <div className="picker-dialog-actions">
