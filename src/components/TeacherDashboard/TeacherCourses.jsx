@@ -34,12 +34,20 @@ const TeacherCourses = ({ onOpenGoalModal }) => {
   const [showTasksModal, setShowTasksModal] = useState(false);
   const [showStudentSchedule, setShowStudentSchedule] = useState(false);
 
-  // Cursos aislados pertenecientes al docente activo
+  const [courseScopeTab, setCourseScopeTab] = useState('mine'); // 'mine' o 'all'
+
+  // Cursos del docente activo y cursos globales para monitoreo institucional
   const myCourses = React.useMemo(() => {
     return courses.filter(c => c.teacherId === user?.id || (!c.teacherId && (user?.id === 'teacher-main' || !user?.id)));
   }, [courses, user?.id]);
 
-  const activeCourse = myCourses.find(c => c.id === selectedCourseId) || myCourses[0];
+  const otherCourses = React.useMemo(() => {
+    return courses.filter(c => !myCourses.some(m => m.id === c.id));
+  }, [courses, myCourses]);
+
+  const displayedCourses = courseScopeTab === 'mine' ? myCourses : courses;
+  const activeCourse = displayedCourses.find(c => c.id === selectedCourseId) || displayedCourses[0] || myCourses[0];
+  const isMyCourse = activeCourse ? (activeCourse.teacherId === user?.id || (!activeCourse.teacherId && (user?.id === 'teacher-main' || !user?.id))) : false;
   const enrolledStudents = students.filter(st => (st.enrolledCourses || []).includes(activeCourse?.id) || st.courseId === activeCourse?.id);
 
   React.useEffect(() => {
@@ -81,10 +89,12 @@ const TeacherCourses = ({ onOpenGoalModal }) => {
     grade: '6'
   });
 
-  // Verificación de colisiones y cruce de horarios entre asignaturas
-  const checkScheduleConflict = (days, start, end, excludeCourseId = null) => {
-    if (!days || days.length === 0 || !start || !end) return null;
-    const otherCourses = courses.filter(c => c.id !== excludeCourseId);
+  // Verificación de colisiones y cruce de horarios: SOLO entre cursos del MISMO GRADO escolar
+  const checkScheduleConflict = (days, start, end, targetGrade, excludeCourseId = null) => {
+    if (!days || days.length === 0 || !start || !end || !targetGrade) return null;
+    
+    // Grados diferentes (ej. 6° y 8°) NO tienen cruce de horario porque tienen estudiantes distintos
+    const sameGradeCourses = courses.filter(c => c.id !== excludeCourseId && String(c.grade) === String(targetGrade));
 
     const toMinutes = (timeStr) => {
       const [h, m] = (timeStr || '00:00').split(':').map(Number);
@@ -94,7 +104,7 @@ const TeacherCourses = ({ onOpenGoalModal }) => {
     const sM = toMinutes(start);
     const eM = toMinutes(end);
 
-    for (const c of otherCourses) {
+    for (const c of sameGradeCourses) {
       const cDays = c.scheduleDays || [];
       const sharedDay = days.find(d => cDays.includes(d));
       if (sharedDay) {
@@ -105,6 +115,7 @@ const TeacherCourses = ({ onOpenGoalModal }) => {
             conflict: true,
             courseName: c.name,
             courseCode: c.code,
+            grade: c.grade,
             dayName: DAY_NAMES[sharedDay] || `Día ${sharedDay}`,
             timeRange: `${c.startTime || '08:00'} a ${c.endTime || '09:30'}`
           };
@@ -114,8 +125,8 @@ const TeacherCourses = ({ onOpenGoalModal }) => {
     return null;
   };
 
-  const createConflict = checkScheduleConflict(newCourse.scheduleDays, newCourse.startTime, newCourse.endTime);
-  const editConflict = editingCourse ? checkScheduleConflict(editingCourse.scheduleDays, editingCourse.startTime, editingCourse.endTime, editingCourse.id) : null;
+  const createConflict = checkScheduleConflict(newCourse.scheduleDays, newCourse.startTime, newCourse.endTime, newCourse.grade);
+  const editConflict = editingCourse ? checkScheduleConflict(editingCourse.scheduleDays, editingCourse.startTime, editingCourse.endTime, editingCourse.grade, editingCourse.id) : null;
 
   const handleCreateCourse = async (e) => {
     e.preventDefault();
@@ -125,7 +136,7 @@ const TeacherCourses = ({ onOpenGoalModal }) => {
     }
 
     if (createConflict) {
-      alert(`⚠️ Cruce de horarios: Este curso colisiona con "${createConflict.courseName}" (${createConflict.courseCode}) los días ${createConflict.dayName} en el horario ${createConflict.timeRange}. Por favor ajusta los días o la hora.`);
+      alert(`⚠️ Cruce de horarios: Este curso colisiona con "${createConflict.courseName}" (${createConflict.courseCode}) de ${createConflict.grade}° Grado los días ${createConflict.dayName} en el horario ${createConflict.timeRange}. Por favor ajusta los días o la hora.`);
       return;
     }
 
@@ -168,7 +179,7 @@ const TeacherCourses = ({ onOpenGoalModal }) => {
     if (!editingCourse || !editingCourse.name || !editingCourse.code) return;
 
     if (editConflict) {
-      alert(`⚠️ Cruce de horarios: Este horario colisiona con "${editConflict.courseName}" (${editConflict.courseCode}) los días ${editConflict.dayName} en el horario ${editConflict.timeRange}. Modifica la hora o los días para evitar cruces.`);
+      alert(`⚠️ Cruce de horarios: Este horario colisiona con "${editConflict.courseName}" (${editConflict.courseCode}) de ${editConflict.grade}° Grado los días ${editConflict.dayName} en el horario ${editConflict.timeRange}. Modifica la hora o los días para evitar cruces.`);
       return;
     }
 
@@ -249,15 +260,33 @@ const TeacherCourses = ({ onOpenGoalModal }) => {
       <div className="courses-grid-layout">
         {/* LISTA DE CURSOS A LA IZQUIERDA */}
         <div className="courses-list-col">
-          <div className="col-head-row">
-            <h3>Asignaturas Activas ({myCourses.length})</h3>
+          <div className="course-scope-toggle-tabs">
+            <button
+              type="button"
+              className={`scope-tab-btn ${courseScopeTab === 'mine' ? 'active' : ''}`}
+              onClick={() => setCourseScopeTab('mine')}
+            >
+              📘 Mis Cursos ({myCourses.length})
+            </button>
+            <button
+              type="button"
+              className={`scope-tab-btn ${courseScopeTab === 'all' ? 'active' : ''}`}
+              onClick={() => setCourseScopeTab('all')}
+            >
+              🌐 Todos los Cursos ({courses.length})
+            </button>
           </div>
 
           <div className="courses-cards-stack">
-            {myCourses.length === 0 ? (
-              <p className="empty-notice">No tienes asignaturas creadas en tu entorno. Presiona "+ Crear Nuevo Curso" arriba para comenzar.</p>
+            {displayedCourses.length === 0 ? (
+              <p className="empty-notice">
+                {courseScopeTab === 'mine' 
+                  ? 'No tienes asignaturas creadas en tu entorno. Presiona "+ Crear Nuevo Curso" arriba para comenzar.'
+                  : 'Aún no hay cursos creados en la plataforma.'}
+              </p>
             ) : (
-              myCourses.map(course => {
+              displayedCourses.map(course => {
+                const isMine = course.teacherId === user?.id || (!course.teacherId && (user?.id === 'teacher-main' || !user?.id));
                 const count = students.filter(s => (s.enrolledCourses || []).includes(course.id) || s.courseId === course.id).length;
                 const isSelected = activeCourse?.id === course.id;
 
@@ -269,33 +298,42 @@ const TeacherCourses = ({ onOpenGoalModal }) => {
                     style={{ borderLeftColor: course.color || '#00BCD4' }}
                   >
                     <div className="card-top-actions">
-                      <span className="course-code-tag" style={{ color: course.color }}>
-                        {course.code}
-                      </span>
-                      <div className="card-action-mini-btns">
-                        <button
-                          type="button"
-                          className="btn-mini-edit"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleStartEditCourse(course);
-                          }}
-                          title="Editar asignatura y horario"
-                        >
-                          ✏️
-                        </button>
-                        <button
-                          type="button"
-                          className="btn-delete-course"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteCourse(course.id, course.name);
-                          }}
-                          title="Eliminar este curso"
-                        >
-                          🗑️
-                        </button>
+                      <div className="card-tag-group">
+                        <span className="course-code-tag" style={{ color: course.color }}>
+                          {course.code}
+                        </span>
+                        {!isMine && (
+                          <span className="course-owner-badge" title="Asignatura de colega docente">
+                            👤 {course.teacherName || 'Colega'}
+                          </span>
+                        )}
                       </div>
+                      {isMine && (
+                        <div className="card-action-mini-btns">
+                          <button
+                            type="button"
+                            className="btn-mini-edit"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleStartEditCourse(course);
+                            }}
+                            title="Editar asignatura y horario"
+                          >
+                            ✏️
+                          </button>
+                          <button
+                            type="button"
+                            className="btn-delete-course"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteCourse(course.id, course.name);
+                            }}
+                            title="Eliminar este curso"
+                          >
+                            🗑️
+                          </button>
+                        </div>
+                      )}
                     </div>
 
                     <h4 className="course-title">{course.name}</h4>
@@ -317,7 +355,7 @@ const TeacherCourses = ({ onOpenGoalModal }) => {
               <p>Consulta las sesiones programadas, festivos y fechas asignadas para los estudiantes inscritos.</p>
             </div>
             <CalendarWidget
-              courses={myCourses}
+              courses={courses}
               userRole="teacher"
               userId={user?.id}
               lessonGoals={lessonGoals}
@@ -328,11 +366,19 @@ const TeacherCourses = ({ onOpenGoalModal }) => {
 
           {activeCourse ? (
             <div className="course-detail-card">
+              {!isMyCourse && (
+                <div className="colleague-course-notice-banner">
+                  <span>👁️ <strong>Modo Monitoreo Institucional:</strong> Asignatura creada y a cargo de <strong>{activeCourse.teacherName || 'Docente Colega'}</strong>.</span>
+                </div>
+              )}
               <div className="detail-top-banner">
                 <div>
                   <div className="banner-pills-row">
                     <span className="badge-grade">{activeCourse.grade}° Grado</span>
                     <span className="badge-code">Código: {activeCourse.code}</span>
+                    {activeCourse.teacherName && (
+                      <span className="badge-teacher">Docente: {activeCourse.teacherName}</span>
+                    )}
                   </div>
                   <h3>{activeCourse.name}</h3>
                   <p>{activeCourse.description || 'Sin descripción adicional.'}</p>
@@ -477,12 +523,12 @@ const TeacherCourses = ({ onOpenGoalModal }) => {
                 <label>Días de Clase Semanal:</label>
                 <div className="days-picker-row">
                   {[
-                    { id: '1', name: 'Lun' },
-                    { id: '2', name: 'Mar' },
-                    { id: '3', name: 'Mié' },
-                    { id: '4', name: 'Jue' },
-                    { id: '5', name: 'Vie' },
-                    { id: '6', name: 'Sáb' }
+                    { id: '1', name: 'Lun', full: 'Lunes' },
+                    { id: '2', name: 'Mar', full: 'Martes' },
+                    { id: '3', name: 'Mié', full: 'Miércoles' },
+                    { id: '4', name: 'Jue', full: 'Jueves' },
+                    { id: '5', name: 'Vie', full: 'Viernes' },
+                    { id: '6', name: 'Sáb', full: 'Sábado' }
                   ].map(day => {
                     const isSelected = newCourse.scheduleDays.includes(day.id);
                     return (
@@ -497,11 +543,22 @@ const TeacherCourses = ({ onOpenGoalModal }) => {
                             : [...newCourse.scheduleDays, day.id];
                           setNewCourse({ ...newCourse, scheduleDays: next });
                         }}
+                        title={day.full}
                       >
-                        {day.name}
+                        {isSelected && <span className="day-check-badge">✓</span>}
+                        <span>{day.name}</span>
                       </button>
                     );
                   })}
+                </div>
+                <div className="selected-days-summary">
+                  {newCourse.scheduleDays.length > 0 ? (
+                    <span>
+                      📅 <strong>Días seleccionados:</strong> {newCourse.scheduleDays.map(d => DAY_NAMES[d]).join(', ')} ({newCourse.scheduleDays.length} {newCourse.scheduleDays.length === 1 ? 'sesión' : 'sesiones'}/semana)
+                    </span>
+                  ) : (
+                    <span className="no-days-warning">⚠️ Selecciona al menos un día de clase</span>
+                  )}
                 </div>
               </div>
 
@@ -603,12 +660,12 @@ const TeacherCourses = ({ onOpenGoalModal }) => {
                 <label>Días de Clase Semanal:</label>
                 <div className="days-picker-row">
                   {[
-                    { id: '1', name: 'Lun' },
-                    { id: '2', name: 'Mar' },
-                    { id: '3', name: 'Mié' },
-                    { id: '4', name: 'Jue' },
-                    { id: '5', name: 'Vie' },
-                    { id: '6', name: 'Sáb' }
+                    { id: '1', name: 'Lun', full: 'Lunes' },
+                    { id: '2', name: 'Mar', full: 'Martes' },
+                    { id: '3', name: 'Mié', full: 'Miércoles' },
+                    { id: '4', name: 'Jue', full: 'Jueves' },
+                    { id: '5', name: 'Vie', full: 'Viernes' },
+                    { id: '6', name: 'Sáb', full: 'Sábado' }
                   ].map(day => {
                     const isSelected = (editingCourse.scheduleDays || []).includes(day.id);
                     return (
@@ -622,11 +679,22 @@ const TeacherCourses = ({ onOpenGoalModal }) => {
                           const next = exists ? current.filter(d => d !== day.id) : [...current, day.id];
                           setEditingCourse({ ...editingCourse, scheduleDays: next });
                         }}
+                        title={day.full}
                       >
-                        {day.name}
+                        {isSelected && <span className="day-check-badge">✓</span>}
+                        <span>{day.name}</span>
                       </button>
                     );
                   })}
+                </div>
+                <div className="selected-days-summary">
+                  {(editingCourse.scheduleDays || []).length > 0 ? (
+                    <span>
+                      📅 <strong>Días seleccionados:</strong> {(editingCourse.scheduleDays || []).map(d => DAY_NAMES[d]).join(', ')} ({(editingCourse.scheduleDays || []).length} {editingCourse.scheduleDays.length === 1 ? 'sesión' : 'sesiones'}/semana)
+                    </span>
+                  ) : (
+                    <span className="no-days-warning">⚠️ Selecciona al menos un día de clase</span>
+                  )}
                 </div>
               </div>
 

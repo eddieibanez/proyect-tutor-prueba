@@ -584,26 +584,164 @@
 
 .days-picker-row {
   display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
+.day-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  border: 1.5px solid var(--border-color, rgba(255, 255, 255, 0.18));
+  background: var(--bg-surface, rgba(255, 255, 255, 0.05));
+  color: var(--text-secondary, #94a3b8);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+}
+
+[data-theme="light"] .day-toggle-btn {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #475569;
+}
+
+.day-toggle-btn:hover {
+  transform: translateY(-1px);
+  border-color: var(--primary, #00BCD4);
+  color: var(--text-primary, #ffffff);
+}
+
+.day-toggle-btn.active {
+  background: linear-gradient(135deg, #00BCD4 0%, #7C4DFF 100%) !important;
+  color: #ffffff !important;
+  border-color: transparent !important;
+  box-shadow: 0 4px 14px rgba(0, 188, 212, 0.45);
+  transform: translateY(-1px);
+}
+
+.day-check-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  font-size: 0.72rem;
+  font-weight: 900;
+}
+
+.selected-days-summary {
+  margin-top: 8px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  background: rgba(0, 188, 212, 0.08);
+  border: 1px solid rgba(0, 188, 212, 0.2);
+  font-size: 0.82rem;
+  color: var(--primary, #00BCD4);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+[data-theme="light"] .selected-days-summary {
+  background: #e0f7fa;
+  border-color: #b2ebf2;
+  color: #00838f;
+}
+
+.selected-days-summary .no-days-warning {
+  color: #f59e0b;
+}
+
+/* PESTAÑAS PARA ÁMBITO DE CURSOS (MIS CURSOS VS TODOS) */
+.course-scope-toggle-tabs {
+  display: flex;
+  gap: 8px;
+  background: var(--bg-surface, rgba(255, 255, 255, 0.04));
+  padding: 6px;
+  border-radius: 12px;
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
+  margin-bottom: 14px;
+}
+
+[data-theme="light"] .course-scope-toggle-tabs {
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+}
+
+.scope-tab-btn {
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary, #94a3b8);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.scope-tab-btn:hover {
+  color: var(--text-primary, #ffffff);
+}
+
+.scope-tab-btn.active {
+  background: var(--primary, #00BCD4);
+  color: #0f172a !important;
+  box-shadow: 0 4px 12px rgba(0, 188, 212, 0.35);
+}
+
+.card-tag-group {
+  display: flex;
+  align-items: center;
   gap: 6px;
   flex-wrap: wrap;
 }
 
-.btn-day-pill {
-  padding: 6px 14px;
-  border-radius: 8px;
-  font-size: 0.8rem;
-  font-weight: 700;
-  border: 1px solid var(--border, #dde3ea);
-  background: var(--cards, #ffffff);
-  color: var(--text-secondary, #64748b);
-  cursor: pointer;
-  transition: all 0.15s ease;
+.course-owner-badge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: rgba(124, 77, 255, 0.15);
+  border: 1px solid rgba(124, 77, 255, 0.3);
+  color: #b388ff;
 }
 
-.btn-day-pill.active {
-  background: var(--primary, #0097a7);
-  color: #ffffff;
-  border-color: var(--primary, #0097a7);
+.colleague-course-notice-banner {
+  background: linear-gradient(135deg, rgba(124, 77, 255, 0.12), rgba(0, 188, 212, 0.08));
+  border: 1px solid rgba(124, 77, 255, 0.3);
+  border-radius: 10px;
+  padding: 10px 16px;
+  margin-bottom: 16px;
+  font-size: 0.85rem;
+  color: var(--text-primary, #f8fafc);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.badge-teacher {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(0, 188, 212, 0.15);
+  border: 1px solid rgba(0, 188, 212, 0.3);
+  color: #00e5ff;
 }
 
 .modal-footer-actions {

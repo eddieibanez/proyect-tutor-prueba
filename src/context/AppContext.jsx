@@ -102,11 +102,44 @@ export const AppProvider = ({ children }) => {
         .order('created_at', { ascending: true });
 
       if (!coursesError && coursesData) {
-        setCourses(coursesData);
-        localStorage.setItem('codecraft_courses', JSON.stringify(coursesData));
+        const mappedCourses = coursesData.map(c => ({
+          ...c,
+          teacherId: c.teacher_id || c.teacherId,
+          teacherName: c.teacher_name || c.teacherName,
+          scheduleDays: c.schedule_days || c.scheduleDays || [],
+          startTime: c.start_time || c.startTime || '08:00',
+          endTime: c.end_time || c.endTime || '09:30',
+          startDate: c.start_date || c.startDate || new Date().toISOString().split('T')[0]
+        }));
+        setCourses(mappedCourses);
+        localStorage.setItem('codecraft_courses', JSON.stringify(mappedCourses));
       } else {
         const localCourses = localStorage.getItem('codecraft_courses');
         if (localCourses) setCourses(JSON.parse(localCourses));
+      }
+
+      // b. Docentes registrados en la plataforma
+      const { data: teachersData } = await supabase
+        .from('profiles')
+        .select('id, role, name, last_name, email, last_active')
+        .eq('role', 'profesor');
+
+      if (teachersData && teachersData.length > 0) {
+        const formattedTeachers = teachersData.map(t => ({
+          id: t.id,
+          name: t.name || 'Docente',
+          nombre: t.name || 'Docente',
+          lastName: t.last_name || '',
+          apellido: t.last_name || '',
+          email: t.email,
+          role: 'profesor',
+          lastActive: t.last_active
+        }));
+        setTeachers(formattedTeachers);
+        localStorage.setItem('codecraft_teachers', JSON.stringify(formattedTeachers));
+      } else {
+        const localTeachers = localStorage.getItem('codecraft_teachers');
+        if (localTeachers) setTeachers(JSON.parse(localTeachers));
       }
 
       // b. Estudiantes / Perfiles con progreso y cursos
@@ -169,15 +202,27 @@ export const AppProvider = ({ children }) => {
         if (localStudents) setStudents(JSON.parse(localStudents));
       }
 
-      // c. Mensajes
+      // d. Mensajes
       const { data: messagesData } = await supabase
         .from('messages')
         .select('*')
         .order('created_at', { ascending: true });
 
       if (messagesData) {
-        setMessages(messagesData);
-        localStorage.setItem('codecraft_messages', JSON.stringify(messagesData));
+        const formattedMessages = messagesData.map(m => ({
+          ...m,
+          studentId: m.student_id || m.studentId,
+          studentName: m.student_name || m.studentName,
+          senderId: m.sender_id || m.senderId,
+          receiverId: m.receiver_id || m.receiverId,
+          senderRole: m.sender_role || m.senderRole,
+          receiverRole: m.receiver_role || m.receiverRole
+        }));
+        setMessages(formattedMessages);
+        localStorage.setItem('codecraft_messages', JSON.stringify(formattedMessages));
+      } else {
+        const localMsgs = localStorage.getItem('codecraft_messages');
+        if (localMsgs) setMessages(JSON.parse(localMsgs));
       }
 
       // d. Contenido personalizado
@@ -414,6 +459,23 @@ export const AppProvider = ({ children }) => {
             time_spent: 0
           });
         }
+      }
+
+      if (newUserData.role === 'profesor') {
+        const newTeacherObj = {
+          id: userId,
+          name: newUserData.name,
+          nombre: newUserData.name,
+          lastName: newUserData.lastName || '',
+          apellido: newUserData.lastName || '',
+          email: emailClean,
+          role: 'profesor'
+        };
+        setTeachers(prev => {
+          const up = [...prev.filter(t => t.id !== userId), newTeacherObj];
+          localStorage.setItem('codecraft_teachers', JSON.stringify(up));
+          return up;
+        });
       }
 
       const fullUser = {
@@ -673,7 +735,13 @@ export const AppProvider = ({ children }) => {
         grade: String(newCourse.grade),
         description: newCourse.description || '',
         schedule: newCourse.schedule || '',
-        color: newCourse.color || '#00BCD4'
+        color: newCourse.color || '#00BCD4',
+        teacher_id: newCourse.teacherId || null,
+        teacher_name: newCourse.teacherName || null,
+        schedule_days: newCourse.scheduleDays || [],
+        start_time: newCourse.startTime || '08:00',
+        end_time: newCourse.endTime || '09:30',
+        start_date: newCourse.startDate || null
       });
     } catch (e) {
       console.warn('Error al crear curso en Supabase:', e);
@@ -705,7 +773,13 @@ export const AppProvider = ({ children }) => {
         grade: updatedFields.grade ? String(updatedFields.grade) : undefined,
         description: updatedFields.description,
         schedule: updatedFields.schedule,
-        color: updatedFields.color
+        color: updatedFields.color,
+        teacher_id: updatedFields.teacherId,
+        teacher_name: updatedFields.teacherName,
+        schedule_days: updatedFields.scheduleDays,
+        start_time: updatedFields.startTime,
+        end_time: updatedFields.endTime,
+        start_date: updatedFields.startDate
       }).eq('id', courseId);
     } catch (e) {
       console.warn('Error al actualizar curso en Supabase:', e);
@@ -836,12 +910,16 @@ export const AppProvider = ({ children }) => {
     try {
       await supabase.from('messages').insert({
         id: newMsg.id,
-        student_id: newMsg.studentId,
-        student_name: newMsg.studentName,
+        student_id: newMsg.studentId || newMsg.student_id || null,
+        student_name: newMsg.studentName || newMsg.student_name || null,
         sender: newMsg.sender,
         text: newMsg.text,
         time: newMsg.time,
-        read: newMsg.read || false
+        read: newMsg.read || false,
+        sender_id: newMsg.senderId || newMsg.sender_id || null,
+        receiver_id: newMsg.receiverId || newMsg.receiver_id || null,
+        sender_role: newMsg.senderRole || null,
+        receiver_role: newMsg.receiverRole || null
       });
     } catch (e) {
       console.warn('Error al enviar mensaje en Supabase:', e);
@@ -1011,6 +1089,8 @@ export const AppProvider = ({ children }) => {
       togglePreviewUnlockAll,
       courses,
       students,
+      teachers,
+      setTeachers,
       messages,
       customContent,
       settings,

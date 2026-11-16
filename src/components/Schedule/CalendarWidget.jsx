@@ -17,16 +17,14 @@ const CalendarWidget = ({
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
 
-  // Si es docente: filtrar cursos donde el docente es el creador/líder (o todos si no tiene filtro específico)
-  // Si es estudiante: mostrar los cursos en los que está matriculado
+  // Cursos a desplegar según rol y cursos pasados por props
   const displayCourses = (courses || []).filter(c => {
     if (userRole === 'teacher' || userRole === 'profesor') {
-      if (userId) {
-        return c.teacherId === userId || (!c.teacherId && userId === 'teacher-main');
-      }
       return true;
     }
-    // Para estudiantes: si tiene lista de enrolledStudents o grade coincidente
+    if (enrolledCourseIds && enrolledCourseIds.length > 0) {
+      return enrolledCourseIds.includes(c.id);
+    }
     return true;
   });
 

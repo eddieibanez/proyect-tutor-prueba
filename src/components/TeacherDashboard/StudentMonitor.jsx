@@ -18,13 +18,11 @@ import './StudentMonitor.css';
 const StudentMonitor = () => {
   const { user, students, courses, updateStudentNote } = useApp();
 
-  // Aislamiento por docente: solo asignaturas y alumnos del profesor activo
+  // Monitoreo institucional: Asignaturas propias y de otros docentes
   const myCourses = courses.filter(c => c.teacherId === user?.id || (!c.teacherId && (user?.id === 'teacher-main' || !user?.id)));
   const myCourseIds = myCourses.map(c => c.id);
-  const myStudents = students.filter(st => {
-    const stCourses = st.enrolledCourses || (st.courseId ? [st.courseId] : []);
-    return stCourses.some(id => myCourseIds.includes(id));
-  });
+  const otherCourses = courses.filter(c => !myCourseIds.includes(c.id));
+
   const [selectedCourseId, setSelectedCourseId] = useState('all');
   const [filterGrade, setFilterGrade] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
@@ -33,8 +31,8 @@ const StudentMonitor = () => {
   const [studentNotes, setStudentNotes] = useState({});
   const [saveToast, setSaveToast] = useState('');
 
-  // Filtrado de estudiantes del docente
-  const filteredStudents = myStudents.filter(st => {
+  // Filtrado de estudiantes: permite monitoreo de todos los alumnos registrados en la plataforma
+  const filteredStudents = students.filter(st => {
     const stCourses = st.enrolledCourses || (st.courseId ? [st.courseId] : []);
     const matchCourse = selectedCourseId === 'all' || stCourses.includes(selectedCourseId) || st.courseId === selectedCourseId;
     const matchGrade = filterGrade === 'all' || String(st.grade) === filterGrade;
@@ -43,8 +41,8 @@ const StudentMonitor = () => {
     return matchCourse && matchGrade && matchStatus && matchSearch;
   });
 
-  const currentCourse = myCourses.find(c => c.id === selectedCourseId);
-  const courseName = currentCourse ? currentCourse.name : 'Todos los Cursos';
+  const currentCourse = courses.find(c => c.id === selectedCourseId);
+  const courseName = currentCourse ? currentCourse.name : 'Todos los Alumnos';
 
   const handleSaveNote = (studentId) => {
     const note = studentNotes[studentId];
@@ -181,12 +179,25 @@ const StudentMonitor = () => {
               value={selectedCourseId}
               onChange={e => setSelectedCourseId(e.target.value)}
             >
-              <option value="all">Todos mis Cursos</option>
-              {myCourses.map(c => (
-                <option key={c.id} value={c.id}>
-                  [{c.code}] {c.name} ({c.grade}° Grado)
-                </option>
-              ))}
+              <option value="all">🌐 Todos los Alumnos de la Plataforma ({students.length})</option>
+              {myCourses.length > 0 && (
+                <optgroup label="Mis Asignaturas Asignadas">
+                  {myCourses.map(c => (
+                    <option key={c.id} value={c.id}>
+                      [{c.code}] {c.name} ({c.grade}° Grado) - Mi Asignatura
+                    </option>
+                  ))}
+                </optgroup>
+              )}
+              {otherCourses.length > 0 && (
+                <optgroup label="Asignaturas de Otros Docentes">
+                  {otherCourses.map(c => (
+                    <option key={c.id} value={c.id}>
+                      [{c.code}] {c.name} ({c.grade}° Grado) - {c.teacherName || 'Colega'}
+                    </option>
+                  ))}
+                </optgroup>
+              )}
             </select>
           </div>
 
