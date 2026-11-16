@@ -46,7 +46,7 @@ const TeacherDashboard = () => {
   const [isCalendarDrawerOpen, setIsCalendarDrawerOpen] = useState(false);
   const [isGoalModalOpen, setIsGoalModalOpen] = useState(false);
 
-  // Conteo de mensajes no leÃ­dos
+  // Conteo de mensajes no leídos
   const unreadCount = messages.filter(m => m.sender === 'student' && !m.read).length;
 
   return (
@@ -86,7 +86,7 @@ const TeacherDashboard = () => {
               <IconUsers size={20} />
             </span>
             <div className="ribbon-label">
-              <strong>Monitoreo y AnÃ¡lisis</strong>
+              <strong>Monitoreo y Análisis</strong>
               <small>Rendimiento, alertas y reportes</small>
             </div>
           </button>
@@ -101,7 +101,7 @@ const TeacherDashboard = () => {
             </span>
             <div className="ribbon-label">
               <strong>Personalizar Lecciones</strong>
-              <small>TeorÃ­a, ejemplos y retos</small>
+              <small>Teoría, ejemplos y retos</small>
             </div>
           </button>
 
@@ -115,7 +115,7 @@ const TeacherDashboard = () => {
             </span>
             <div className="ribbon-label">
               <strong>Cursos y Horarios</strong>
-              <small>DÃ­as, semanas y cancelaciones</small>
+              <small>Días, semanas y cancelaciones</small>
             </div>
           </button>
 
@@ -128,8 +128,8 @@ const TeacherDashboard = () => {
               <IconChat size={20} />
             </span>
             <div className="ribbon-label">
-              <strong>MensajerÃ­a y TutorÃ­a</strong>
-              <small>ComunicaciÃ³n con alumnos</small>
+              <strong>Mensajería y Tutoría</strong>
+              <small>Comunicación con alumnos</small>
             </div>
             {unreadCount > 0 && <span className="ribbon-badge">{unreadCount}</span>}
           </button>
@@ -143,15 +143,15 @@ const TeacherDashboard = () => {
               <IconSettings size={20} />
             </span>
             <div className="ribbon-label">
-              <strong>Ajustes y ParÃ¡metros</strong>
-              <small>EvaluaciÃ³n y umbrales</small>
+              <strong>Ajustes y Parámetros</strong>
+              <small>Evaluación y umbrales</small>
             </div>
           </button>
         </nav>
 
         {/* ACCIONES RÃPIDAS EN EL PIE DE LA CINTA LATERAL */}
         <div className="ribbon-footer-actions">
-          {/* BOTÃ“N CALENDARIO DESPLEGABLE */}
+          {/* BOTÓN CALENDARIO DESPLEGABLE */}
           <button
             type="button"
             className="btn-ribbon-action"
@@ -162,15 +162,15 @@ const TeacherDashboard = () => {
             <span>Calendario de Clases</span>
           </button>
 
-          {/* BOTÃ“N ASIGNAR META DE LECCIONES */}
+          {/* BOTÓN ASIGNAR META DE LECCIONES */}
           <button
             type="button"
             className="btn-ribbon-action goal"
             onClick={() => setIsGoalModalOpen(true)}
-            title="Establecer meta y fecha mÃ¡xima para alumnos"
+            title="Establecer meta y fecha máxima para alumnos"
           >
             <IconTarget size={18} />
-            <span>Asignar Meta de LecciÃ³n</span>
+            <span>Asignar Meta de Lección</span>
           </button>
 
           {/* VISTA PREVIA DE ESTUDIANTE */}

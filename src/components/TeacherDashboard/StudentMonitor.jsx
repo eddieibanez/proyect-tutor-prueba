@@ -1,6 +1,18 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { exportStudentPDF, exportGroupPDF } from '../../utils/pdfReportGenerator';
+import {
+  IconUsers,
+  IconSearch,
+  IconFileText,
+  IconChevronDown,
+  IconChevronUp,
+  IconCheck,
+  IconAlertCircle,
+  IconTrendingUp,
+  IconAward,
+  IconDownload
+} from '../common/Icons';
 import './StudentMonitor.css';
 
 const StudentMonitor = () => {
@@ -11,6 +23,7 @@ const StudentMonitor = () => {
   const [search, setSearch] = useState('');
   const [expandedStudentId, setExpandedStudentId] = useState(null);
   const [studentNotes, setStudentNotes] = useState({});
+  const [saveToast, setSaveToast] = useState('');
 
   // Filtrado de estudiantes
   const filteredStudents = students.filter(st => {
@@ -28,242 +41,420 @@ const StudentMonitor = () => {
     const note = studentNotes[studentId];
     if (note !== undefined) {
       updateStudentNote(studentId, note);
-      alert('Nota guardada correctamente.');
+      setSaveToast('Nota pedagógica guardada con éxito');
+      setTimeout(() => setSaveToast(''), 3000);
     }
   };
 
-  const getStatusClass = (status) => {
+  const getStatusBadge = (status) => {
     switch (status) {
-      case 'Excelente': return 'status-excellent';
-      case 'Bueno': return 'status-good';
-      case 'Regular': return 'status-regular';
-      case 'Necesita Apoyo': return 'status-support';
-      default: return 'status-good';
+      case 'Excelente':
+        return { label: 'Excelente', cls: 'status-excellent', icon: '★' };
+      case 'Bueno':
+        return { label: 'Bueno', cls: 'status-good', icon: '●' };
+      case 'Regular':
+        return { label: 'Regular', cls: 'status-regular', icon: '▲' };
+      case 'Necesita Apoyo':
+        return { label: 'Necesita Apoyo', cls: 'status-support', icon: '!' };
+      default:
+        return { label: status || 'Bueno', cls: 'status-good', icon: '●' };
     }
   };
+
+  const getScoreColorClass = (val) => {
+    if (val >= 90) return 'score-excellent';
+    if (val >= 70) return 'score-good';
+    if (val >= 50) return 'score-regular';
+    return 'score-low';
+  };
+
+  // Métricas agregadas
+  const totalCount = filteredStudents.length;
+  const excellentCount = filteredStudents.filter(s => s.status === 'Excelente').length;
+  const supportCount = filteredStudents.filter(s => s.status === 'Necesita Apoyo').length;
+  const avgProgress = totalCount > 0
+    ? Math.round(filteredStudents.reduce((acc, s) => acc + (((s.arduino || 0) + (s.scratch || 0) + (s.python || 0)) / 3), 0) / totalCount)
+    : 0;
 
   return (
     <div className="monitor-container">
-      {/* HEADER CON BOTONES DE EXPORTACIÓN PDF */}
-      <div className="monitor-header-bar">
-        <div>
-          <h2>📊 Monitoreo y Análisis de Rendimiento</h2>
-          <p className="monitor-subtitle">
-            Diagnóstico detallado de estudiantes matriculados, dificultades identificadas y generación de informes oficiales en PDF.
+      {/* NOTIFICACIÓN TOAST ELEGANTE */}
+      {saveToast && (
+        <div className="monitor-toast-alert">
+          <IconCheck size={16} color="#00E676" />
+          <span>{saveToast}</span>
+        </div>
+      )}
+
+      {/* CABECERA PRINCIPAL PROFESIONAL */}
+      <header className="monitor-header-card">
+        <div className="header-info-group">
+          <div className="header-badge-row">
+            <span className="section-pill-tag">Centro de Evaluación</span>
+            <span className="live-status-dot">
+              <span className="dot-pulse"></span>
+              En vivo
+            </span>
+          </div>
+          <h2 className="monitor-main-title">Monitoreo y Análisis de Rendimiento</h2>
+          <p className="monitor-main-subtitle">
+            Supervisa en tiempo real el progreso de cada alumno, detecta dificultades de aprendizaje y genera informes pedagógicos oficiales en PDF.
           </p>
         </div>
-        <div className="export-actions-group">
-          <button 
-            type="button" 
-            className="btn-export-group"
+
+        <div className="header-action-group">
+          <button
+            type="button"
+            className="btn-export-group-pdf"
             onClick={() => exportGroupPDF(filteredStudents, courseName, filterGrade)}
+            title="Descargar informe consolidado del grupo en formato PDF"
           >
-            📄 Descargar Informe Grupal (PDF)
+            <IconDownload size={16} />
+            <span>Descargar Informe Grupal (PDF)</span>
           </button>
         </div>
-      </div>
+      </header>
 
-      {/* FILTROS POR CURSO, GRADO Y BÚSQUEDA */}
-      <div className="monitor-filters-card">
-        <div className="filter-group">
-          <label>Curso / Asignatura:</label>
-          <select value={selectedCourseId} onChange={e => setSelectedCourseId(e.target.value)}>
-            <option value="all">Todos los Cursos</option>
-            {courses.map(c => (
-              <option key={c.id} value={c.id}>
-                [{c.code}] {c.name} ({c.grade}° Grado)
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="filter-group">
-          <label>Filtrar por Grado:</label>
-          <select value={filterGrade} onChange={e => setFilterGrade(e.target.value)}>
-            <option value="all">Todos los Grados</option>
-            {['6', '7', '8', '9', '10', '11'].map(g => (
-              <option key={g} value={g}>{g}° Grado</option>
-            ))}
-          </select>
+      {/* TARJETAS DE MÉTRICAS GLOBALES CON TIPOGRAFÍA PROPORCIONAL */}
+      <section className="monitor-kpi-grid">
+        <div className="kpi-card">
+          <div className="kpi-icon-wrap neutral">
+            <IconUsers size={20} />
+          </div>
+          <div className="kpi-data">
+            <span className="kpi-title">Alumnos Filtrados</span>
+            <span className="kpi-number">{totalCount}</span>
+            <span className="kpi-trend">Matriculados en lista</span>
+          </div>
         </div>
 
-        <div className="filter-group">
-          <label>Estado de Desempeño:</label>
-          <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)}>
-            <option value="all">Todos los Estados</option>
-            <option value="Excelente">Excelente (90-100%)</option>
-            <option value="Bueno">Bueno (70-89%)</option>
-            <option value="Regular">Regular (50-69%)</option>
-            <option value="Necesita Apoyo">Necesita Apoyo (&lt;50%)</option>
-          </select>
+        <div className="kpi-card">
+          <div className="kpi-icon-wrap green">
+            <IconAward size={20} />
+          </div>
+          <div className="kpi-data">
+            <span className="kpi-title">Desempeño Excelente</span>
+            <span className="kpi-number text-green">{excellentCount}</span>
+            <span className="kpi-trend">Rendimiento 90% - 100%</span>
+          </div>
         </div>
 
-        <div className="filter-group search-group">
-          <label>Buscar Alumno:</label>
-          <input
-            type="text"
-            placeholder="Escribe el nombre del estudiante..."
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-          />
+        <div className="kpi-card">
+          <div className="kpi-icon-wrap red">
+            <IconAlertCircle size={20} />
+          </div>
+          <div className="kpi-data">
+            <span className="kpi-title">Casos de Alerta</span>
+            <span className="kpi-number text-red">{supportCount}</span>
+            <span className="kpi-trend">Requieren refuerzo práctico</span>
+          </div>
         </div>
-      </div>
 
-      {/* RESUMEN PRELIMINAR */}
-      <div className="monitor-metrics-row">
-        <div className="metric-box">
-          <span className="metric-label">Alumnos Mostrados</span>
-          <span className="metric-val">{filteredStudents.length}</span>
+        <div className="kpi-card">
+          <div className="kpi-icon-wrap cyan">
+            <IconTrendingUp size={20} />
+          </div>
+          <div className="kpi-data">
+            <span className="kpi-title">Promedio General</span>
+            <span className="kpi-number text-cyan">{avgProgress}%</span>
+            <span className="kpi-trend">Entre los tres lenguajes</span>
+          </div>
         </div>
-        <div className="metric-box green">
-          <span className="metric-label">Destacados (Excelente)</span>
-          <span className="metric-val">{filteredStudents.filter(s => s.status === 'Excelente').length}</span>
-        </div>
-        <div className="metric-box red">
-          <span className="metric-label">Alertas (Necesita Apoyo)</span>
-          <span className="metric-val">{filteredStudents.filter(s => s.status === 'Necesita Apoyo').length}</span>
-        </div>
-      </div>
+      </section>
 
-      {/* TABLA DE ESTUDIANTES */}
-      <div className="students-table-wrapper">
-        <table className="students-table">
-          <thead>
-            <tr>
-              <th>Estudiante</th>
-              <th>Curso Asignado</th>
-              <th>Grado</th>
-              <th>C++ Arduino</th>
-              <th>Scratch</th>
-              <th>Python</th>
-              <th>Estado</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredStudents.length === 0 ? (
+      {/* PANEL DE FILTROS Y BÚSQUEDA */}
+      <section className="monitor-filters-card">
+        <div className="filters-grid">
+          <div className="filter-item">
+            <label className="filter-label">Curso o Asignatura:</label>
+            <select
+              className="filter-select"
+              value={selectedCourseId}
+              onChange={e => setSelectedCourseId(e.target.value)}
+            >
+              <option value="all">Todos los Cursos</option>
+              {courses.map(c => (
+                <option key={c.id} value={c.id}>
+                  [{c.code}] {c.name} ({c.grade}° Grado)
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="filter-item">
+            <label className="filter-label">Grado Académico:</label>
+            <select
+              className="filter-select"
+              value={filterGrade}
+              onChange={e => setFilterGrade(e.target.value)}
+            >
+              <option value="all">Todos los Grados</option>
+              {['6', '7', '8', '9', '10', '11'].map(g => (
+                <option key={g} value={g}>{g}° Grado</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="filter-item">
+            <label className="filter-label">Estado de Rendimiento:</label>
+            <select
+              className="filter-select"
+              value={filterStatus}
+              onChange={e => setFilterStatus(e.target.value)}
+            >
+              <option value="all">Todos los Estados</option>
+              <option value="Excelente">Excelente (90% - 100%)</option>
+              <option value="Bueno">Bueno (70% - 89%)</option>
+              <option value="Regular">Regular (50% - 69%)</option>
+              <option value="Necesita Apoyo">Necesita Apoyo (&lt; 50%)</option>
+            </select>
+          </div>
+
+          <div className="filter-item search-item">
+            <label className="filter-label">Buscar Estudiante:</label>
+            <div className="search-input-box">
+              <IconSearch size={16} className="search-icon" />
+              <input
+                type="text"
+                className="search-input"
+                placeholder="Buscar por nombre o apellido..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+              />
+              {search && (
+                <button
+                  type="button"
+                  className="search-clear-btn"
+                  onClick={() => setSearch('')}
+                  title="Borrar filtro de búsqueda"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* TABLA PRINCIPAL DE SEGUIMIENTO */}
+      <section className="students-table-card">
+        <div className="table-responsive-container">
+          <table className="students-modern-table">
+            <thead>
               <tr>
-                <td colSpan="8" className="empty-row">No se encontraron estudiantes para los filtros seleccionados.</td>
+                <th className="th-student">Estudiante</th>
+                <th className="th-course">Curso</th>
+                <th className="th-grade">Grado</th>
+                <th className="th-lang">C++ Arduino</th>
+                <th className="th-lang">Scratch</th>
+                <th className="th-lang">Python 3</th>
+                <th className="th-status">Estado</th>
+                <th className="th-actions">Acciones</th>
               </tr>
-            ) : (
-              filteredStudents.map(student => {
-                const ard = student.arduino ?? 0;
-                const scr = student.scratch ?? 0;
-                const pyt = student.python ?? 0;
-                const isExpanded = expandedStudentId === student.id;
-                const assignedCourse = courses.find(c => c.id === student.courseId);
+            </thead>
+            <tbody>
+              {filteredStudents.length === 0 ? (
+                <tr>
+                  <td colSpan="8" className="table-empty-message">
+                    <div className="empty-content">
+                      <IconSearch size={28} />
+                      <h4>No se encontraron alumnos con los criterios seleccionados</h4>
+                      <p>Intenta ajustar los filtros de curso, grado o término de búsqueda.</p>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                filteredStudents.map(student => {
+                  const ard = student.arduino ?? 0;
+                  const scr = student.scratch ?? 0;
+                  const pyt = student.python ?? 0;
+                  const isExpanded = expandedStudentId === student.id;
+                  const assignedCourse = courses.find(c => c.id === student.courseId);
+                  const statusInfo = getStatusBadge(student.status);
 
-                return (
-                  <React.Fragment key={student.id}>
-                    <tr className={`student-row ${isExpanded ? 'row-expanded' : ''}`}>
-                      <td className="student-name-cell">
-                        <strong>{student.name} {student.lastName || ''}</strong>
-                        <span className="student-sub">Última act: {student.lastActive || 'Reciente'}</span>
-                      </td>
-                      <td>
-                        <span className="course-tag">{assignedCourse ? assignedCourse.code : 'Sin Curso'}</span>
-                      </td>
-                      <td>{student.grade}°</td>
-                      <td>
-                        <div className="score-badge arduino">{ard}%</div>
-                      </td>
-                      <td>
-                        <div className="score-badge scratch">{scr}%</div>
-                      </td>
-                      <td>
-                        <div className="score-badge python">{pyt}%</div>
-                      </td>
-                      <td>
-                        <span className={`status-pill ${getStatusClass(student.status)}`}>
-                          {student.status || 'Bueno'}
-                        </span>
-                      </td>
-                      <td className="actions-cell">
-                        <button
-                          type="button"
-                          className="btn-inspect"
-                          onClick={() => setExpandedStudentId(isExpanded ? null : student.id)}
-                          title="Ver análisis pedagógico y aspectos a mejorar"
-                        >
-                          {isExpanded ? '▲ Ocultar' : '▼ Análisis'}
-                        </button>
-                        <button
-                          type="button"
-                          className="btn-pdf-single"
-                          onClick={() => exportStudentPDF(student, assignedCourse?.name)}
-                          title="Descargar informe pedagógico individual en PDF"
-                        >
-                          📄 PDF
-                        </button>
-                      </td>
-                    </tr>
-
-                    {/* VISTA DESPLEGABLE CON DIAGNÓSTICO DETALLADO */}
-                    {isExpanded && (
-                      <tr className="student-details-row">
-                        <td colSpan="8">
-                          <div className="student-details-card">
-                            <div className="details-col">
-                              <h4>🔍 Aspectos que se deben mejorar (Según Análisis):</h4>
-                              <ul className="weaknesses-list">
-                                {ard < 60 && (
-                                  <li>⚠️ <strong>C++ (Arduino):</strong> Dificultad con la declaración de pines, bucle void loop() y temporizadores con delay.</li>
-                                )}
-                                {scr < 60 && (
-                                  <li>⚠️ <strong>Scratch:</strong> Falta afianzar la lógica de repetición y coordinación de mensajes entre objetos.</li>
-                                )}
-                                {pyt < 60 && (
-                                  <li>⚠️ <strong>Python:</strong> Errores frecuentes de indentación, uso de bucles for e interpretación de variables locales.</li>
-                                )}
-                                {ard >= 60 && scr >= 60 && pyt >= 60 && (
-                                  <li className="no-issues">✨ El alumno no presenta dificultades graves. Se sugiere continuar con proyectos avanzados.</li>
-                                )}
-                              </ul>
-
-                              <h4 style={{ marginTop: '1rem' }}>💡 Recomendaciones de Actuación en el Aula:</h4>
-                              <div className="classroom-recommendation">
-                                {student.status === 'Necesita Apoyo'
-                                  ? 'Implementar sesiones de refuerzo práctico guiadas de 15 minutos en el editor de consola interactivo y asignar ejercicios paso a paso.'
-                                  : 'Fomentar la resolución autónoma de retos y permitirle asesorar a compañeros que presentan dudas en la sintaxis.'}
-                              </div>
+                  return (
+                    <React.Fragment key={student.id}>
+                      <tr className={`student-table-row ${isExpanded ? 'row-active-expanded' : ''}`}>
+                        <td className="cell-student-info">
+                          <div className="student-profile-flex">
+                            <div className="student-avatar-badge">
+                              {student.name.charAt(0)}
                             </div>
-
-                            <div className="details-col notes-col">
-                              <h4>📝 Notas de Seguimiento del Profesor:</h4>
-                              <textarea
-                                rows="3"
-                                placeholder="Escribe observaciones pedagógicas para este alumno..."
-                                defaultValue={student.notes || ''}
-                                onChange={e => setStudentNotes({ ...studentNotes, [student.id]: e.target.value })}
-                              />
-                              <div className="notes-actions">
-                                <button
-                                  type="button"
-                                  className="btn-save-note"
-                                  onClick={() => handleSaveNote(student.id)}
-                                >
-                                  💾 Guardar Nota
-                                </button>
-                                <button
-                                  type="button"
-                                  className="btn-download-pdf-inside"
-                                  onClick={() => exportStudentPDF(student, assignedCourse?.name)}
-                                >
-                                  📥 Descargar Informe Individual (PDF)
-                                </button>
-                              </div>
+                            <div className="student-text-group">
+                              <span className="student-full-name">{student.name} {student.lastName || ''}</span>
+                              <span className="student-meta-sub">Última act: {student.lastActive || 'Reciente'}</span>
                             </div>
                           </div>
                         </td>
+
+                        <td className="cell-course">
+                          <span className="course-code-badge">
+                            {assignedCourse ? assignedCourse.code : 'Sin Asignar'}
+                          </span>
+                        </td>
+
+                        <td className="cell-grade">
+                          <span className="grade-badge">{student.grade}°</span>
+                        </td>
+
+                        <td className="cell-score">
+                          <div className="progress-badge-wrapper">
+                            <span className={`progress-number ${getScoreColorClass(ard)}`}>{ard}%</span>
+                            <div className="score-progress-bar">
+                              <div className={`score-bar-fill fill-arduino`} style={{ width: `${ard}%` }} />
+                            </div>
+                          </div>
+                        </td>
+
+                        <td className="cell-score">
+                          <div className="progress-badge-wrapper">
+                            <span className={`progress-number ${getScoreColorClass(scr)}`}>{scr}%</span>
+                            <div className="score-progress-bar">
+                              <div className={`score-bar-fill fill-scratch`} style={{ width: `${scr}%` }} />
+                            </div>
+                          </div>
+                        </td>
+
+                        <td className="cell-score">
+                          <div className="progress-badge-wrapper">
+                            <span className={`progress-number ${getScoreColorClass(pyt)}`}>{pyt}%</span>
+                            <div className="score-progress-bar">
+                              <div className={`score-bar-fill fill-python`} style={{ width: `${pyt}%` }} />
+                            </div>
+                          </div>
+                        </td>
+
+                        <td className="cell-status">
+                          <span className={`status-badge-chip ${statusInfo.cls}`}>
+                            <span className="status-symbol">{statusInfo.icon}</span>
+                            <span>{statusInfo.label}</span>
+                          </span>
+                        </td>
+
+                        <td className="cell-actions">
+                          <div className="table-actions-row">
+                            <button
+                              type="button"
+                              className={`btn-table-action inspect ${isExpanded ? 'active' : ''}`}
+                              onClick={() => setExpandedStudentId(isExpanded ? null : student.id)}
+                              title="Ver diagnóstico pedagógico detallado y dificultades"
+                            >
+                              <span>{isExpanded ? 'Ocultar' : 'Análisis'}</span>
+                              {isExpanded ? <IconChevronUp size={14} /> : <IconChevronDown size={14} />}
+                            </button>
+                            <button
+                              type="button"
+                              className="btn-table-action pdf"
+                              onClick={() => exportStudentPDF(student, assignedCourse?.name)}
+                              title="Descargar informe pedagógico individual en PDF"
+                            >
+                              <IconFileText size={14} />
+                              <span>PDF</span>
+                            </button>
+                          </div>
+                        </td>
                       </tr>
-                    )}
-                  </React.Fragment>
-                );
-              })
-            )}
-          </tbody>
-        </table>
-      </div>
+
+                      {/* VISTA DESPLEGABLE CON DIAGNÓSTICO Y NOTAS PEDAGÓGICAS */}
+                      {isExpanded && (
+                        <tr className="student-details-drawer-row">
+                          <td colSpan="8">
+                            <div className="student-analysis-card">
+                              <div className="analysis-grid-split">
+                                {/* COLUMNA 1: DIFICULTADES Y RECOMENDACIÓN */}
+                                <div className="analysis-col">
+                                  <div className="analysis-card-header">
+                                    <h4>🔍 Diagnóstico Pedagógico y Puntos de Refuerzo</h4>
+                                  </div>
+
+                                  <div className="weaknesses-box">
+                                    <span className="col-subheading">Dificultades detectadas según análisis:</span>
+                                    <ul className="analysis-items-list">
+                                      {ard < 60 && (
+                                        <li className="weakness-item">
+                                          <span className="weakness-tag arduino">C++ Arduino</span>
+                                          <span className="weakness-desc">Dificultad con asignación de pines con pinMode(), bucle void loop() y retardos delay().</span>
+                                        </li>
+                                      )}
+                                      {scr < 60 && (
+                                        <li className="weakness-item">
+                                          <span className="weakness-tag scratch">Scratch</span>
+                                          <span className="weakness-desc">Requiere afianzar la lógica de bucles condicionales y sincronización de mensajes entre personajes.</span>
+                                        </li>
+                                      )}
+                                      {pyt < 60 && (
+                                        <li className="weakness-item">
+                                          <span className="weakness-tag python">Python 3</span>
+                                          <span className="weakness-desc">Errores recurrentes de indentación (sangría), control de flujo con if/elif y alcance de variables.</span>
+                                        </li>
+                                      )}
+                                      {ard >= 60 && scr >= 60 && pyt >= 60 && (
+                                        <li className="weakness-item success-item">
+                                          <span className="success-tag">Sobresaliente</span>
+                                          <span className="weakness-desc">El estudiante supera ampliamente los estándares en todos los lenguajes sin incidencias críticas.</span>
+                                        </li>
+                                      )}
+                                    </ul>
+                                  </div>
+
+                                  <div className="recommendation-box">
+                                    <span className="col-subheading">💡 Pauta de Actuación en Aula:</span>
+                                    <p className="recommendation-text">
+                                      {student.status === 'Necesita Apoyo'
+                                        ? 'Programar sesiones prácticas supervisadas de 15 minutos en el editor con simulación paso a paso y retos de menor complejidad.'
+                                        : 'Incentivar la resolución autónoma de proyectos avanzados y proponerle asesorar a pares que presenten dificultades.'}
+                                    </p>
+                                  </div>
+                                </div>
+
+                                {/* COLUMNA 2: NOTAS DEL PROFESOR Y DESCARGA */}
+                                <div className="analysis-col notes-col">
+                                  <div className="analysis-card-header">
+                                    <h4>📝 Bitácora de Observaciones Docentes</h4>
+                                  </div>
+
+                                  <div className="teacher-notes-editor">
+                                    <label className="notes-label">Anotaciones personales para el seguimiento:</label>
+                                    <textarea
+                                      className="notes-textarea"
+                                      rows="4"
+                                      placeholder="Escribe aquí observaciones sobre la evolución del alumno, compromisos adquiridos o acuerdos con padres..."
+                                      defaultValue={student.notes || ''}
+                                      onChange={e => setStudentNotes({ ...studentNotes, [student.id]: e.target.value })}
+                                    />
+                                    <div className="notes-actions-bar">
+                                      <button
+                                        type="button"
+                                        className="btn-save-note-action"
+                                        onClick={() => handleSaveNote(student.id)}
+                                      >
+                                        <IconCheck size={14} />
+                                        <span>Guardar Nota</span>
+                                      </button>
+                                      <button
+                                        type="button"
+                                        className="btn-download-single-pdf"
+                                        onClick={() => exportStudentPDF(student, assignedCourse?.name)}
+                                      >
+                                        <IconDownload size={14} />
+                                        <span>Descargar Reporte Individual</span>
+                                      </button>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+      </section>
     </div>
   );
 };
