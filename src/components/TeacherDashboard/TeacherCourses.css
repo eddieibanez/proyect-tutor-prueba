@@ -420,50 +420,49 @@
 /* 3. MODAL DE CREACIÓN DE CURSO Y ESTUDIANTE ELEGANTE */
 .course-modal-overlay,
 .modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(15, 23, 42, 0.75);
-  backdrop-filter: blur(6px);
-  z-index: 10600;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1.5rem;
-  animation: fadeInModal 0.2s ease-out;
-}
-
-.legacy-modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(15, 23, 42, 0.65);
-  backdrop-filter: blur(4px);
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1.5rem;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background: rgba(15, 23, 42, 0.75) !important;
+  backdrop-filter: blur(6px) !important;
+  z-index: 10600 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 1.5rem !important;
   animation: fadeInModal 0.2s ease-out;
 }
 
 @keyframes fadeInModal {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
 }
 
 .course-modal-content {
-  background: var(--cards, #ffffff);
-  border: 1px solid var(--border, #dde3ea);
-  border-radius: 18px;
-  width: 100%;
-  max-width: 580px;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-  display: flex;
-  flex-direction: column;
+  background: var(--cards, #ffffff) !important;
+  color: var(--text-primary, #1e293b) !important;
+  border: 1px solid var(--border, #dde3ea) !important;
+  border-radius: 18px !important;
+  width: 100% !important;
+  max-width: 580px !important;
+  max-height: 90vh !important;
+  overflow-y: auto !important;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.35) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  position: relative !important;
+  z-index: 10601 !important;
+}
+
+[data-theme="dark"] .course-modal-content {
+  background: var(--cards, #1a1a2e) !important;
+  color: #f8fafc !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7) !important;
 }
 
 .modal-header-row {
@@ -648,4 +647,60 @@
 .btn-modal-submit:hover {
   transform: translateY(-1px);
   box-shadow: 0 6px 18px rgba(0, 151, 167, 0.35);
+}
+
+/* MODO OSCURO PARA EL MODAL DE CREACIÓN DE CURSOS */
+[data-theme="dark"] .course-modal-content {
+  background: var(--cards, #1a1a2e) !important;
+  color: #f8fafc !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7) !important;
+}
+
+[data-theme="dark"] .modal-header-row {
+  border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+[data-theme="dark"] .modal-header-row h3 {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .form-field label {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .form-field input,
+[data-theme="dark"] .form-field select,
+[data-theme="dark"] .form-field textarea,
+[data-theme="dark"] .date-picker-trigger-btn,
+[data-theme="dark"] .time-picker-trigger-btn {
+  background: var(--input-bg, #151528) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .btn-day-pill {
+  background: #151528 !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .btn-day-pill.active {
+  background: var(--primary, #00bcd4) !important;
+  color: #ffffff !important;
+  border-color: var(--primary, #00bcd4) !important;
+}
+
+[data-theme="dark"] .modal-footer-actions {
+  border-top-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+[data-theme="dark"] .btn-modal-cancel {
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .btn-modal-cancel:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #ffffff !important;
 }

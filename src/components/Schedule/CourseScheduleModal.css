@@ -11,7 +11,8 @@
   padding: 1.5rem;
 }
 
-.schedule-modal-content {
+.schedule-modal-content,
+.schedule-modal-card {
   background: var(--cards, #FFFFFF);
   border: 1px solid var(--border);
   border-radius: 12px;
